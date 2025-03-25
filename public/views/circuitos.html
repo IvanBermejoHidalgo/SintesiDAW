@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ _("Circuitos - Fórmula 1") }}</title>
+    <link href="assets/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 70px; /* Añade espacio para el menú fijo */
+        }
+        .navbar {
+            background: linear-gradient(90deg, #e10600, #b90504);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 5px 0;
+        }
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            height: 30px;
+            margin-right: 8px;
+            filter: brightness(0) invert(1);
+        }
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 8px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #ffc107 !important;
+        }
+        .nav-item:not(.language-dropdown) .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #ffc107;
+            bottom: -5px;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        .nav-item:not(.language-dropdown) .nav-link:hover::after {
+            width: 100%;
+        }
+        h1 {
+            font-family: 'FormulaOne', Arial, sans-serif;
+            font-weight: 900;
+            font-style: normal;
+            color: black;
+            font-size: 32px;
+            line-height: 1.2;
+            letter-spacing: normal;
+            margin-bottom: 1rem;
+        }
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 62px;
+                line-height: 1;
+            }
+        }
+        .decorative-section {
+            position: relative;
+            min-height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .decorative-section2 {
+            position: relative;
+            min-height: 30px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .table {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .table thead {
+            background-color: #e10600;
+            color: white;
+        }
+        .table th, .table td {
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        footer {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+        footer a {
+            color: #ffc107;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: #e10600;
+        }
+        .footer-logo {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+        .footer-section {
+            margin-bottom: 20px;
+        }
+        .footer-section h5 {
+            color: #ffc107;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .footer-section p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        .footer-bottom {
+            background-color: #000;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .footer-bottom p {
+            margin: 0;
+        }
+        .language-dropdown .dropdown-toggle img {
+            width: 32px; /* Aumentar el tamaño de la bandera */
+            height: auto;
+            border: 2px solid white; /* Marco blanco */
+            border-radius: 4px; /* Bordes redondeados */
+            padding: 2px; /* Espacio interno */
+            background-color: white; /* Fondo blanco para mejorar la visibilidad */
+        }
+        /* Centrar vertical y horizontalmente la imagen de la bandera */
+        .language-dropdown .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem; /* Ajustar el padding para que se vea mejor */
+            height: 100%; /* Asegurar que ocupe toda la altura del navbar */
+        }
+        /* Ajustar el margen del dropdown para que no se solape con otros elementos */
+        .language-dropdown .dropdown-menu {
+            min-width: 120px;
+            margin-top: 8px; /* Ajustar el margen superior */
+        }
+        .language-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+        }
+        .language-dropdown .dropdown-item img {
+            width: 20px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/home">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="Fórmula 1 Logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/scuderias">{{ _("Scuderias") }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pilotos">{{ _("Pilotos") }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/circuitos">{{ _("Circuitos") }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">{{ _("Cerrar sesión") }}</a>
+                    </li>
+                    <li class="nav-item language-dropdown">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <!-- Mostrar la bandera del idioma actual -->
+                                <img src="{{ language == 'es' ? 'https://flagcdn.com/es.svg' : 'https://flagcdn.com/gb.svg' }}" alt="Idioma actual">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                                <li>
+                                    <form action="/change-language" method="post">
+                                        <button type="submit" name="language" value="es" class="dropdown-item">
+                                            <img src="https://flagcdn.com/es.svg" alt="Español"> Español
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="/change-language" method="post">
+                                        <button type="submit" name="language" value="en" class="dropdown-item">
+                                            <img src="https://flagcdn.com/gb.svg" alt="English"> English
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="decorative-section"></div>
+    <!-- Mostrar los circuitos -->
+    <div class="container mt-4">
+        <h1 class="mb-4">{{ _("2024 RACE RESULTS") }}</h1>
+        <div class="decorative-section2"></div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>{{ _("Gran Premio") }}</th>
+                    <th>{{ _("Fecha") }}</th>
+                    <th>{{ _("Ganador") }}</th>
+                    <th>{{ _("Coche") }}</th>
+                    <th>{{ _("Vueltas") }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for race in races %}
+                    <tr>
+                        <td>{{ race.grand_prix }}</td>
+                        <td>{{ race.race_date }}</td>
+                        <td>{{ race.winner }}</td>
+                        <td>{{ race.team_name }}</td>
+                        <td>{{ race.laps }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="decorative-section"></div>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-section">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="Fórmula 1 Logo" class="footer-logo">
+                    <p>{{ _("La máxima categoría del automovilismo. Descubre todo sobre las escuderías, pilotos y circuitos.") }}</p>
+                </div>
+                <div class="col-md-4 footer-section">
+                    <h5>{{ _("Enlaces rápidos") }}</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/scuderias">{{ _("Scuderias") }}</a></li>
+                        <li><a href="/pilotos">{{ _("Pilotos") }}</a></li>
+                        <li><a href="/circuitos">{{ _("Circuitos") }}</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 footer-section">
+                    <h5>{{ _("Contacto") }}</h5>
+                    <p>Email: <a href="mailto:ibermejo@elpuig.xeill.net">ibermejo@elpuig.xeill.net</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

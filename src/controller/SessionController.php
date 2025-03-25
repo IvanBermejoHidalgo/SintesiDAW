@@ -1,52 +1,80 @@
 <?php
 
-// General singleton class.
+class SessionController {
 
-class DatabaseController {
+    private $connection;
 
-    private static $host = "localhost";
-    private static $username = "usuario";
-    private static $password = "usuario";
-    private static $dbname = "ShopList";
-    //private $dsn = 'mysql:host='.$host.';dbname='.$dbname;
-    private static $options = array(
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, 
-                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
-                  );
-
-    // Hold the class instance.
-    private static $instance = null;
-
-    // The constructor is private
-    // to prevent initiation with outer code.
-    private function __construct()
-    {
-      // The expensive process (e.g.,db connection) goes here.
+    public function __construct() {
+        $this->connection = DatabaseController::connect();
     }
 
-    // The object is created from within the class itself
-    // only if the class has no instance.
-    public static function getInstance()
-    {
-      if (self::$instance == null)
-      {
-        self::$instance = new DatabaseController();
-      }
+    public static function userSignUp($username, $email, $password) {
+        if ((new self)->exist($username, $email)) {
+            return "Username or email already exist"; // Retornar mensaje de error
+        } else {
+            try {
+                $sql = "INSERT INTO User (username, email, password) VALUES (:username, :email, :password)";
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $statement = (new self)->connection->prepare($sql);
+                $statement->bindValue(':username', $username);
+                $statement->bindValue(':email', $email);
+                $statement->bindValue(':password', $hashed_password);
+                $statement->setFetchMode(PDO::FETCH_OBJ);
+                $statement->execute();
 
-      return self::$instance;
+                return "Usuario registrado exitosamente"; // Retornar mensaje de éxito
+            } catch(PDOException $error) {
+                return "Error: " . $error->getMessage(); // Retornar mensaje de error
+            }
+        }
     }
 
-    public static function connect () {
-        try  {
-            $connection = new PDO('mysql:host='.self::$host.';dbname='.self::$dbname, self::$username, self::$password, self::$options);
-            return $connection;
+    public static function userLogin($username, $password) {
+        if (!(new self)->exist($username)) {
+            return "Username does not exist"; // Retornar mensaje de error
+        } else {
+            try {
+                $sql = "SELECT id, password FROM User WHERE username = :username";
+                $statement = (new self)->connection->prepare($sql);
+                $statement->bindValue(':username', $username);
+                $statement->setFetchMode(PDO::FETCH_OBJ);
+                $statement->execute();
 
-          } catch(PDOException $error) {
-              echo $sql . "<br>" . $error->getMessage();
-              return null;
-          }
+                $user = $statement->fetch();
+
+                if ($user && password_verify($password, $user->password)) {
+                    // La autenticación es correcta
+                    session_start();
+                    $_SESSION['user_id'] = $user->id;
+                    $_SESSION['username'] = $username;
+                    return "success"; // Retornar éxito
+                } else {
+                    return "Nombre de usuario o contraseña incorrectos."; // Retornar mensaje de error
+                }
+            } catch(PDOException $error) {
+                return "Error: " . $error->getMessage(); // Retornar mensaje de error
+            }
+        }
     }
 
-    
-    
-  }
+    public static function exist($username, $email = null) {
+        try {
+            $sql = $email === null 
+                ? "SELECT * FROM User WHERE username = :username"
+                : "SELECT * FROM User WHERE username = :username AND email = :email";
+
+            $statement = (new self)->connection->prepare($sql);
+            $statement->bindValue(':username', $username);
+            if ($email !== null) {
+                $statement->bindValue(':email', $email);
+            }
+            $statement->setFetchMode(PDO::FETCH_OBJ);
+            $statement->execute();
+
+            $result = $statement->fetch();
+            return !$result ? false : true;
+        } catch(PDOException $error) {
+            return false; // Retornar false en caso de error
+        }
+    }
+}

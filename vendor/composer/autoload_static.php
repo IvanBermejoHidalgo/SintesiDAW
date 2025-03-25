@@ -26,6 +26,10 @@ class ComposerStaticInit88aa8cc280acbc59b325d82b20172f6c
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
         ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -41,10 +45,20 @@ class ComposerStaticInit88aa8cc280acbc59b325d82b20172f6c
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
     );
 
     public static $classMap = array (
+        'AdminController' => __DIR__ . '/../..' . '/src/controller/AdminController.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'DatabaseController' => __DIR__ . '/../..' . '/src/controller/DatabaseController.php',
+        'DriversController' => __DIR__ . '/../..' . '/src/controller/DriversController.php',
+        'RacesController' => __DIR__ . '/../..' . '/src/controller/RacesController.php',
+        'SessionController' => __DIR__ . '/../..' . '/src/controller/SessionController.php',
+        'TeamsController' => __DIR__ . '/../..' . '/src/controller/TeamsController.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

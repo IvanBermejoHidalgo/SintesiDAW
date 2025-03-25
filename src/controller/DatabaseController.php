@@ -73,18 +73,26 @@ class DatabaseController {
     }
     
     public static function getDrivers() {
-        $sql = "SELECT * FROM drivers";
-        $statement = self::connect()->prepare($sql);
-        $statement->execute();
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
-    }
+      $sql = "
+          SELECT d.id, d.first_name, d.last_name, d.country, d.flag_url, d.piloto_img, t.team_name
+          FROM drivers d
+          LEFT JOIN teams t ON d.team_id = t.id
+      ";
+      $statement = self::connect()->prepare($sql);
+      $statement->execute();
+      return $statement->fetchAll(PDO::FETCH_ASSOC);
+  }
 
-    public static function getRaces() {
-        $sql = "SELECT * FROM races";
-        $statement = self::connect()->prepare($sql);
-        $statement->execute();
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
-    }
+  public static function getRaces() {
+    $sql = "
+        SELECT r.id, r.grand_prix, r.race_date, r.winner, r.team_id, r.laps, t.team_name
+        FROM races r
+        LEFT JOIN teams t ON r.team_id = t.id
+    ";
+    $statement = self::connect()->prepare($sql);
+    $statement->execute();
+    return $statement->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public static function getTeamsWithDrivers() {
       $pdo = self::connect();
@@ -92,12 +100,13 @@ class DatabaseController {
           SELECT t.team_name, t.img_team, t.img_car, 
                  d.id AS driver_id, d.first_name, d.last_name, d.country, d.flag_url, d.piloto_img
           FROM teams t
-          LEFT JOIN drivers d ON t.team_name = d.team_name
+          LEFT JOIN drivers d ON t.id = d.team_id
           ORDER BY t.team_name, d.last_name
       ";
       $stmt = $pdo->query($query);
       return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+  }
+
     public static function getWinners() {
       $sql = "SELECT winner, COUNT(*) as count FROM races GROUP BY winner";
       $statement = self::connect()->prepare($sql);
@@ -106,9 +115,16 @@ class DatabaseController {
     }
 
     public static function getTeamWinners() {
-      $sql = "SELECT car_team_name, COUNT(*) as count FROM races GROUP BY car_team_name";
-      $statement = self::connect()->prepare($sql);
-      $statement->execute();
-      return $statement->fetchAll(PDO::FETCH_ASSOC);
-  }
+    $sql = "
+        SELECT t.team_name, COUNT(*) AS count 
+        FROM races r
+        JOIN teams t ON r.team_id = t.id
+        GROUP BY t.team_name
+        ORDER BY count DESC
+    ";
+    $statement = self::connect()->prepare($sql);
+    $statement->execute();
+    return $statement->fetchAll(PDO::FETCH_ASSOC);
+}
+
   }
