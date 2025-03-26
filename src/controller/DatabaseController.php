@@ -25,18 +25,18 @@ class DatabaseController {
       return self::$connection;
   }
 
-    public static function getAllMessages()
-    {
-        $pdo = self::connect();
-        $query = "SELECT m.*, u.username 
-                  FROM messages m
-                  JOIN User u ON m.user_id = u.id
-                  ORDER BY m.created_at DESC
-                  LIMIT 50";
-        
-        $stmt = $pdo->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+  public static function getAllMessages()
+  {
+      $pdo = self::connect();
+      $query = "SELECT m.*, u.username, u.profile_image 
+                FROM messages m
+                JOIN User u ON m.user_id = u.id
+                ORDER BY m.created_at DESC
+                LIMIT 50";
+      
+      $stmt = $pdo->query($query);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
 
     public static function postNewMessage($userId, $content)
     {

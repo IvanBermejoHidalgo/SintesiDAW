@@ -135,7 +135,7 @@ switch ($path[1]) {
             $userData = SessionController::getUserData($_SESSION['user_id']);
     
             echo $twig->render('home.html', [
-                'messages' => $messages,
+                'messages' => DatabaseController::getAllMessages(),
                 'userData' => $userData,
                 'language' => $language,
                 'current_page' => 'home' // Para resaltar la página activa

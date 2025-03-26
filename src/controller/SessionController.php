@@ -13,12 +13,13 @@ class SessionController {
             return "Username or email already exist"; // Retornar mensaje de error
         } else {
             try {
-                $sql = "INSERT INTO User (username, email, password) VALUES (:username, :email, :password)";
+                $sql = "INSERT INTO User (username, email, password, profile_image) VALUES (:username, :email, :password, :profile_image)";
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 $statement = (new self)->connection->prepare($sql);
                 $statement->bindValue(':username', $username);
                 $statement->bindValue(':email', $email);
                 $statement->bindValue(':password', $hashed_password);
+                $statement->bindValue(':profile_image', '/images/default-profile.png'); // Valor por defecto
                 $statement->setFetchMode(PDO::FETCH_OBJ);
                 $statement->execute();
 
@@ -81,7 +82,7 @@ class SessionController {
 
     public static function getUserData($userId) {
         $db = (new self)->connection;
-        $stmt = $db->prepare("SELECT id, username, email FROM User WHERE id = ?");
+        $stmt = $db->prepare("SELECT id, username, email, profile_image FROM User WHERE id = ?");
         $stmt->execute([$userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
