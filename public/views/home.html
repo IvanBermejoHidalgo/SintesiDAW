@@ -36,6 +36,34 @@
             margin-top: 10px;
             display: none;
         }
+        .comments-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .comment-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .comment-form {
+            margin-top: 15px;
+        }
+        .btn-group form {
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .like-button {
+            transition: all 0.2s ease;
+        }
+        .like-button:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -60,7 +88,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="messageImage" class="form-label">Subir imagen (opcional)</label>
-                                <input class="form-control" type="file" name="message_image" accept="image/*">
+                                <input class="form-control" type="file" id="messageImage" name="message_image" accept="image/*">
+                                <img id="imagePreview" class="image-preview" alt="Vista previa">
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-send"></i> Publicar
@@ -98,14 +127,20 @@
                                     {% endif %}
                                     
                                     <!-- Acciones del mensaje -->
-                                    <!-- En la sección de acciones del mensaje, reemplaza el formulario actual con: -->
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-heart"></i> Like
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary">
+                                            <form method="POST" action="/home" class="d-inline">
+                                                <input type="hidden" name="{% if message.has_liked %}unlike_message{% else %}like_message{% endif %}" value="{{ message.id }}">
+                                                <button type="submit" class="btn btn-sm {% if message.has_liked %}btn-primary{% else %}btn-outline-primary{% endif %} like-button">
+                                                    <i class="bi bi-heart{% if message.has_liked %}-fill{% endif %}"></i> 
+                                                    <span class="like-count">{{ message.like_count }}</span>
+                                                </button>
+                                            </form>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleComments({{ message.id }})">
                                                 <i class="bi bi-chat"></i> Comentar
+                                                {% if message.comment_count > 0 %}
+                                                <span class="ms-1">({{ message.comment_count }})</span>
+                                                {% endif %}
                                             </button>
                                         </div>
                                         
@@ -117,6 +152,50 @@
                                             </button>
                                         </form>
                                         {% endif %}
+                                    </div>
+
+                                    <!-- Sección de comentarios (oculta inicialmente) -->
+                                    <div id="comments-{{ message.id }}" class="comments-section" style="display: none;">
+                                        <!-- Formulario de comentario -->
+                                        <form method="POST" action="/home" class="comment-form mt-3">
+                                            <input type="hidden" name="message_id" value="{{ message.id }}">
+                                            <div class="input-group">
+                                                <input type="text" name="comment_content" class="form-control" placeholder="Escribe un comentario..." required>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="bi bi-send"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                        <!-- Lista de comentarios -->
+                                        <div class="comments-container mt-2">
+                                            {% for comment in message.comments %}
+                                            <div class="comment-card">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ comment.profile_image ?: '/images/default-profile.png' }}" 
+                                                             width="24" height="24" 
+                                                             class="rounded-circle me-2">
+                                                        <strong class="small">{{ comment.username }}</strong>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted me-2">{{ comment.created_at|date("d/m/Y H:i") }}</small>
+                                                        {% if comment.user_id == userData.id %}
+                                                        <form method="POST" action="/home" class="d-inline">
+                                                            <input type="hidden" name="delete_comment" value="{{ comment.id }}">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger p-0 px-1">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <p class="mb-0 mt-2">{{ comment.content }}</p>
+                                            </div>
+                                            {% else %}
+                                            <p class="text-muted text-center py-2">No hay comentarios aún</p>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -183,6 +262,37 @@
             }
             return true;
         }
+
+        // Mostrar/ocultar comentarios
+        function toggleComments(messageId) {
+            const commentsSection = document.getElementById(`comments-${messageId}`);
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+            } else {
+                commentsSection.style.display = 'none';
+            }
+        }
+
+        // Manejo de likes con AJAX (opcional)
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                fetch('/home', {
+                    method: 'POST',
+                    body: new FormData(form),
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
     </script>
 </body>
 </html>

@@ -37,7 +37,12 @@ class HomeController {
         elseif (isset($_POST['unlike_message'])) {
             DatabaseController::removeLike($_SESSION['user_id'], $_POST['unlike_message']);
         }
-
+        elseif (isset($_POST['comment_content'])) {
+            $this->handleNewComment();
+        }
+        elseif (isset($_POST['delete_comment'])) {
+            DatabaseController::deleteComment($_SESSION['user_id'], $_POST['delete_comment']);
+        }
         header("Location: /home");
         exit();
     }
@@ -111,14 +116,51 @@ class HomeController {
         return null;
     }
 
+    // private function getAllMessagesWithUsers() {
+    //     $stmt = $this->db->query("
+    //         SELECT m.*, 
+    //                u.username, 
+    //                u.profile_image,
+    //                (SELECT COUNT(*) FROM likes WHERE message_id = m.id) as like_count,
+    //                EXISTS(SELECT 1 FROM likes WHERE message_id = m.id AND user_id = {$_SESSION['user_id']}) as has_liked
+    //         FROM messages m
+    //         JOIN User u ON m.user_id = u.id
+    //         ORDER BY m.created_at DESC
+    //         LIMIT 50
+    //     ");
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
+
+
+    private function handleNewComment() {
+        $content = trim($_POST['comment_content'] ?? '');
+        $messageId = $_POST['message_id'] ?? 0;
+        
+        if (!empty($content) && $messageId) {
+            DatabaseController::addComment($_SESSION['user_id'], $messageId, $content);
+        }
+    }
+
     private function getAllMessagesWithUsers() {
         $stmt = $this->db->query("
-            SELECT m.*, u.username, u.profile_image 
+            SELECT m.*, 
+                   u.username, 
+                   u.profile_image,
+                   (SELECT COUNT(*) FROM likes WHERE message_id = m.id) as like_count,
+                   EXISTS(SELECT 1 FROM likes WHERE message_id = m.id AND user_id = {$_SESSION['user_id']}) as has_liked,
+                   (SELECT COUNT(*) FROM comments WHERE message_id = m.id) as comment_count
             FROM messages m
             JOIN User u ON m.user_id = u.id
             ORDER BY m.created_at DESC
             LIMIT 50
         ");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Obtener comentarios para cada mensaje
+        foreach ($messages as &$message) {
+            $message['comments'] = DatabaseController::getComments($message['id']);
+        }
+        
+        return $messages;
     }
 }
