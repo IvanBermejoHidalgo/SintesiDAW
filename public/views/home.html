@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Social | SocialApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        /* Estilos específicos de la página home */
+        .message-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .message-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Incluir navbar -->
+    {% include 'navbar.html' with {
+        'current_page': 'home',
+        'userData': userData
+    } %}
+
+    <!-- Contenido principal -->
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <!-- Formulario de mensaje -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">¿Qué estás pensando?</h5>
+                        <form method="POST" action="/home">
+                            <div class="mb-3">
+                                <textarea class="form-control" name="content" rows="3" 
+                                          placeholder="Comparte tus pensamientos..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Publicar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista de mensajes -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Últimos mensajes</h5>
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="card mb-3 message-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ message.profile_image ?: '/images/default-profile.png' }}" 
+                                                  
+                                                 width="32" height="32" 
+                                                 class="rounded-circle me-2">
+                                            <strong>{{ message.username }}</strong>
+                                        </div>
+                                        <small class="text-muted">{{ message.created_at|date("d/m/Y H:i") }}</small>
+                                    </div>
+                                    <p class="mb-2">{{ message.content }}</p>
+                                    
+                                    <!-- Acciones del mensaje -->
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-heart"></i> Like
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-chat"></i> Comentar
+                                            </button>
+                                        </div>
+                                        
+                                        {% if message.user_id == current_user_id %}
+                                        <form method="POST" action="/home" 
+                                              onsubmit="return confirm('¿Eliminar este mensaje?');">
+                                            <input type="hidden" name="delete_message" value="{{ message.id }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-chat-square-text display-5 text-muted"></i>
+                                <p class="text-muted mt-2">No hay mensajes todavía. ¡Sé el primero en publicar!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

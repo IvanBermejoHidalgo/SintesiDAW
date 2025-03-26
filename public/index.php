@@ -2,11 +2,12 @@
 // Notificar todos los errores de PHP
 // Cambiar a 0 en producción
 error_reporting(-1);
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once "../vendor/autoload.php";
 require_once "../src/controller/SessionController.php";
 require_once "../src/controller/DatabaseController.php"; // Asegúrate de incluir DatabaseController
-
 session_start();
 
 
@@ -93,78 +94,51 @@ switch ($path[1]) {
 
     case 'home':
         if (isset($_SESSION['user_id'])) {
-            // Obtener los datos de los ganadores individuales
-            $winners = DatabaseController::getWinners();
-            // Obtener los datos de los ganadores por equipos
-            $teamWinners = DatabaseController::getTeamWinners();
-    
-            // Convertir los datos a un formato que Twig pueda usar
-            $labels = [];
-            $data = [];
-            foreach ($winners as $winner) {
-                $labels[] = $winner['winner'];
-                $data[] = $winner['count'];
+            $db = DatabaseController::connect();
+            
+            // Manejar envío de mensajes
+            if ($_SERVER["REQUEST_METHOD"] === "POST") {
+                if (isset($_POST['like_message'])) {
+                    DatabaseController::addLike($_SESSION['user_id'], $_POST['like_message']);
+                    header("Location: /home");
+                    exit();
+                } elseif (isset($_POST['unlike_message'])) {
+                    DatabaseController::removeLike($_SESSION['user_id'], $_POST['unlike_message']);
+                    header("Location: /home");
+                    exit();
+                } elseif (isset($_POST['delete_message'])) {
+                    DatabaseController::deleteMessage($_SESSION['user_id'], $_POST['delete_message']);
+                    header("Location: /home");
+                    exit();
+                } elseif (isset($_POST['content'])) {
+                    // Manejar envío de mensajes (existente)
+                    $content = htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8');
+                    $stmt = $db->prepare(
+                        "INSERT INTO messages (user_id, content, created_at) VALUES (?, ?, NOW())"
+                    );
+                    $stmt->execute([$_SESSION['user_id'], $content]);
+                    header("Location: /home");
+                    exit();
+                }
             }
     
-            $teamLabels = [];
-            $teamData = [];
-            foreach ($teamWinners as $teamWinner) {
-                $teamLabels[] = $teamWinner['team_name'];
-                $teamData[] = $teamWinner['count'];
-            }
+            // Obtener mensajes
+            $stmt = $db->query("
+                SELECT m.*, u.username 
+                FROM messages m
+                JOIN User u ON m.user_id = u.id
+                ORDER BY m.created_at DESC
+                LIMIT 50
+            ");
+            $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-            // Renderizar la plantilla Twig con los datos
-            echo $twig->render('home.php', [
-                'labels' => $labels,
-                'data' => $data,
-                'labels_js' => json_encode($labels),
-                'data_js' => json_encode($data),
-                'teamLabels' => $teamLabels,
-                'teamData' => $teamData,
-                'teamLabels_js' => json_encode($teamLabels),
-                'teamData_js' => json_encode($teamData),
-                'language' => $language, // Pasar el idioma a la plantilla
-            ]);
-        } else {
-            header("Location: /");
-            exit();
-        }
-        break;
-
-    case 'scuderias':
-        if (isset($_SESSION['user_id'])) {
-            $teams = DatabaseController::getTeams();
-            $teamsWithDrivers = DatabaseController::getTeamsWithDrivers();
-            echo $twig->render('scuderias.html', [
-                'teams' => $teams,
-                'teamsWithDrivers' => $teamsWithDrivers,
-                'language' => $language
-            ]);
-        } else {
-            header("Location: /");
-            exit();
-        }
-        break;
-
-    case 'pilotos':
-        if (isset($_SESSION['user_id'])) {
-            $driver = DatabaseController::getDrivers();
-            echo $twig->render('pilotos.html', [
-                'drivers' => $driver,
-                'language' => $language
-            ]);
-        } else {
-            header("Location: /");
-            exit();
-        }
-        break;
-
-    case 'circuitos':
-        if (isset($_SESSION['user_id'])) {
-            $race = DatabaseController::getRaces();
-            echo $twig->render('circuitos.html', [
-                'races' => $race,
-                'language' => $language
+            $userData = SessionController::getUserData($_SESSION['user_id']);
+    
+            echo $twig->render('home.html', [
+                'messages' => $messages,
+                'userData' => $userData,
+                'language' => $language,
+                'current_page' => 'home' // Para resaltar la página activa
             ]);
         } else {
             header("Location: /");

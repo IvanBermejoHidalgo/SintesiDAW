@@ -76,5 +76,13 @@ class SessionController {
         } catch(PDOException $error) {
             return false; // Retornar false en caso de error
         }
+        
+    }
+
+    public static function getUserData($userId) {
+        $db = (new self)->connection;
+        $stmt = $db->prepare("SELECT id, username, email FROM User WHERE id = ?");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
