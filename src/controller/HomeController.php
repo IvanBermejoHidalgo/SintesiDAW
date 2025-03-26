@@ -17,7 +17,8 @@ class HomeController {
         
         return [
             'messages' => $this->getAllMessagesWithUsers(),
-            'userData' => SessionController::getUserData($_SESSION['user_id'])
+            'userData' => SessionController::getUserData($_SESSION['user_id']),
+            'current_user_id' => $_SESSION['user_id'] // Añade esta línea
         ];
     }
 
@@ -61,10 +62,10 @@ class HomeController {
         $stmt = $this->db->prepare("SELECT image_path FROM messages WHERE id = ? AND user_id = ?");
         $stmt->execute([$_POST['delete_message'], $_SESSION['user_id']]);
         $message = $stmt->fetch();
-
+    
         // Eliminar el mensaje
         DatabaseController::deleteMessage($_SESSION['user_id'], $_POST['delete_message']);
-
+    
         // Si existe imagen asociada, borrarla del servidor
         if ($message && $message['image_path']) {
             $filePath = __DIR__ . '/../../public' . $message['image_path'];
