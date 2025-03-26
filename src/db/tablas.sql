@@ -22,3 +22,5 @@ CREATE TABLE messages (
     created_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
+
+ALTER TABLE messages ADD COLUMN image_path VARCHAR(255) DEFAULT NULL;
