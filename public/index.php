@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 require_once "../vendor/autoload.php";
 require_once "../src/controller/SessionController.php";
 require_once "../src/controller/DatabaseController.php"; // Asegúrate de incluir DatabaseController
+require_once "../src/controller/HomeController.php"; // Asegúrate de incluir DatabaseController
 session_start();
 
 
@@ -94,51 +95,14 @@ switch ($path[1]) {
 
     case 'home':
         if (isset($_SESSION['user_id'])) {
-            $db = DatabaseController::connect();
+            $homeController = new HomeController();
+            $homeData = $homeController->handleRequest();
             
-            // Manejar envío de mensajes
-            if ($_SERVER["REQUEST_METHOD"] === "POST") {
-                if (isset($_POST['like_message'])) {
-                    DatabaseController::addLike($_SESSION['user_id'], $_POST['like_message']);
-                    header("Location: /home");
-                    exit();
-                } elseif (isset($_POST['unlike_message'])) {
-                    DatabaseController::removeLike($_SESSION['user_id'], $_POST['unlike_message']);
-                    header("Location: /home");
-                    exit();
-                } elseif (isset($_POST['delete_message'])) {
-                    DatabaseController::deleteMessage($_SESSION['user_id'], $_POST['delete_message']);
-                    header("Location: /home");
-                    exit();
-                } elseif (isset($_POST['content'])) {
-                    // Manejar envío de mensajes (existente)
-                    $content = htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8');
-                    $stmt = $db->prepare(
-                        "INSERT INTO messages (user_id, content, created_at) VALUES (?, ?, NOW())"
-                    );
-                    $stmt->execute([$_SESSION['user_id'], $content]);
-                    header("Location: /home");
-                    exit();
-                }
-            }
-    
-            // Obtener mensajes
-            $stmt = $db->query("
-                SELECT m.*, u.username 
-                FROM messages m
-                JOIN User u ON m.user_id = u.id
-                ORDER BY m.created_at DESC
-                LIMIT 50
-            ");
-            $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-            $userData = SessionController::getUserData($_SESSION['user_id']);
-    
             echo $twig->render('home.html', [
-                'messages' => DatabaseController::getAllMessages(),
-                'userData' => $userData,
+                'messages' => $homeData['messages'],
+                'userData' => $homeData['userData'],
                 'language' => $language,
-                'current_page' => 'home' // Para resaltar la página activa
+                'current_page' => 'home'
             ]);
         } else {
             header("Location: /");

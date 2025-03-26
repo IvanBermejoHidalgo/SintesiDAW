@@ -1,41 +1,58 @@
 <?php
-namespace Controller;
 
-require_once __DIR__ . '/DatabaseController.php';
-
-class MessageController
-{
-    private $twig;
+class HomeController {
     private $db;
 
-    public function __construct(\Twig\Environment $twig)
-    {
-        $this->twig = $twig;
-        $this->db = DatabaseController::getConnection();
+    public function __construct() {
+        $this->db = DatabaseController::connect();
     }
 
-    public function postMessage($userId, $content)
-    {
-        // Sanitizar el contenido
-        $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+    public function handleRequest() {
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
+
+        $this->handlePostActions();
         
-        // Insertar en la base de datos
-        $stmt = $this->db->prepare("INSERT INTO messages (user_id, content, created_at) VALUES (?, ?, NOW())");
-        $stmt->execute([$userId, $content]);
-        
-        return true;
+        return [
+            'messages' => $this->getAllMessagesWithUsers(),
+            'userData' => SessionController::getUserData($_SESSION['user_id'])
+        ];
     }
 
-    public function getAllMessages()
-    {
-        // Obtener mensajes con información de usuario
-        $query = "SELECT m.*, u.username, u.profile_image 
-                  FROM messages m
-                  JOIN User u ON m.user_id = u.id
-                  ORDER BY m.created_at DESC
-                  LIMIT 50";
-        
-        $stmt = $this->db->query($query);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    private function handlePostActions() {
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") return;
+
+        if (isset($_POST['content'])) {
+            $content = htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8');
+            $stmt = $this->db->prepare(
+                "INSERT INTO messages (user_id, content, created_at) VALUES (?, ?, NOW())"
+            );
+            $stmt->execute([$_SESSION['user_id'], $content]);
+        } 
+        elseif (isset($_POST['delete_message'])) {
+            DatabaseController::deleteMessage($_SESSION['user_id'], $_POST['delete_message']);
+        }
+        elseif (isset($_POST['like_message'])) {
+            DatabaseController::addLike($_SESSION['user_id'], $_POST['like_message']);
+        }
+        elseif (isset($_POST['unlike_message'])) {
+            DatabaseController::removeLike($_SESSION['user_id'], $_POST['unlike_message']);
+        }
+
+        header("Location: /home");
+        exit();
+    }
+
+    private function getAllMessagesWithUsers() {
+        $stmt = $this->db->query("
+            SELECT m.*, u.username, u.profile_image 
+            FROM messages m
+            JOIN User u ON m.user_id = u.id
+            ORDER BY m.created_at DESC
+            LIMIT 50
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
