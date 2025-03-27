@@ -137,7 +137,7 @@
                                                     <span class="like-count">{{ message.like_count }}</span>
                                                 </button>
                                             </form>
-                                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleComments({{ message.id }})">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleComments(`{{ message.id }}`)">
                                                 <i class="bi bi-chat"></i> Comentar
                                                 {% if message.comment_count > 0 %}
                                                 <span class="ms-1">({{ message.comment_count }})</span>
