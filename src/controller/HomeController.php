@@ -49,17 +49,30 @@ class HomeController {
 
     private function handleNewMessage() {
         $content = trim($_POST['content'] ?? '');
-        $hasImage = isset($_FILES['message_image']) && $_FILES['message_image']['error'] === UPLOAD_ERR_OK;
+        $imagePath = null;
         
-        if (empty($content) && !$hasImage) {
+        // Procesar la imagen solo si se subió un archivo
+        if (isset($_FILES['message_image']) && $_FILES['message_image']['error'] === UPLOAD_ERR_OK) {
+            $imagePath = $this->handleImageUpload();
+            if (!$imagePath) {
+                $_SESSION['error'] = "Error al subir la imagen";
+                return;
+            }
+        }
+        
+        if (empty($content) && !$imagePath) {
             $_SESSION['error'] = "Debes escribir un mensaje o subir una imagen";
             return;
         }
-
-        $stmt = $this->db->prepare(
-            "INSERT INTO messages (user_id, content, image_path, created_at) VALUES (?, ?, ?, NOW())"
-        );
-        $stmt->execute([$_SESSION['user_id'], $content, $imagePath]);
+    
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO messages (user_id, content, image_path, created_at) VALUES (?, ?, ?, NOW())"
+            );
+            $stmt->execute([$_SESSION['user_id'], $content, $imagePath]);
+        } catch (PDOException $e) {
+            $_SESSION['error'] = "Error al guardar el mensaje: " . $e->getMessage();
+        }
     }
 
     private function handleDeleteMessage() {
