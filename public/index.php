@@ -130,6 +130,35 @@ switch ($path[1]) {
         }
         break;
 
+    case 'user':
+        if (isset($_SESSION['user_id'])) {
+            $userId = $path[2] ?? $_GET['id'] ?? null;
+            
+            if (!$userId) {
+                header("Location: /home");
+                exit();
+            }
+            
+            $profileController = new ProfileController();
+            $profileData = $profileController->handlePublicProfileRequest($userId);
+            
+            // Obtener datos del usuario actual
+            $currentUserData = DatabaseController::getUserById($_SESSION['user_id']);
+            
+            echo $twig->render('user.html', [
+                'profileUser' => $profileData['profileUser'],
+                'userMessages' => $profileData['userMessages'],
+                'current_user_id' => $_SESSION['user_id'],
+                'userData' => $currentUserData, // Pasamos los datos del usuario en sesión
+                'language' => $language,
+                'current_page' => 'profile'
+            ]);
+        } else {
+            header("Location: /");
+            exit();
+        }
+        break;
+
     case 'logout':
         // Cerrar sesión
         session_start(); // Iniciar la sesión si no está iniciada

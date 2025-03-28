@@ -95,4 +95,24 @@ class ProfileController {
         header("Location: /profile");
         exit();
     }
+
+    public function handlePublicProfileRequest($userId) {
+        $currentUserId = $_SESSION['user_id'] ?? null;
+        
+        // Obtener datos del usuario del perfil
+        $profileUser = DatabaseController::getUserById($userId);
+        
+        if (!$profileUser) {
+            header("Location: /home");
+            exit();
+        }
+        
+        // Obtener mensajes del usuario
+        $userMessages = DatabaseController::getMessagesByUser($userId, $currentUserId);
+        
+        return [
+            'profileUser' => $profileUser,
+            'userMessages' => $userMessages
+        ];
+    }
 }
