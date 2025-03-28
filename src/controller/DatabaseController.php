@@ -107,4 +107,90 @@ class DatabaseController {
       return $stmt->execute([$commentId, $userId]);
   }
 
+    public static function getUserById($userId) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT id, username, email, profile_image, created_at 
+            FROM User 
+            WHERE id = ?
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function getMessagesByUser($userId, $currentUserId = null) {
+        $pdo = self::connect();
+        
+        $query = "
+            SELECT m.*, u.username, u.profile_image,
+            (SELECT COUNT(*) FROM likes l WHERE l.message_id = m.id) as like_count,
+            (SELECT COUNT(*) FROM comments c WHERE c.message_id = m.id) as comment_count";
+        
+        if ($currentUserId !== null) {
+            $query .= ",
+            EXISTS(SELECT 1 FROM likes l WHERE l.message_id = m.id AND l.user_id = :current_user) as has_liked";
+        }
+        
+        $query .= "
+            FROM messages m
+            JOIN User u ON m.user_id = u.id
+            WHERE m.user_id = :user_id
+            ORDER BY m.created_at DESC";
+        
+        $stmt = $pdo->prepare($query);
+        
+        $params = [':user_id' => $userId];
+        if ($currentUserId !== null) {
+            $params[':current_user'] = $currentUserId;
+        }
+        
+        $stmt->execute($params);
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Obtener comentarios para cada mensaje si es necesario
+        foreach ($messages as &$message) {
+            $message['comments'] = self::getComments($message['id']);
+        }
+        
+        return $messages;
+    }
+
+    public static function getCommentCountByUser($userId) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count 
+            FROM comments 
+            WHERE user_id = ?
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
+
+    public static function getLikeCountByUser($userId) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count 
+            FROM likes 
+            WHERE user_id = ?
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
+
+    public static function updateProfileImage($userId, $imagePath) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            UPDATE User 
+            SET profile_image = ? 
+            WHERE id = ?
+        ");
+        return $stmt->execute([$imagePath, $userId]);
+    }
+
+    public static function updateUsername($userId, $newUsername) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("UPDATE User SET username = ?, updated_at = NOW() WHERE id = ?");
+        return $stmt->execute([$newUsername, $userId]);
+    }
+
   }

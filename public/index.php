@@ -9,6 +9,7 @@ require_once "../vendor/autoload.php";
 require_once "../src/controller/SessionController.php";
 require_once "../src/controller/DatabaseController.php"; // Asegúrate de incluir DatabaseController
 require_once "../src/controller/HomeController.php"; // Asegúrate de incluir DatabaseController
+require_once "../src/controller/ProfileController.php"; // Asegúrate de incluir DatabaseController
 session_start();
 
 
@@ -104,6 +105,24 @@ switch ($path[1]) {
                 'current_user_id' => $_SESSION['user_id'], // Añade esta línea
                 'language' => $language,
                 'current_page' => 'home'
+            ]);
+        } else {
+            header("Location: /");
+            exit();
+        }
+        break;
+
+    case 'profile':
+        if (isset($_SESSION['user_id'])) {
+            $profileController = new ProfileController();
+            $profileData = $profileController->handleRequest();
+            
+            echo $twig->render('profile.html', [
+                'profileUser' => $profileData['profileUser'],
+                'userMessages' => $profileData['userMessages'],
+                'current_user_id' => $_SESSION['user_id'],
+                'language' => $language,
+                'current_page' => 'profile'
             ]);
         } else {
             header("Location: /");
