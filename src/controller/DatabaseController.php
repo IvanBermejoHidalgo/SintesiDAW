@@ -46,9 +46,33 @@ class DatabaseController {
     }
 
     public static function deleteMessage($userId, $messageId) {
-      $pdo = self::connect();
-      $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ? AND user_id = ?");
-      return $stmt->execute([$messageId, $userId]);
+        $pdo = self::connect();
+        
+        // Start transaction
+        $pdo->beginTransaction();
+        
+        try {
+            // First delete all likes for this message
+            $stmt = $pdo->prepare("DELETE FROM likes WHERE message_id = ?");
+            $stmt->execute([$messageId]);
+            
+            // Then delete all comments for this message
+            $stmt = $pdo->prepare("DELETE FROM comments WHERE message_id = ?");
+            $stmt->execute([$messageId]);
+            
+            // Finally delete the message itself
+            $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ? AND user_id = ?");
+            $stmt->execute([$messageId, $userId]);
+            
+            // Commit transaction if all operations succeeded
+            $pdo->commit();
+            return true;
+        } catch (PDOException $e) {
+            // Rollback on any error
+            $pdo->rollBack();
+            error_log("Error deleting message: " . $e->getMessage());
+            return false;
+        }
     }
 
     public static function addLike($userId, $messageId) {
