@@ -10,7 +10,7 @@ class HomeController {
     public function handleRequest() {
         if (!isset($_SESSION['user_id'])) {
             header("Location: /");
-            exit();
+            exit(); 
         }
 
         $this->handlePostActions();
