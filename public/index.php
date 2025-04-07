@@ -102,7 +102,7 @@ switch ($path[1]) {
             echo $twig->render('home.html', [
                 'messages' => $homeData['messages'],
                 'userData' => $homeData['userData'],
-                'current_user_id' => $_SESSION['user_id'], // Añade esta línea
+                'current_user_id' => $_SESSION['user_id'],
                 'language' => $language,
                 'current_page' => 'home'
             ]);
