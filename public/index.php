@@ -84,7 +84,8 @@ switch ($path[1]) {
             $username = $_POST['username'];
             $email = $_POST['email'];
             $password = $_POST['password'];
-            $result = SessionController::userSignUp($username, $email, $password);
+            $gender = $_POST['gender'];
+            $result = SessionController::userSignUp($username, $email, $password, $gender);
             if ($result === "Usuario registrado exitosamente") {
                 header("Location: /");
                 exit();

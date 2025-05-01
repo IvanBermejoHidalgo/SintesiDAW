@@ -8,18 +8,19 @@ class SessionController {
         $this->connection = DatabaseController::connect();
     }
 
-    public static function userSignUp($username, $email, $password) {
+    public static function userSignUp($username, $email, $password, $gender) {
         if ((new self)->exist($username, $email)) {
             return "Username or email already exist"; // Retornar mensaje de error
         } else {
             try {
-                $sql = "INSERT INTO User (username, email, password, profile_image) VALUES (:username, :email, :password, :profile_image)";
+                $sql = "INSERT INTO User (username, email, password, profile_image, gender) VALUES (:username, :email, :password, :profile_image, :gender)";
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 $statement = (new self)->connection->prepare($sql);
                 $statement->bindValue(':username', $username);
                 $statement->bindValue(':email', $email);
                 $statement->bindValue(':password', $hashed_password);
                 $statement->bindValue(':profile_image', '/images/default-profile.png'); // Valor por defecto
+                $statement->bindValue(':gender', $gender);
                 $statement->setFetchMode(PDO::FETCH_OBJ);
                 $statement->execute();
 

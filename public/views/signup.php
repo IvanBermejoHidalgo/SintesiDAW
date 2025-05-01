@@ -7,6 +7,7 @@
 
     <!-- Bootstrap CSS -->
     <link href="assets/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    
 
     <style>
       body {
@@ -22,12 +23,12 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
       .btn-primary {
-        background: #dc3545; /* Color rojo de Bootstrap */
+        background: #0d6efd; /* Cambiado a azul Bootstrap */
         border: none;
         transition: background 0.3s ease;
       }
       .btn-primary:hover {
-        background: #c82333; /* Color rojo más oscuro al hacer hover */
+        background: #0b5ed7; /* Azul más oscuro al hacer hover */
       }
       .logo-f1 {
         display: block;
@@ -54,6 +55,16 @@
           <div class="mb-3">
             <label for="password" class="form-label">Contraseña</label>
             <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <div class="mb-3">
+            <div class="gender-options">
+              <div class="gender-option">
+                <input type="radio" id="male" name="gender" value="male" required>
+                <label for="male">Masculino</label>
+                <input type="radio" id="female" name="gender" value="female">
+                <label for="female">Femenino</label>
+              </div>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary w-100">Registrarse</button>
         </form>
