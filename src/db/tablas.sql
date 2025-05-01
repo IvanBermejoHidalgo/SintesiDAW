@@ -11,6 +11,10 @@ CREATE TABLE User (
 ALTER TABLE User 
 ADD COLUMN gender VARCHAR(10) DEFAULT NULL;
 
+ALTER TABLE User ADD COLUMN role ENUM('user', 'admin') DEFAULT 'user';
+--  PARA ASIGNAR ADMIN A USUARIO --
+UPDATE User SET role = 'admin' WHERE id = 1; -- Asignar rol admin al usuario con id 1
+
 CREATE TABLE messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,

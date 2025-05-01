@@ -1,51 +1,48 @@
 <?php
 
 class AdminController {
-    private $connection;
+    private static $connection;
 
-    public function __construct() {
-        $this->connection = DatabaseController::connect();
+    private static function init() {
+        if (self::$connection === null) {
+            self::$connection = DatabaseController::connect();
+        }
     }
 
     public static function adminLogin($username, $password) {
-        if (!(new self)->existAdmin($username)) {
-            return "Admin username does not exist";
-        } else {
-            try {
-                $sql = "SELECT id, password FROM User WHERE username = :username AND role = 'admin'";
-                $statement = (new self)->connection->prepare($sql);
-                $statement->bindValue(':username', $username);
-                $statement->setFetchMode(PDO::FETCH_OBJ);
-                $statement->execute();
+        self::init();
+        
+        try {
+            $sql = "SELECT id, password FROM User WHERE username = :username AND role = 'admin'";
+            $statement = self::$connection->prepare($sql);
+            $statement->bindValue(':username', $username);
+            $statement->execute();
 
-                $admin = $statement->fetch();
+            $admin = $statement->fetch(PDO::FETCH_OBJ);
 
-                if ($admin && password_verify($password, $admin->password)) {
-                    // La autenticación es correcta
-                    session_start();
-                    $_SESSION['admin_id'] = $admin->id;
-                    $_SESSION['admin_username'] = $username;
-                    return "success";
-                } else {
-                    return "Nombre de usuario o contraseña incorrectos.";
-                }
-            } catch(PDOException $error) {
-                return "Error: " . $error->getMessage();
+            if ($admin && password_verify($password, $admin->password)) {
+                $_SESSION['admin_id'] = $admin->id;
+                $_SESSION['admin_username'] = $username;
+                return "success";
             }
+            return "Credenciales incorrectas o no tienes privilegios de administrador";
+        } catch(PDOException $error) {
+            error_log("Error en login de admin: " . $error->getMessage());
+            return "Error en el sistema";
         }
     }
 
     public static function existAdmin($username) {
+        self::init();
         try {
             $sql = "SELECT * FROM User WHERE username = :username AND role = 'admin'";
-            $statement = (new self)->connection->prepare($sql);
+            $statement = self::$connection->prepare($sql);
             $statement->bindValue(':username', $username);
-            $statement->setFetchMode(PDO::FETCH_OBJ);
             $statement->execute();
 
-            $result = $statement->fetch();
-            return !$result ? false : true;
+            return $statement->fetch() !== false;
         } catch(PDOException $error) {
+            error_log("Error verificando admin: " . $error->getMessage());
             return false;
         }
     }

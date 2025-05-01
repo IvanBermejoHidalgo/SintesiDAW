@@ -217,4 +217,58 @@ class DatabaseController {
         return $stmt->execute([$newUsername, $userId]);
     }
 
+    public static function getUserCount() {
+        $pdo = self::connect();
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM User");
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
+    
+    public static function getMessageCount() {
+        $pdo = self::connect();
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM messages");
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
+    
+    public static function getActiveUsers($limit = 5) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT u.id, u.username, COUNT(m.id) as message_count 
+            FROM User u
+            LEFT JOIN messages m ON u.id = m.user_id
+            GROUP BY u.id
+            ORDER BY message_count DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public static function getAllUsers() {
+        $pdo = self::connect();
+        $stmt = $pdo->query("
+            SELECT id, username, email, role, created_at 
+            FROM User 
+            ORDER BY created_at DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getUsersByGender() {
+        $pdo = self::connect();
+        $stmt = $pdo->query("
+            SELECT 
+                CASE 
+                    WHEN gender IS NULL THEN 'unknown'
+                    WHEN gender = '' THEN 'unknown'
+                    ELSE gender
+                END as gender,
+                COUNT(*) as count 
+            FROM User
+            GROUP BY gender
+            ORDER BY count DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
   }
