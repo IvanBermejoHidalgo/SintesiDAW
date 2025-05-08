@@ -44,3 +44,12 @@ CREATE TABLE comments (
     FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (message_id) REFERENCES messages(id)
 );
+
+CREATE TABLE productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    image_path VARCHAR(255) DEFAULT '/public/images/default-product.png',
+    category ENUM('hombre', 'mujer', 'todos') DEFAULT 'todos'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

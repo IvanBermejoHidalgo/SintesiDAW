@@ -10,6 +10,8 @@ require_once "../src/controller/SessionController.php";
 require_once "../src/controller/DatabaseController.php"; // Asegúrate de incluir DatabaseController
 require_once "../src/controller/HomeController.php"; // Asegúrate de incluir DatabaseController
 require_once "../src/controller/ProfileController.php"; // Asegúrate de incluir DatabaseController
+require_once "../src/controller/TiendaController.php"; // Asegúrate de incluir este archivo
+
 session_start();
 
 
@@ -130,6 +132,24 @@ switch ($path[1]) {
             exit();
         }
         break;
+
+        case 'tienda':
+            if (isset($_SESSION['user_id'])) {
+                $tiendaController = new TiendaController();
+                $tiendaData = $tiendaController->handleRequest();
+                
+                echo $twig->render('tienda.html', [
+                    'productos' => $tiendaData['productos'],
+                    'categoria_actual' => $tiendaData['categoria_actual'],
+                    'userData' => $tiendaData['userData'],
+                    'current_page' => 'tienda/' . $tiendaData['categoria_actual'],
+                    'language' => $language
+                ]);
+            } else {
+                header("Location: /");
+                exit();
+            }
+            break;    
 
     case 'user':
         if (isset($_SESSION['user_id'])) {
