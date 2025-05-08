@@ -32,8 +32,8 @@
       }
       .logo-f1 {
         display: block;
-        margin: 20px auto 30px; /* Margen superior de 20px y margen inferior de 30px */
-        max-width: 100px; /* Tamaño del logo */
+        margin: 0px auto 30px; /* Margen superior de 20px y margen inferior de 30px */
+        max-width: 250px; /* Tamaño del logo */
       }
     </style>
   </head>
