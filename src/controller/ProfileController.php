@@ -56,7 +56,7 @@ class ProfileController {
         // Procesar la imagen de perfil
         $profileImage = null;
         if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = '/public/images/profiles/';
+            $uploadDir = '/images/profiles/';
             $uploadPath = $_SERVER['DOCUMENT_ROOT'] . $uploadDir;
             
             // Crear directorio si no existe
