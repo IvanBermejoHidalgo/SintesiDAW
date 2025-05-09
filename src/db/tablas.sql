@@ -49,7 +49,13 @@ CREATE TABLE productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
     image_path VARCHAR(255) DEFAULT '/public/images/default-product.png',
-    category ENUM('hombre', 'mujer', 'todos') DEFAULT 'todos'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    category ENUM('hombre','mujer','todos') DEFAULT 'todos'
+);
+CREATE TABLE imagenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    url LONGBLOB NOT NULL,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);

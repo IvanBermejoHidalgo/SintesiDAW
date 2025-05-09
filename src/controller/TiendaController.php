@@ -24,22 +24,42 @@ class TiendaController {
     }
 
     private function getCategoriaDesdeRuta() {
-        // Extrae la ruta actual desde la URL
         $uri = $_SERVER['REQUEST_URI'];
         if (preg_match('#^/tienda/(hombre|mujer|todos)$#', $uri, $matches)) {
-            return $matches[1]; // hombre, mujer o todos
+            return $matches[1];
         }
-        return 'todos'; // por defecto
+        return 'todos';
     }
 
     private function getProductosPorCategoria($categoria) {
         if ($categoria === 'todos') {
             $stmt = $this->db->query("SELECT * FROM productos");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $stmt = $this->db->prepare("SELECT * FROM productos WHERE category = ?");
+            $stmt->execute([$categoria]);
+            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $stmt = $this->db->prepare("SELECT * FROM productos WHERE category = ?");
-        $stmt->execute([$categoria]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($productos as &$producto) {
+            $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
+        }
+
+        return $productos;
+    }
+
+    private function getImagenesBase64($producto_id) {
+        $stmt = $this->db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");
+        $stmt->execute([$producto_id]);
+        $imagenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $imagenes_base64 = [];
+        foreach ($imagenes as $imagen) {
+            if (!empty($imagen['url'])) {
+                $imagenes_base64[] = base64_encode($imagen['url']);
+            }
+        }
+
+        return $imagenes_base64;
     }
 }
