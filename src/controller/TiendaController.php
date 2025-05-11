@@ -47,7 +47,18 @@ class TiendaController {
 
         return $productos;
     }
-
+    public function getProductoPorId($id) {
+        $stmt = $this->db->prepare("SELECT * FROM productos WHERE id = ?");
+        $stmt->execute([$id]);
+        $producto = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if ($producto) {
+            $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
+        }
+    
+        return $producto;
+    }
+    
     private function getImagenesBase64($producto_id) {
         $stmt = $this->db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");
         $stmt->execute([$producto_id]);

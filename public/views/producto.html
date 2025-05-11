@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ producto.name }}</title>
+    <link rel="icon" type="image/png" href="/images/logo.png" sizes="64x64">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .main-image {
+            width: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .thumbnail {
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: transform 0.2s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    {% include 'navbar.html' with {
+    'current_page': 'tienda',
+    'userData': userData
+    } %}
+
+    <div class="container py-5">
+        <div class="row">
+            <!-- Galería de imágenes -->
+            <div class="col-md-6">
+                {% if producto.imagenes_base64 is not empty %}
+                <img id="mainImage" src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}"
+                    class="main-image mb-3" alt="{{ producto.name }}">
+
+                <div class="d-flex gap-2">
+                    {% for imagen in producto.imagenes_base64 %}
+                    <img src="data:image/jpeg;base64,{{ imagen }}" class="thumbnail" width="100"
+                        onclick="document.getElementById('mainImage').src=this.src">
+                    {% endfor %}
+                </div>
+                {% else %}
+                <img src="/images/default-product.png" class="main-image mb-3" alt="{{ producto.name }}">
+                {% endif %}
+            </div>
+
+            <!-- Detalles del producto -->
+            <div class="col-md-6">
+                <h2>{{ producto.name }}</h2>
+                <p class="text-muted">{{ producto.description }}</p>
+                <p class="fs-4 fw-bold">€{{ producto.price }}</p>
+
+                <!-- Selector de talla -->
+                <div class="mb-3">
+                    <label for="talla" class="form-label fw-semibold">Talla:</label>
+                    <select id="talla" class="form-select" required>
+                        <option value="">Selecciona una talla</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                    </select>
+                </div>
+
+                <!-- Botón de añadir al carrito -->
+                <form method="POST" action="/carrito">
+                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                    <input type="hidden" name="producto_name" value="{{ producto.name }}">
+                    <input type="hidden" name="producto_price" value="{{ producto.price }}">
+                    <input type="hidden" id="tallaSeleccionada" name="producto_talla" value="">
+
+                    <button type="submit" class="btn btn-primary w-100">Añadir al carrito</button>
+                </form>
+                <!-- Información adicional del producto -->
+                <div class="accordion mt-4" id="infoAccordion">
+                    <!-- Información del producto -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="infoHeading">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#infoCollapse" aria-expanded="true" aria-controls="infoCollapse">
+                                Información del producto
+                            </button>
+                        </h2>
+                        <div id="infoCollapse" class="accordion-collapse collapse show" aria-labelledby="infoHeading"
+                            data-bs-parent="#infoAccordion">
+                            <div class="accordion-body">
+                                <p>{{ producto.full_description ?? 'Este producto está confeccionado con materiales de
+                                    alta calidad y diseñado para ofrecer comodidad y estilo.' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Política de devolución -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="devolucionHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#devolucionCollapse" aria-expanded="false"
+                                aria-controls="devolucionCollapse">
+                                Política de devolución
+                            </button>
+                        </h2>
+                        <div id="devolucionCollapse" class="accordion-collapse collapse"
+                            aria-labelledby="devolucionHeading" data-bs-parent="#infoAccordion">
+                            <div class="accordion-body">
+                                <p>Puedes devolver este producto en un plazo de 30 días a partir de la fecha de compra.
+                                    El artículo debe estar en perfectas condiciones y con su embalaje original.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cuidados y lavado -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="cuidadosHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#cuidadosCollapse" aria-expanded="false"
+                                aria-controls="cuidadosCollapse">
+                                Cuidados y lavado
+                            </button>
+                        </h2>
+                        <div id="cuidadosCollapse" class="accordion-collapse collapse" aria-labelledby="cuidadosHeading"
+                            data-bs-parent="#infoAccordion">
+                            <div class="accordion-body">
+                                <ul class="mb-0">
+                                    <li>Lavar a máquina en frío con colores similares.</li>
+                                    <li>No usar lejía.</li>
+                                    <li>Secar al aire o a baja temperatura.</li>
+                                    <li>Planchar a baja temperatura si es necesario.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Capturar la talla seleccionada antes de enviar
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            const talla = document.getElementById('talla').value;
+            if (!talla) {
+                e.preventDefault();
+                alert('Por favor selecciona una talla.');
+                return;
+            }
+            document.getElementById('tallaSeleccionada').value = talla;
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

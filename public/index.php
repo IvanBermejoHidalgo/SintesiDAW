@@ -133,6 +133,23 @@ switch ($path[1]) {
         }
         break;
 
+        case 'producto':
+            if (isset($_SESSION['user_id']) && isset($path[2])) {
+                $productId = $path[2];
+                $producto = (new TiendaController())->getProductoPorId($productId);
+                
+                echo $twig->render('producto.html', [
+                    'producto' => $producto,
+                    'userData' => SessionController::getUserData($_SESSION['user_id']),
+                    'language' => $language,
+                    'current_page' => 'producto'
+                ]);
+            } else {
+                header("Location: /tienda");
+                exit();
+            }
+            break;
+        
         case 'tienda':
             if (isset($_SESSION['user_id'])) {
                 $tiendaController = new TiendaController();
@@ -150,6 +167,7 @@ switch ($path[1]) {
                 exit();
             }
             break;    
+            
 
     case 'user':
         if (isset($_SESSION['user_id'])) {

@@ -16,7 +16,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .product-image {
-            height: 400px;
             object-fit: cover;
             border-radius: 8px;
         }
@@ -40,27 +39,24 @@
             {% if productos %}
                 {% for producto in productos %}
                 <div class="col-md-4 mb-4">
-                    <div class="card product-card h-100 shadow-sm">
-                        {% if producto.imagenes_base64 is not empty %}
-                            <img src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}" class="card-img-top product-image" alt="{{ producto.name }}">
-                        {% else %}
-                            <img src="images/default-product.png" class="card-img-top product-image" alt="{{ producto.name }}">
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ producto.name }}</h5>
-                            <p class="card-text text-muted">{{ producto.description }}</p>
-                            <div class="mt-auto">
-                                <p class="fw-bold">€{{ producto.price }}</p>
-                                <form method="POST" action="/tienda">
-                                    <input type="hidden" name="buy_product" value="{{ producto.id }}">
-                                    <button type="submit" class="btn btn-success w-100 btn-buy">
-                                        <i class="bi bi-cart-plus"></i> Comprar
-                                    </button>
-                                </form>
+                    <a href="/producto/{{ producto.id }}" class="text-decoration-none text-dark">
+                        <div class="card product-card h-100 shadow-sm">
+                            {% if producto.imagenes_base64 is not empty %}
+                                <img src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}" class="card-img-top product-image" alt="{{ producto.name }}">
+                            {% else %}
+                                <img src="images/default-product.png" class="card-img-top product-image" alt="{{ producto.name }}">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ producto.name }}</h5>
+                                <p class="card-text text-muted">{{ producto.description }}</p>
+                                <div class="mt-auto">
+                                    <p class="fw-bold">€{{ producto.price }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
+                
                 {% endfor %}
             {% else %}
                 <div class="text-center py-4">
