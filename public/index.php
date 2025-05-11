@@ -7,10 +7,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require_once "../vendor/autoload.php";
 require_once "../src/controller/SessionController.php";
-require_once "../src/controller/DatabaseController.php"; // Asegúrate de incluir DatabaseController
-require_once "../src/controller/HomeController.php"; // Asegúrate de incluir DatabaseController
-require_once "../src/controller/ProfileController.php"; // Asegúrate de incluir DatabaseController
-require_once "../src/controller/TiendaController.php"; // Asegúrate de incluir este archivo
+require_once "../src/controller/DatabaseController.php"; 
+require_once "../src/controller/HomeController.php"; 
+require_once "../src/controller/ProfileController.php"; 
+require_once "../src/controller/TiendaController.php"; 
+require_once "../src/controller/CartController.php";
 
 session_start();
 
@@ -133,6 +134,17 @@ switch ($path[1]) {
         }
         break;
 
+        case 'carrito':
+            $cartController = new CartController();
+            $data = $cartController->handleRequest();
+            echo $twig->render('carrito.html', [
+                'cartItems' => $data['cartItems'],
+                'userData'  => $data['userData'],
+                'language'  => $language,
+                'current_page' => 'carrito'
+            ]);
+            break;
+
         case 'producto':
             if (isset($_SESSION['user_id']) && isset($path[2])) {
                 $productId = $path[2];
@@ -149,7 +161,7 @@ switch ($path[1]) {
                 exit();
             }
             break;
-        
+    
         case 'tienda':
             if (isset($_SESSION['user_id'])) {
                 $tiendaController = new TiendaController();

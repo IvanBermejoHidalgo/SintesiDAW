@@ -14,11 +14,14 @@ class TiendaController {
         }
 
         $categoria = $this->getCategoriaDesdeRuta();
+        $userId = $_SESSION['user_id'];
 
         return [
             'productos' => $this->getProductosPorCategoria($categoria),
             'categoria_actual' => $categoria,
-            'userData' => SessionController::getUserData($_SESSION['user_id']),
+            'userData' => SessionController::getUserData($userId),
+            'carrito' => $this->getProductosCarrito($userId),
+            'listas' => $this->getProductosLista($userId),
             'current_page' => 'tienda/' . $categoria
         ];
     }
@@ -47,18 +50,19 @@ class TiendaController {
 
         return $productos;
     }
+
     public function getProductoPorId($id) {
         $stmt = $this->db->prepare("SELECT * FROM productos WHERE id = ?");
         $stmt->execute([$id]);
         $producto = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
         if ($producto) {
             $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
         }
-    
+
         return $producto;
     }
-    
+
     private function getImagenesBase64($producto_id) {
         $stmt = $this->db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");
         $stmt->execute([$producto_id]);
@@ -72,5 +76,39 @@ class TiendaController {
         }
 
         return $imagenes_base64;
+    }
+
+    private function getProductosCarrito($usuario_id) {
+        $stmt = $this->db->prepare("
+            SELECT p.*, c.cantidad 
+            FROM carrito c 
+            JOIN productos p ON c.producto_id = p.id 
+            WHERE c.usuario_id = ?
+        ");
+        $stmt->execute([$usuario_id]);
+        $carrito = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($carrito as &$producto) {
+            $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
+        }
+
+        return $carrito;
+    }
+
+    private function getProductosLista($usuario_id) {
+        $stmt = $this->db->prepare("
+            SELECT p.* 
+            FROM listas l 
+            JOIN productos p ON l.producto_id = p.id 
+            WHERE l.usuario_id = ?
+        ");
+        $stmt->execute([$usuario_id]);
+        $listas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($listas as &$producto) {
+            $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
+        }
+
+        return $listas;
     }
 }

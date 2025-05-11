@@ -12,6 +12,7 @@
             width: 100%;
             object-fit: cover;
             border-radius: 10px;
+            max-width: 400px;
         }
 
         .thumbnail {
@@ -60,37 +61,35 @@
                 <p class="fs-4 fw-bold">€{{ producto.price }}</p>
 
                 <!-- Selector de talla -->
-                <div class="mb-3">
-                    <label for="talla" class="form-label fw-semibold">Talla:</label>
-                    <select id="talla" class="form-select" required>
-                        <option value="">Selecciona una talla</option>
-                        <option value="S">S</option>
-                        <option value="M">M</option>
-                        <option value="L">L</option>
-                        <option value="XL">XL</option>
-                    </select>
-                </div>
-
-                <!-- Botón de añadir al carrito -->
                 <form method="POST" action="/carrito">
-                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
-                    <input type="hidden" name="producto_name" value="{{ producto.name }}">
-                    <input type="hidden" name="producto_price" value="{{ producto.price }}">
-                    <input type="hidden" id="tallaSeleccionada" name="producto_talla" value="">
-
-                    <button type="submit" class="btn btn-primary w-100">Añadir al carrito</button>
+                    <input type="hidden" name="add_to_cart" value="1">
+                    <input type="hidden" name="product_id" value="{{ producto.id }}">
+                    <div class="mb-3">
+                        <label for="talla" class="form-label fw-semibold">Talla:</label>
+                        <select id="talla" name="talla" class="form-select" required>
+                            <option value="">Selecciona una talla</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-cart-plus"></i> Añadir al carrito
+                    </button>
                 </form>
+                
                 <!-- Información adicional del producto -->
                 <div class="accordion mt-4" id="infoAccordion">
                     <!-- Información del producto -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="infoHeading">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#infoCollapse" aria-expanded="true" aria-controls="infoCollapse">
                                 Información del producto
                             </button>
                         </h2>
-                        <div id="infoCollapse" class="accordion-collapse collapse show" aria-labelledby="infoHeading"
+                        <div id="infoCollapse" class="accordion-collapse collapse" aria-labelledby="infoHeading"
                             data-bs-parent="#infoAccordion">
                             <div class="accordion-body">
                                 <p>{{ producto.full_description ?? 'Este producto está confeccionado con materiales de

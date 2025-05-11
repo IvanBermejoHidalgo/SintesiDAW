@@ -59,3 +59,13 @@ CREATE TABLE imagenes (
     url LONGBLOB NOT NULL,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 );
+
+CREATE TABLE carrito (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    talla VARCHAR(5) NOT NULL,
+    cantidad INT DEFAULT 1,
+    FOREIGN KEY (usuario_id)   REFERENCES User(id)      ON DELETE CASCADE,
+    FOREIGN KEY (producto_id)  REFERENCES productos(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
