@@ -271,4 +271,37 @@ class DatabaseController {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public static function getProductCount() {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM productos");
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['count'] ?? 0;
+    }
+
+
+
+    public static function getProductsByCategory() {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT category, COUNT(*) as count
+            FROM productos
+            GROUP BY category
+        ");
+        $stmt->execute();
+    
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $counts = ['hombre' => 0, 'mujer' => 0, 'todos' => 0];
+    
+        foreach ($result as $row) {
+            $category = strtolower($row['category']);
+            if (array_key_exists($category, $counts)) {
+                $counts[$category] = (int)$row['count'];
+            }
+        }
+    
+        return $counts;
+    }
+    
+
   }

@@ -46,4 +46,11 @@ class AdminController {
             return false;
         }
     }
+
+    public static function getGenderDistribution() {
+        $pdo = DatabaseController::connect();
+        $sql = "SELECT gender, COUNT(*) as count FROM User GROUP BY gender";
+        $stmt = $pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

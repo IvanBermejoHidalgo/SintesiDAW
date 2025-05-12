@@ -30,11 +30,13 @@ if (isset($path[0]) && $path[0] === 'admin') {
             $userCount = DatabaseController::getUserCount();
             $messageCount = DatabaseController::getMessageCount();
             $activeUsers = DatabaseController::getActiveUsers();
+            $productCount = DatabaseController::getProductCount();
 
             echo $twig->render('dashboard.php', [
                 'userCount' => $userCount,
                 'messageCount' => $messageCount,
-                'activeUsers' => $activeUsers
+                'activeUsers' => $activeUsers,
+                'productCount' => $productCount
             ]);
         } else {
             header("Location: /admin");
@@ -52,6 +54,22 @@ if (isset($path[0]) && $path[0] === 'admin') {
             exit();
         }
 
+    } elseif ($action === 'products-by-category') {
+        if (isAdminLoggedIn()) {
+            $genderStats = DatabaseController::getProductsByCategory();
+            echo $twig->render('products_by_category.php', [
+                'hombreCount' => $genderStats['hombre'] ?? 0,
+                'mujerCount' => $genderStats['mujer'] ?? 0,
+                'todosCount' => $genderStats['todos'] ?? 0
+            ]);
+            
+        } else {
+            header("Location: /admin");
+            exit();
+        }
+    
+    
+    
     } elseif ($action === 'logout') {
         session_destroy();
         header("Location: /admin");

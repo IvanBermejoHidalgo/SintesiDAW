@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users by Gender</title>
+    <title>Usuario por genero</title>
     <link href="/assets/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -21,7 +21,7 @@
     </nav>
 
     <div class="container mt-4">
-        <h1 class="mb-4">Users by Gender Distribution</h1>
+        <h1 class="mb-4">Usuarios por genero</h1>
         
         <div class="row">
             <div class="col-md-6 mx-auto">
@@ -41,13 +41,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('genderChart').getContext('2d');
-            const genderData = <?= json_encode($genderStats) ?>;
+            const genderData = {{ genderStats|json_encode|raw }};
             
             const labels = genderData.map(item => {
                 switch(item.gender) {
-                    case 'male': return 'Male';
-                    case 'female': return 'Female';
-                    case 'other': return 'Other';
+                    case 'male': return 'Hombre';
+                    case 'female': return 'Mujer';
                     default: return 'Not specified';
                 }
             });

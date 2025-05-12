@@ -29,16 +29,28 @@
                 <a href="/admin/users-by-gender" style="text-decoration: none;">
                     <div class="card text-white bg-primary mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">Total Users</h5>
+                            <h5 class="card-title">Usuarios Totales</h5>
                             <p class="card-text display-4">{{ userCount }}</p>
                         </div>
                     </div>
                 </a>
             </div>
+
+            <div class="col-md-4">
+                <a href="/admin/products-by-category" style="text-decoration: none;">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Productos Totales</h5>
+                            <p class="card-text display-4">{{ productCount }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
             <div class="col-md-4">
                 <div class="card text-white bg-success mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Total Messages</h5>
+                        <h5 class="card-title">Mensajes Totales</h5>
                         <p class="card-text display-4">{{ messageCount }}</p>
                     </div>
                 </div>
