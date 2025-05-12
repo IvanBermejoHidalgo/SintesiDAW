@@ -69,3 +69,12 @@ CREATE TABLE carrito (
     FOREIGN KEY (usuario_id)   REFERENCES User(id)      ON DELETE CASCADE,
     FOREIGN KEY (producto_id)  REFERENCES productos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE listas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);
+
