@@ -79,8 +79,7 @@
                     <a class="nav-link {{ current_page == 'home' ? 'active' }}" href="/home">
                         <i class="bi bi-house-door"></i> Red Social
                     </a>
-                </li>
-                
+                </li>            
                 <!-- Menú desplegable Tienda -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ current_page starts with 'tienda' ? 'active' }}" href="#" id="tiendaDropdown" role="button" data-bs-toggle="dropdown">
@@ -94,11 +93,12 @@
                         <li><a class="dropdown-item {{ current_page == 'tienda/todos' ? 'active' }}" href="/tienda/todos"><i class="bi bi-grid"></i> Todos los productos</a></li>
                     </ul>
                 </li>
+                <li class="nav-item"><a class="nav-link" href="/listas"> <i class="bi bi-list"></i> Mis listas</a></li>
             </ul>
             
             <!-- Parte derecha de la navbar -->
             <div class="d-flex align-items-center">
-                
+                <div class="nav-item"><a class="nav-link" href="/carrito"><i class="bi bi-cart"></i> Carrito</a></div>
                 <!-- Perfil del usuario -->
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
@@ -108,7 +108,6 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> Mi perfil</a></li>
                         <!-- <li><a class="dropdown-item" href="/configuracion"><i class="bi bi-gear"></i> Configuración</a></li> -->
-                        <li><a class="dropdown-item" href="/listas"><i class="bi bi-bookmark-heart"></i> Mis listas</a></li>
     
                         <li><a class="dropdown-item" href="/carrito"><i class="bi bi-cart"></i> Mi carrito</a></li>
                         <li><a class="dropdown-item" href="/mispedidos"><i class="bi bi-cart"></i> Mis pedidos</a></li>

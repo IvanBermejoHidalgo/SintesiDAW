@@ -60,6 +60,22 @@ if ($path[1] === 'admin') {
     exit();
 }
 
+if ($path[1] === 'carrito' && isset($path[2]) && ($path[2] === 'incrementar' || $path[2] === 'decrementar') && isset($path[3])) {
+    $cartController = new CartController();
+    $productId = intval($path[3]);
+    $talla = $_POST['talla'] ?? '';
+
+    if ($path[2] === 'incrementar') {
+        $cartController->incrementar($productId, $talla);
+    } elseif ($path[2] === 'decrementar') {
+        $cartController->decrementar($productId, $talla);
+    }
+    exit();
+}
+
+
+
+
 // Manejo de rutas principales
 switch ($path[1]) {
     case '':
@@ -144,6 +160,7 @@ switch ($path[1]) {
                 'current_page' => 'carrito'
             ]);
             break;
+            
 
             case 'checkout':
                 if (isset($_SESSION['user_id'])) {

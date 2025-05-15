@@ -20,7 +20,10 @@ class CartController {
                 $talla     = trim($_POST['talla']);
                 $this->addToCart($userId, $productId, $talla);
             } elseif (isset($_POST['remove_from_cart'])) {
-                $this->removeFromCart($userId, intval($_POST['product_id']));
+                $productId = intval($_POST['product_id']);
+$talla     = $_POST['talla'] ?? '';
+$this->removeFromCart($userId, $productId, $talla);
+
             }
             header("Location: /carrito");
             exit();
@@ -62,13 +65,60 @@ class CartController {
         }
     }
 
-    private function removeFromCart($userId, $productId) {
-        $del = $this->db->prepare("
-            DELETE FROM carrito 
-            WHERE usuario_id = ? AND producto_id = ?
-        ");
-        $del->execute([$userId, $productId]);
+    private function removeFromCart($userId, $productId, $talla) {
+    $del = $this->db->prepare("
+        DELETE FROM carrito 
+        WHERE usuario_id = ? AND producto_id = ? AND talla = ?
+    ");
+    $del->execute([$userId, $productId, $talla]);
+}
+
+    public function incrementar($productId, $talla) {
+    $userId = $_SESSION['user_id'];
+    $stmt = $this->db->prepare("
+        UPDATE carrito
+        SET cantidad = cantidad + 1
+        WHERE usuario_id = ? AND producto_id = ? AND talla = ?
+    ");
+    $stmt->execute([$userId, $productId, $talla]);
+
+    header("Location: /carrito");
+    exit();
+}
+
+public function decrementar($productId, $talla) {
+    $userId = $_SESSION['user_id'];
+
+    $stmt = $this->db->prepare("
+        SELECT cantidad FROM carrito 
+        WHERE usuario_id = ? AND producto_id = ? AND talla = ?
+    ");
+    $stmt->execute([$userId, $productId, $talla]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        if ($row['cantidad'] > 1) {
+            $update = $this->db->prepare("
+                UPDATE carrito 
+                SET cantidad = cantidad - 1 
+                WHERE usuario_id = ? AND producto_id = ? AND talla = ?
+            ");
+            $update->execute([$userId, $productId, $talla]);
+        } else {
+            $delete = $this->db->prepare("
+                DELETE FROM carrito 
+                WHERE usuario_id = ? AND producto_id = ? AND talla = ?
+            ");
+            $delete->execute([$userId, $productId, $talla]);
+        }
     }
+
+    header("Location: /carrito");
+    exit();
+}
+
+
+
 
     private function getCartItems($userId) {
         $stmt = $this->db->prepare("
