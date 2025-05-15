@@ -80,4 +80,21 @@ class CartController {
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function handleCheckout() {
+        $userId = $_SESSION['user_id'];
+        $userData = SessionController::getUserData($userId);
+        $cartItems = $this->getCartItems($userId);
+    
+        $total = 0;
+        foreach ($cartItems as $item) {
+            $total += $item['price'] * $item['cantidad'];
+        }
+    
+        return [
+            'cartItems' => $cartItems,
+            'total' => $total,
+            'userData' => $userData
+        ];
+    }
+    
 }

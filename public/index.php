@@ -145,7 +145,25 @@ switch ($path[1]) {
             ]);
             break;
 
-        case 'producto':
+            case 'checkout':
+                if (isset($_SESSION['user_id'])) {
+                    $cartController = new CartController();
+                    $checkoutData = $cartController->handleCheckout();
+            
+                    echo $twig->render('checkout.html', [
+                        'cartItems' => $checkoutData['cartItems'],
+                        'total' => $checkoutData['total'],
+                        'userData' => $checkoutData['userData'],
+                        'language' => $language,
+                        'current_page' => 'checkout'
+                    ]);
+                } else {
+                    header("Location: /");
+                    exit();
+                }
+                break;
+            
+            case 'producto':
             if (isset($_SESSION['user_id']) && isset($path[2])) {
                 $productId = $path[2];
                 $producto = (new TiendaController())->getProductoPorId($productId);
