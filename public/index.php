@@ -12,6 +12,9 @@ require_once "../src/controller/HomeController.php";
 require_once "../src/controller/ProfileController.php"; 
 require_once "../src/controller/TiendaController.php"; 
 require_once "../src/controller/CartController.php";
+require_once "../src/controller/CheckoutController.php";
+require_once "../src/controller/PedidoConfirmadoController.php";
+
 
 session_start();
 
@@ -159,26 +162,7 @@ switch ($path[1]) {
                 'language'  => $language,
                 'current_page' => 'carrito'
             ]);
-            break;
-            
-
-            case 'checkout':
-                if (isset($_SESSION['user_id'])) {
-                    $cartController = new CartController();
-                    $checkoutData = $cartController->handleCheckout();
-            
-                    echo $twig->render('checkout.html', [
-                        'cartItems' => $checkoutData['cartItems'],
-                        'total' => $checkoutData['total'],
-                        'userData' => $checkoutData['userData'],
-                        'language' => $language,
-                        'current_page' => 'checkout'
-                    ]);
-                } else {
-                    header("Location: /");
-                    exit();
-                }
-                break;
+        break;
             
             case 'producto':
             if (isset($_SESSION['user_id']) && isset($path[2])) {
@@ -196,7 +180,26 @@ switch ($path[1]) {
                 exit();
             }
             break;
-    
+            case 'checkout':
+    if (isset($_SESSION['user_id'])) {
+        $checkoutController = new CheckoutController($twig);
+        $checkoutController->handleRequest();
+    } else {
+        header("Location: /");
+        exit();
+    }
+    break;
+
+        case 'pedido_confirmado':
+    if (isset($_SESSION['user_id'])) {
+        $pedidoConfirmadoController = new PedidoConfirmadoController($twig);
+        $pedidoConfirmadoController->handleRequest();
+    } else {
+        header("Location: /");
+        exit();
+    }
+    break;
+
         case 'tienda':
             if (isset($_SESSION['user_id'])) {
                 $tiendaController = new TiendaController();
