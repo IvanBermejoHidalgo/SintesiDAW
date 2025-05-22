@@ -5,6 +5,7 @@
     "require": {
         "twbs/bootstrap": "^5.3",
       "firebase/php-jwt": "^6.10",
-      "twig/twig": "^3.0"
+      "twig/twig": "^3.0",
+        "phpmailer/phpmailer": "^6.10"
     }
   }

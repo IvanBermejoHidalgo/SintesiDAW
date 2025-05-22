@@ -26,6 +26,10 @@ class ComposerStaticInit88aa8cc280acbc59b325d82b20172f6c
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
         ),
+        'P' => 
+        array (
+            'PHPMailer\\PHPMailer\\' => 20,
+        ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
@@ -45,6 +49,10 @@ class ComposerStaticInit88aa8cc280acbc59b325d82b20172f6c
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
@@ -53,12 +61,15 @@ class ComposerStaticInit88aa8cc280acbc59b325d82b20172f6c
 
     public static $classMap = array (
         'AdminController' => __DIR__ . '/../..' . '/src/controller/AdminController.php',
+        'CartController' => __DIR__ . '/../..' . '/src/controller/CartController.php',
+        'CheckoutController' => __DIR__ . '/../..' . '/src/controller/CheckoutController.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Controller\\AuthController' => __DIR__ . '/../..' . '/src/controller/AuthController.php',
         'DatabaseController' => __DIR__ . '/../..' . '/src/controller/DatabaseController.php',
-        'DriversController' => __DIR__ . '/../..' . '/src/controller/DriversController.php',
-        'RacesController' => __DIR__ . '/../..' . '/src/controller/RacesController.php',
+        'HomeController' => __DIR__ . '/../..' . '/src/controller/HomeController.php',
+        'ProfileController' => __DIR__ . '/../..' . '/src/controller/ProfileController.php',
         'SessionController' => __DIR__ . '/../..' . '/src/controller/SessionController.php',
-        'TeamsController' => __DIR__ . '/../..' . '/src/controller/TeamsController.php',
+        'TiendaController' => __DIR__ . '/../..' . '/src/controller/TiendaController.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

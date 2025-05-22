@@ -7,10 +7,13 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AdminController' => $baseDir . '/src/controller/AdminController.php',
+    'CartController' => $baseDir . '/src/controller/CartController.php',
+    'CheckoutController' => $baseDir . '/src/controller/CheckoutController.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'Controller\\AuthController' => $baseDir . '/src/controller/AuthController.php',
     'DatabaseController' => $baseDir . '/src/controller/DatabaseController.php',
-    'DriversController' => $baseDir . '/src/controller/DriversController.php',
-    'RacesController' => $baseDir . '/src/controller/RacesController.php',
+    'HomeController' => $baseDir . '/src/controller/HomeController.php',
+    'ProfileController' => $baseDir . '/src/controller/ProfileController.php',
     'SessionController' => $baseDir . '/src/controller/SessionController.php',
-    'TeamsController' => $baseDir . '/src/controller/TeamsController.php',
+    'TiendaController' => $baseDir . '/src/controller/TiendaController.php',
 );

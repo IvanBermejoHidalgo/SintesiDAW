@@ -1,10 +1,9 @@
 <?php
-// Notificar todos los errores de PHP
-// Cambiar a 0 en producción
-error_reporting(-1);
+// Mostrar todos los errores (solo en desarrollo)
+error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 require_once "../vendor/autoload.php";
 require_once "../src/controller/SessionController.php";
 require_once "../src/controller/DatabaseController.php"; 
@@ -15,80 +14,71 @@ require_once "../src/controller/CartController.php";
 require_once "../src/controller/CheckoutController.php";
 require_once "../src/controller/PedidoConfirmadoController.php";
 
-
 session_start();
 
-
-$language = $_SESSION['language'] ?? 'es'; // Idioma por defecto: español
-
-// Configura el locale según el idioma seleccionado
-if ($language === 'es') {
-    $locale = 'es_ES.UTF-8'; // Locale para español
-} elseif ($language === 'en') {
-    $locale = 'en_US.UTF-8'; // Locale para inglés
-}
+// Configuración de idioma y localización
+$language = $_SESSION['language'] ?? 'es';
+$locale = ($language === 'en') ? 'en_US.UTF-8' : 'es_ES.UTF-8';
 
 putenv("LC_ALL=$locale");
 setlocale(LC_ALL, $locale);
-
-// Usa una ruta absoluta para evitar problemas con rutas relativas
 bindtextdomain('messages', '/var/www/sintesi.local/locale');
 textdomain('messages');
 
-// Verifica la ruta corregida
-// echo "Idioma seleccionado: " . $language . "<br>";
-// echo "Locale configurado: " . $locale . "<br>";
-// echo "Locale actual: " . setlocale(LC_ALL, 0) . "<br>";
-// echo "Ruta de traducciones: " . realpath('/var/www/webscraping.local/locale') . "<br>";
-// echo "Archivo de traducción (es): " . realpath('/var/www/webscraping.local/locale/es/LC_MESSAGES/messages.mo') . "<br>";
-// echo "Archivo de traducción (en): " . realpath('/var/www/webscraping.local/locale/en/LC_MESSAGES/messages.mo') . "<br>";
+// Configurar Twig
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/views');
+$twig = new \Twig\Environment($loader, ['cache' => false]);
+$twig->addFunction(new \Twig\TwigFunction('_', fn($string) => gettext($string)));
 
-$loader = new \Twig\Loader\FilesystemLoader('views');
-$twig = new \Twig\Environment($loader, [
-    'cache' => false,
-]);
-
-
-// Añadir la función _() a Twig para traducciones
-$twig->addFunction(new \Twig\TwigFunction('_', function ($string) {
-    return gettext($string);
-}));
-
-$path = explode('/', trim($_SERVER['REQUEST_URI']));
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = explode('/', trim($requestUri, '/'));
 $views = __DIR__ . '/views/';
 
-// Si la ruta comienza con /admin, redirige a admin.php
-if ($path[1] === 'admin') {
+// Redirigir a admin.php si es ruta admin
+if (isset($path[0]) && $path[0] === 'admin') {
     require __DIR__ . '/admin.php';
     exit();
 }
 
-if ($path[1] === 'carrito' && isset($path[2]) && ($path[2] === 'incrementar' || $path[2] === 'decrementar') && isset($path[3])) {
+// Rutas para incrementar o decrementar en carrito
+if (
+    isset($path[0], $path[1], $path[2]) &&
+    $path[0] === 'carrito' &&
+    in_array($path[1], ['incrementar', 'decrementar']) &&
+    is_numeric($path[2])
+) {
     $cartController = new CartController();
-    $productId = intval($path[3]);
+    $productId = intval($path[2]);
     $talla = $_POST['talla'] ?? '';
 
-    if ($path[2] === 'incrementar') {
+    if ($path[1] === 'incrementar') {
         $cartController->incrementar($productId, $talla);
-    } elseif ($path[2] === 'decrementar') {
+    } else {
         $cartController->decrementar($productId, $talla);
     }
     exit();
 }
 
-
-
-
 // Manejo de rutas principales
-switch ($path[1]) {
+$route = $path[0] ?? '';
+
+// Mostrar formulario de restablecimiento de contraseña fuera del switch
+// if ($route === 'reset_form') {
+//     try {
+//         echo $twig->render('reset_password/reset_form.html', ['token' => $_GET['token'] ?? '']);
+//     } catch (\Exception $e) {
+//         echo "<h2>Error al cargar la plantilla:</h2>";
+//         echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+//     }
+//     exit;
+// }
+
+switch ($route) {
     case '':
     case '/':
-
-        
-        require $views . 'login.php';
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
-            $username = $_POST['username'];
-            $password = $_POST['password'];
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
             $result = SessionController::userLogin($username, $password);
             if ($result === "success") {
                 header("Location: /home");
@@ -97,16 +87,15 @@ switch ($path[1]) {
                 echo "<script>alert('$result');</script>";
             }
         }
+        require $views . 'login.php';
         break;
 
     case 'signup':
-
-        require $views . 'signup.php';
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
-            $username = $_POST['username'];
-            $email = $_POST['email'];
-            $password = $_POST['password'];
-            $gender = $_POST['gender'];
+            $username = $_POST['username'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $gender = $_POST['gender'] ?? '';
             $result = SessionController::userSignUp($username, $email, $password, $gender);
             if ($result === "Usuario registrado exitosamente") {
                 header("Location: /");
@@ -115,171 +104,255 @@ switch ($path[1]) {
                 echo "<script>alert('$result');</script>";
             }
         }
+        require $views . 'signup.php';
         break;
 
     case 'home':
-        if (isset($_SESSION['user_id'])) {
-            $homeController = new HomeController();
-            $homeData = $homeController->handleRequest();
-            
-            echo $twig->render('home.html', [
-                'messages' => $homeData['messages'],
-                'userData' => $homeData['userData'],
-                'current_user_id' => $_SESSION['user_id'],
-                'language' => $language,
-                'current_page' => 'home'
-            ]);
-        } else {
+        if (!isset($_SESSION['user_id'])) {
             header("Location: /");
             exit();
         }
+        $homeController = new HomeController();
+        $homeData = $homeController->handleRequest();
+        echo $twig->render('home.html', [
+            'messages' => $homeData['messages'],
+            'userData' => $homeData['userData'],
+            'current_user_id' => $_SESSION['user_id'],
+            'language' => $language,
+            'current_page' => 'home'
+        ]);
         break;
 
     case 'profile':
-        if (isset($_SESSION['user_id'])) {
-            $profileController = new ProfileController();
-            $profileData = $profileController->handleRequest();
-            
-            echo $twig->render('profile.html', [
-                'profileUser' => $profileData['profileUser'],
-                'userMessages' => $profileData['userMessages'],
-                'current_user_id' => $_SESSION['user_id'],
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
+        $profileController = new ProfileController();
+        $profileData = $profileController->handleRequest();
+        echo $twig->render('profile.html', [
+            'profileUser' => $profileData['profileUser'],
+            'userMessages' => $profileData['userMessages'],
+            'current_user_id' => $_SESSION['user_id'],
+            'language' => $language,
+            'current_page' => 'profile'
+        ]);
+        break;
+
+    case 'carrito':
+        $cartController = new CartController();
+        $data = $cartController->handleRequest();
+        echo $twig->render('carrito.html', [
+            'cartItems' => $data['cartItems'],
+            'userData' => $data['userData'],
+            'language' => $language,
+            'current_page' => 'carrito'
+        ]);
+        break;
+
+    case 'producto':
+        if (isset($_SESSION['user_id'], $path[1])) {
+            $productId = $path[1];
+            $producto = (new TiendaController())->getProductoPorId($productId);
+            echo $twig->render('producto.html', [
+                'producto' => $producto,
+                'userData' => SessionController::getUserData($_SESSION['user_id']),
                 'language' => $language,
-                'current_page' => 'profile'
+                'current_page' => 'producto'
             ]);
         } else {
-            header("Location: /");
+            header("Location: /tienda");
             exit();
         }
         break;
 
-        case 'carrito':
-            $cartController = new CartController();
-            $data = $cartController->handleRequest();
-            echo $twig->render('carrito.html', [
-                'cartItems' => $data['cartItems'],
-                'userData'  => $data['userData'],
-                'language'  => $language,
-                'current_page' => 'carrito'
-            ]);
-        break;
-            
-            case 'producto':
-            if (isset($_SESSION['user_id']) && isset($path[2])) {
-                $productId = $path[2];
-                $producto = (new TiendaController())->getProductoPorId($productId);
-                
-                echo $twig->render('producto.html', [
-                    'producto' => $producto,
-                    'userData' => SessionController::getUserData($_SESSION['user_id']),
-                    'language' => $language,
-                    'current_page' => 'producto'
-                ]);
-            } else {
-                header("Location: /tienda");
-                exit();
-            }
-            break;
-            case 'checkout':
-    if (isset($_SESSION['user_id'])) {
+    case 'checkout':
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
         $checkoutController = new CheckoutController($twig);
         $checkoutController->handleRequest();
-    } else {
-        header("Location: /");
-        exit();
-    }
-    break;
+        break;
 
-        case 'pedido_confirmado':
-    if (isset($_SESSION['user_id'])) {
-        $pedidoConfirmadoController = new PedidoConfirmadoController($twig);
-        $pedidoConfirmadoController->handleRequest();
-    } else {
-        header("Location: /");
-        exit();
-    }
-    break;
-
-        case 'tienda':
-            if (isset($_SESSION['user_id'])) {
-                $tiendaController = new TiendaController();
-                $tiendaData = $tiendaController->handleRequest();
-                
-                echo $twig->render('tienda.html', [
-                    'productos' => $tiendaData['productos'],
-                    'categoria_actual' => $tiendaData['categoria_actual'],
-                    'userData' => $tiendaData['userData'],
-                    'current_page' => 'tienda/' . $tiendaData['categoria_actual'],
-                    'language' => $language
-                ]);
-            } else {
-                header("Location: /");
-                exit();
-            }
-            break;    
-            
-
-    case 'user':
-        if (isset($_SESSION['user_id'])) {
-            $userId = $path[2] ?? $_GET['id'] ?? null;
-            
-            if (!$userId) {
-                header("Location: /home");
-                exit();
-            }
-            
-            $profileController = new ProfileController();
-            $profileData = $profileController->handlePublicProfileRequest($userId);
-            
-            // Obtener datos del usuario actual
-            $currentUserData = DatabaseController::getUserById($_SESSION['user_id']);
-            
-            echo $twig->render('user.html', [
-                'profileUser' => $profileData['profileUser'],
-                'userMessages' => $profileData['userMessages'],
-                'current_user_id' => $_SESSION['user_id'],
-                'userData' => $currentUserData, // Pasamos los datos del usuario en sesión
-                'language' => $language,
-                'current_page' => 'profile'
-            ]);
-        } else {
+    case 'pedido_confirmado':
+        if (!isset($_SESSION['user_id'])) {
             header("Location: /");
             exit();
         }
+        $pedidoConfirmadoController = new PedidoConfirmadoController($twig);
+        $pedidoConfirmadoController->handleRequest();
+        break;
+
+    case 'tienda':
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
+        $tiendaController = new TiendaController();
+        $tiendaData = $tiendaController->handleRequest();
+        echo $twig->render('tienda.html', [
+            'productos' => $tiendaData['productos'],
+            'categoria_actual' => $tiendaData['categoria_actual'],
+            'userData' => $tiendaData['userData'],
+            'current_page' => 'tienda/' . $tiendaData['categoria_actual'],
+            'language' => $language
+        ]);
+        break;
+
+    case 'user':
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
+        $userId = $path[1] ?? $_GET['id'] ?? null;
+        if (!$userId) {
+            header("Location: /home");
+            exit();
+        }
+        $profileController = new ProfileController();
+        $profileData = $profileController->handlePublicProfileRequest($userId);
+        $currentUserData = DatabaseController::getUserById($_SESSION['user_id']);
+        echo $twig->render('user.html', [
+            'profileUser' => $profileData['profileUser'],
+            'userMessages' => $profileData['userMessages'],
+            'current_user_id' => $_SESSION['user_id'],
+            'userData' => $currentUserData,
+            'language' => $language,
+            'current_page' => 'profile'
+        ]);
         break;
 
     case 'logout':
-        // Cerrar sesión
-        session_start(); // Iniciar la sesión si no está iniciada
-        session_destroy(); // Destruir la sesión
-        header("Location: /"); // Redirigir al login
+        session_destroy();
+        header("Location: /");
         exit();
         break;
 
     case 'change-language':
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
-            $language = $_POST['language'];
-            $_SESSION['language'] = $language; // Guardar el idioma en la sesión
-
-            // Configurar el locale con el nuevo idioma
-            if ($language === 'es') {
-                $locale = 'es_ES.UTF-8';
-            } elseif ($language === 'en') {
-                $locale = 'en_US.UTF-8';
-            }
-
-            putenv("LC_ALL=$locale");
-            setlocale(LC_ALL, $locale);
-
-            // Redirigir a la página anterior
-            header("Location: " . $_SERVER['HTTP_REFERER']);
+            $language = $_POST['language'] ?? 'es';
+            $_SESSION['language'] = $language;
+            header("Location: " . ($_SERVER['HTTP_REFERER'] ?? '/'));
             exit();
         }
         break;
 
-    case 'not-found':
+    case 'forgot_password':
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $email = $_POST['email'] ?? '';
+            $result = SessionController::sendResetPasswordEmail($email);
+            echo $twig->render('reset_password/forgot_password.php', ['message' => $result]);
+        } else {
+            echo $twig->render('reset_password/forgot_password.php');
+        }
+        break;
+
+    case 'reset_form':
+        error_log("Accediendo a reset_form. Método: " . $_SERVER['REQUEST_METHOD']);
+        $token = $_GET['token'] ?? '';
+        error_log("Token recibido: $token");
+
+        try {
+            // Verificar que el token existe en la base de datos
+            $db = DatabaseController::connect();
+            
+            $stmt = $db->prepare("SELECT pr.user_id, pr.expires_at, u.username, u.email 
+                                FROM password_resets pr
+                                JOIN User u ON pr.user_id = u.id
+                                WHERE pr.token = ?");
+            if (!$stmt->execute([$token])) {
+                throw new Exception("Error en consulta SQL: " . implode(", ", $stmt->errorInfo()));
+            }
+            
+            $tokenData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$tokenData) {
+                throw new Exception("Token no encontrado en la base de datos");
+            }
+
+            error_log("Token válido encontrado para usuario: " . $tokenData['username']);
+
+            if (strtotime($tokenData['expires_at']) < time()) {
+                throw new Exception("Token expirado: " . $tokenData['expires_at']);
+            }
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                error_log("Procesando solicitud POST para restablecimiento");
+                $newPassword = $_POST['new_password'] ?? '';
+                $confirmPassword = $_POST['confirm_password'] ?? '';
+                
+                // Validaciones
+                if (empty($newPassword)) {
+                    throw new Exception("La contraseña no puede estar vacía");
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    throw new Exception("Las contraseñas no coinciden");
+                }
+
+                // Procesar el cambio de contraseña
+                $result = SessionController::resetPasswordWithToken($token, $newPassword);
+                error_log("Resultado de resetPasswordWithToken: $result");
+                
+                if ($result === "Contraseña restablecida correctamente") {
+                    echo $twig->render('reset_password/reset_success.html');
+                    exit();
+                }
+                throw new Exception($result);
+            }
+
+            // Mostrar formulario de restablecimiento
+            echo $twig->render('reset_password/reset_form.html', [
+                'token' => $token,
+                'error' => null
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Error en reset_form: " . $e->getMessage());
+            echo $twig->render('reset_password/invalid_token.html', [
+                'message' => $e->getMessage()
+            ]);
+        }
+        break;
+    case 'reset_password':
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $token = $_POST['token'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            if (empty($newPassword)) {
+                echo $twig->render('reset_password/reset_form.html', [
+                    'token' => $token,
+                    'error' => 'La contraseña no puede estar vacía'
+                ]);
+                exit;
+            }
+
+            if ($newPassword !== $confirmPassword) {
+                echo $twig->render('reset_password/reset_form.html', [
+                    'token' => $token,
+                    'error' => 'Las contraseñas no coinciden'
+                ]);
+                exit;
+            }
+
+            $result = SessionController::resetPasswordWithToken($token, $newPassword);
+
+            if ($result === "Contraseña restablecida correctamente") {
+                header("Location: /login");
+                exit;
+            } else {
+                echo $twig->render('reset_password/reset_form.html', [
+                    'token' => $token,
+                    'error' => $result
+                ]);
+                exit;
+            }
+        }
+        break;
+
     default:
-        http_response_code(404);
         require $views . '404.php';
         break;
 }
