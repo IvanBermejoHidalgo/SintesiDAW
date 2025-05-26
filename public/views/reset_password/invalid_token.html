@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Enlace Inválido</title>
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Enlace Inválido</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/assets/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container mt-5">
-        <div class="alert alert-danger text-center">
-            <h4>{{ message }}</h4>
-            <p>Por favor, solicita un nuevo enlace de recuperación.</p>
-            <a href="/forgot_password" class="btn btn-primary">Solicitar nuevo enlace</a>
-        </div>
+<body class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
+    <div class="card-body text-center">
+      <h4 class="mb-3 text-danger">Enlace inválido</h4>
+      <!-- <p class="mb-4">{{ message }}<br>Por favor, solicita un nuevo enlace de recuperación.</p> -->
+      <p class="mb-4">Por favor, solicita un nuevo enlace de recuperación.</p>
+      <a href="/forgot_password" class="btn btn-primary w-100">Solicitar nuevo enlace</a>
+      <div class="text-center mt-3">
+        <a href="/">Volver al login</a>
+      </div>
     </div>
+  </div>
 </body>
 </html>

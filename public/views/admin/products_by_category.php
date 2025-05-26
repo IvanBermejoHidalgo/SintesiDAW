@@ -22,6 +22,18 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Admin Panel</a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+        </div>
+        <div class="navbar-nav ms-auto">
+            <a href="/admin/logout" class="btn btn-outline-light">Cerrar Sesión</a>
+        </div>
+    </div>
+    </nav>
+
     <div class="container my-5">
         <div class="chart-container">
             <h2 class="text-center">Distribución de Productos por Categoría</h2>

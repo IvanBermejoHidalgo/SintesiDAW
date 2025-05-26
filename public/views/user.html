@@ -253,10 +253,198 @@
                 font-size: 1.5rem;
             }
         }
+
+        body.dark-mode {
+            background-color: #121212 !important;
+            color: #f1f1f1 !important;
+        }
+
+        body.dark-mode .navbar {
+            background-color: #1e1e1e !important;
+        }
+
+        body.dark-mode .card {
+            background-color: #2a2a2a;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .btn,
+        body.dark-mode a {
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .text-dark {
+            color: #f1f1f1 !important;
+        }
+        .navbar-nav .nav-link {
+            color: var(--text-color);
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #007bff;
+        }
+
+        body.dark-mode .dropdown-menu {
+            background-color: #2a2a2a;
+            color: #f1f1f1;
+            border-color: #444;
+        }
+
+        body.dark-mode .dropdown-menu .dropdown-item {
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .dropdown-menu .dropdown-item:hover,
+        body.dark-mode .dropdown-menu .dropdown-item:focus {
+            background-color: #3a3a3a;
+            color: #fff;
+        }
+
+        .container.py-4 {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .profile-card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        }
+
+        .profile-header {
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+        }
+
+        .profile-image-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-image, 
+        #profileImagePreview {
+            border: 2px solid #444;
+            box-shadow: 0 0 8px #555 inset;
+            filter: drop-shadow(0 0 0.25rem #000);
+            transition: border-color 0.3s ease;
+        }
+
+        .profile-image:hover, 
+        #profileImagePreview:hover {
+            border-color: #0d6efd; /* azul Bootstrap */
+            cursor: pointer;
+        }
+
+        .profile-info h1.profile-username {
+            color: #ffffff;
+        }
+
+        .profile-join-date {
+            color: #bbb;
+        }
+
+        .profile-stats-container {
+            margin-left: auto;
+        }
+
+        .profile-stats {
+            background-color: #292929;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            color: #ccc;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-item .stat-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0d6efd;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .profile-actions {
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
+        }
+
+        .btn-outline-primary {
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-primary:hover, 
+        .btn-outline-primary:focus {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0a58ca;
+        }
+
+        .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border-radius: 8px;
+            border: none;
+        }
+
+        .modal-header, 
+        .modal-footer {
+            border-color: #333;
+        }
+
+        .form-label {
+            color: #ddd;
+        }
+
+        .form-control {
+            background-color: #292929;
+            border: 1px solid #444;
+            color: #eee;
+        }
+
+        .form-control:focus {
+            background-color: #3a3a3a;
+            border-color: #0d6efd;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-text {
+            color: #aaa;
+        }
+
+        .btn-secondary {
+            background-color: #444;
+            border-color: #555;
+            color: #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0a58ca;
+        }
+
+        .btn-primary:hover {
+            background-color: #0a58ca;
+            border-color: #084298;
+        }
     </style>
 </head>
 <body class="bg-light">
-    {% include 'navbar.html' with {
+    {% include 'navegacion/navbar.html' with {
         'current_page': 'profile',
         'userData': userData
     } %}
@@ -445,6 +633,25 @@
                 });
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+                
+                // Cambiar icono a sol si está en modo oscuro
+                const darkModeIcon = document.querySelector('.dark-mode-icon i');
+                darkModeIcon.classList.remove('bi-moon-fill');
+                darkModeIcon.classList.add('bi-sun-fill');
+            }
+            
+            // Configurar evento para el interruptor
+            darkModeToggle.addEventListener('change', toggleDarkMode);
+        });
     </script>
+    {% include 'navegacion/footer.html' %}
 </body>
 </html>

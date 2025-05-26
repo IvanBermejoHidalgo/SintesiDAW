@@ -1,74 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restablecer Contraseña</title>
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .password-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .password-feedback {
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Restablecer Contraseña</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/assets/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <div class="password-container">
-            <h2 class="text-center mb-4">Restablecer Contraseña</h2>
-            
-            {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-            
-            <form id="resetForm" method="POST" action="/reset_password">
-                <input type="hidden" name="token" value="{{ token }}">
-                
-                <div class="form-group mb-3">
-                    <label for="new_password">Nueva Contraseña</label>
-                    <input type="password" class="form-control" id="new_password" 
-                           name="new_password" required minlength="5">
-                    <small class="form-text text-muted password-feedback">
-                        Mínimo 5 caracteres
-                    </small>
-                </div>
-                
-                <div class="form-group mb-4">
-                    <label for="confirm_password">Confirmar Contraseña</label>
-                    <input type="password" class="form-control" id="confirm_password" 
-                           name="confirm_password" required minlength="8">
-                    <div id="passwordMatch" class="password-feedback"></div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary w-100">Actualizar Contraseña</button>
-            </form>
-        </div>
-    </div>
+<body class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
+    <div class="card-body">
+      <h4 class="text-center mb-4">Restablecer Contraseña</h4>
 
-    <script>
-        // Validación en cliente para contraseñas coincidentes
-        document.getElementById('resetForm').addEventListener('submit', function(e) {
-            const password = document.getElementById('new_password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-            const feedback = document.getElementById('passwordMatch');
-            
-            if (password !== confirmPassword) {
-                feedback.textContent = 'Las contraseñas no coinciden';
-                feedback.style.color = 'red';
-                e.preventDefault();
-            } else {
-                feedback.textContent = '✓ Las contraseñas coinciden';
-                feedback.style.color = 'green';
-            }
-        });
-    </script>
+      {% if error %}
+        <div class="alert alert-info">{{ error }}</div>
+      {% endif %}
+
+      <form id="resetForm" method="POST" action="/reset_password">
+        <input type="hidden" name="token" value="{{ token }}">
+
+        <div class="mb-3">
+          <label for="new_password" class="form-label">Nueva Contraseña</label>
+          <input type="password" class="form-control" id="new_password"
+                 name="new_password" required minlength="5">
+          <div class="form-text">Mínimo 5 caracteres</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+          <input type="password" class="form-control" id="confirm_password"
+                 name="confirm_password" required minlength="5">
+          <div id="passwordMatch" class="form-text"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Actualizar Contraseña</button>
+      </form>
+
+      <div class="text-center mt-3">
+        <a href="/">Volver al login</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Validación de coincidencia de contraseñas
+    document.getElementById('resetForm').addEventListener('submit', function(e) {
+      const password = document.getElementById('new_password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      const feedback = document.getElementById('passwordMatch');
+
+      if (password !== confirmPassword) {
+        feedback.textContent = 'Las contraseñas no coinciden';
+        feedback.style.color = 'red';
+        e.preventDefault();
+      } else {
+        feedback.textContent = '✓ Las contraseñas coinciden';
+        feedback.style.color = 'green';
+      }
+    });
+  </script>
 </body>
 </html>

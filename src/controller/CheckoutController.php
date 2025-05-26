@@ -46,7 +46,7 @@ class CheckoutController {
                 $this->clearCart($userId);
                 $this->db->commit();
 
-                header("Location: /pedido_confirmado?id=" . $pedidoId);
+                header("Location: tienda/pedido_confirmado?id=" . $pedidoId);
                 exit();
 
             } catch (Exception $e) {
@@ -69,8 +69,8 @@ class CheckoutController {
             $total += $item['price'] * $item['cantidad'];
         }
 
-        echo $this->twig->render('checkout.html', [
-            'userData' => $userData,
+        echo $this->twig->render('tienda/checkout.html', [
+            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
             'cartItems' => $cartItems,
             'total' => $total,
             'error' => $error,

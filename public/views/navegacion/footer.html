@@ -1,0 +1,62 @@
+<style>
+    body.dark-mode footer {
+        background-color: #1e1e1e !important;
+        color: #ccc !important;
+    }
+
+    body.dark-mode footer a {
+        color: #ccc !important;
+    }
+
+    body.dark-mode footer hr {
+        border-color: #444 !important;
+    }
+    footer {
+        background-color: #fff;
+        color: #000;
+    }
+
+    body.dark-mode footer {
+        background-color: #1e1e1e;
+        color: #ccc;
+    }
+
+
+</style>
+<footer class="footer pt-5 pb-4 mt-5 shadow-sm">
+    <div class="container">
+        <div class="row">
+            <!-- Información general -->
+            <div class="col-md-4 mb-4">
+                <img src="/images/logo.png" alt="Logo ShopList" style="height: 40px;" class="me-2">
+                <span class="fs-5 fw-bold text-primary">ShopList</span>
+                <p class="small">Tu plataforma para compartir y comprar en comunidad. Gestiona listas, encuentra productos y hazlo social.</p>
+            </div>
+
+            <!-- Enlaces útiles -->
+            <div class="col-md-4 mb-4">
+                <h6 class="text-uppercase fw-bold mb-3">Secciones</h6>
+                <ul class="list-unstyled">
+                    <li><a href="/home" class="text-dark text-decoration-none"><i class="bi bi-house-door me-2"></i>Red Social</a></li>
+                    <li><a href="/tienda/todos" class="text-dark text-decoration-none"><i class="bi bi-shop me-2"></i>Tienda</a></li>
+                    <li><a href="/listas" class="text-dark text-decoration-none"><i class="bi bi-list me-2"></i>Mis listas</a></li>
+                </ul>
+            </div>
+
+            <!-- Legal y contacto -->
+            <div class="col-md-4 mb-4">
+                <h6 class="text-uppercase fw-bold mb-3">Información</h6>
+                <ul class="list-unstyled">
+                    <li><a href="/about" class="text-dark text-decoration-none"><i class="bi bi-info-circle me-2"></i>Sobre nosotros</a></li>
+                    <li><a href="/contact" class="text-dark text-decoration-none"><i class="bi bi-envelope me-2"></i>Contacto</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Línea inferior -->
+        <hr class="border-secondary mb-3">
+        <div class="text-center small">
+            &copy; {{ "now"|date("Y") }} ShopList.
+        </div>
+    </div>
+</footer>

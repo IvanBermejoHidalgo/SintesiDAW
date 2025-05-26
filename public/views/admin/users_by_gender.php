@@ -15,7 +15,7 @@
                 <a class="nav-link" href="/admin/dashboard">Dashboard</a>
             </div>
             <div class="navbar-nav ms-auto">
-                <a href="/admin/logout" class="nav-link">Logout</a>
+                <a href="/admin/logout" class="btn btn-outline-light">Cerrar Sesión</a>
             </div>
         </div>
     </nav>

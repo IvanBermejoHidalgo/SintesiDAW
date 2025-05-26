@@ -16,7 +16,7 @@
                         <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
                     </li>
                 </ul>
-                <a href="/admin/logout" class="btn btn-outline-light">Logout</a>
+                <a href="/admin/logout" class="btn btn-outline-light">Cerrar Sesión</a>
             </div>
         </div>
     </nav>
@@ -59,14 +59,14 @@
 
         <div class="card mt-4">
             <div class="card-header">
-                <h5>Most Active Users</h5>
+                <h5>Usuario más activos</h5>
             </div>
             <div class="card-body">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Username</th>
-                            <th>Messages</th>
+                            <th>Nombre de usuario</th>
+                            <th>Mensajes</th>
                         </tr>
                     </thead>
                     <tbody>

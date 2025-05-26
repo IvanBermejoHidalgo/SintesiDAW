@@ -51,14 +51,18 @@ class SessionController
             return "El nombre de usuario o correo electrónico ya existe.";
         }
 
+        // Imagen por defecto
+        $defaultProfileImage = '/images/default-profile.png';
+
         // Insertar usuario
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $queryInsert = "INSERT INTO User (username, email, password, gender, language) VALUES (:username, :email, :password, :gender, 'es')";
+        $queryInsert = "INSERT INTO User (username, email, password, gender, profile_image) VALUES (:username, :email, :password, :gender, :profile_image)";
         $stmtInsert = $db->prepare($queryInsert);
         $stmtInsert->bindParam(':username', $username);
         $stmtInsert->bindParam(':email', $email);
         $stmtInsert->bindParam(':password', $hashedPassword);
         $stmtInsert->bindParam(':gender', $gender);
+        $stmtInsert->bindParam(':profile_image', $profile_image);
 
         if ($stmtInsert->execute()) {
             return "Usuario registrado exitosamente";
@@ -115,9 +119,18 @@ class SessionController
 
         // Usar la URL base dinámica
         $protocol = "https://";
-        $host = "www.sintesi.local"; // Asegúrate de que sea el mismo que usa tu app
-        $resetLink = "{$protocol}{$host}/reset_form?token={$token}";
-error_log("Enviando enlace de recuperación: " . $resetLink);
+        $host = gethostname();
+        $serverName = $_SERVER['SERVER_NAME'];
+        $serverIP = gethostbyname($serverName);
+
+        // Si el servidor es local
+        if (str_ends_with($serverName, '.local')) {
+            $baseHost = $serverName; // www.shoplist.local
+        } else {
+            $baseHost = $serverIP; // 192.168.X.X 
+        }
+
+        $resetLink = "{$protocol}{$baseHost}/reset_form?token={$token}";
         // Enviar correo con PHPMailer
         $mail = new PHPMailer(true);
         try {
@@ -197,7 +210,7 @@ error_log("Enviando enlace de recuperación: " . $resetLink);
     // 4. Delete the used token
     $db->prepare("DELETE FROM password_resets WHERE token = ?")->execute([$token]);
     
-    return "Password reset successfully";
+    return "Contraseña actualizada correctamente.";
 }
 }
 ?>

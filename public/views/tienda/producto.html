@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ producto.name }}</title>
+    <link rel="icon" type="image/png" href="/images/logo.png" sizes="64x64" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" />
+    <style>
+        /* Variables CSS para modo claro/oscuro */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --navbar-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-text: #212529;
+            --text-muted: #6c757d;
+            --hover-bg: #f8f9fa;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --accordion-bg: #ffffff;
+            --accordion-button-bg: #f8f9fa;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --navbar-bg: #1a1a1a;
+            --input-bg: #2d2d2d;
+            --input-text: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --hover-bg: #333;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accordion-bg: #2a2a2a;
+            --accordion-button-bg: #2a2a2a;
+        }
+
+        /* Estilos base */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar {
+            background-color: var(--navbar-bg) !important;
+            box-shadow: 0 2px 10px var(--shadow-color);
+        }
+
+        .nav-link {
+            color: var(--text-color);
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Estilos específicos de la página de producto */
+        .main-image {
+            width: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+
+        .thumbnail {
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: transform 0.2s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        /* Estilos para formularios y desplegables */
+        .form-select {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border-color);
+        }
+
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Estilos para acordeón */
+        .accordion-button {
+            background-color: var(--accordion-button-bg);
+            color: var(--text-color);
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: var(--accordion-button-bg);
+            color: var(--text-color);
+        }
+
+        .accordion-item {
+            background-color: var(--accordion-bg);
+            border-color: var(--border-color);
+        }
+
+        .accordion-button::after {
+            filter: invert(0.6); /* Invertir color del icono del acordeón en modo oscuro */
+        }
+
+        .dark-mode .accordion-button::after {
+            filter: invert(0.8); /* Ajustar icono para modo oscuro */
+        }
+
+        /* Estilos para dropdowns */
+        .dropdown-menu {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .dropdown-item {
+            color: var(--text-color);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+        }
+
+        /* Estilos para botones */
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        /* Estilos para el interruptor de modo oscuro */
+        .dark-mode-switch {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .dark-mode-icon {
+            margin-left: 8px;
+            font-size: 18px;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: #f1f1f1;
+        }
+        body.dark-mode .text-muted {
+            color: #cccccc !important;
+        }
+
+        body.dark-mode h1, 
+        body.dark-mode h2, 
+        body.dark-mode h3, 
+        body.dark-mode p {
+            color: #f1f1f1;
+        }
+        body.dark-mode .product-card {
+            background-color: #1e1e1e;
+            border-color: #444;
+        }
+        .accordion-body {
+            color: var(--text-color);
+        }
+
+        .accordion-button::after {
+            filter: invert(0.6);
+        }
+
+        .dark-mode .accordion-button::after {
+            filter: invert(0.8);
+        }
+    </style>
+</head>
+<body>
+    {% include 'navegacion/navbar.html' with {
+        'current_page': 'tienda',
+        'userData': userData
+    } %}
+
+    <div class="container py-5">
+        <div class="row">
+            <!-- Galería de imágenes -->
+            <div class="col-md-6">
+                {% if producto.imagenes_base64 is not empty %}
+                    <img
+                        id="mainImage"
+                        src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}"
+                        class="main-image mb-3"
+                        alt="{{ producto.name }}"
+                    />
+
+                    <div class="d-flex gap-2">
+                        {% for imagen in producto.imagenes_base64 %}
+                            <img
+                                src="data:image/jpeg;base64,{{ imagen }}"
+                                class="thumbnail"
+                                width="100"
+                                onclick="document.getElementById('mainImage').src=this.src"
+                            />
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <img src="/images/default-product.png" class="main-image mb-3" alt="{{ producto.name }}" />
+                {% endif %}
+            </div>
+
+            <!-- Detalles del producto -->
+            <div class="col-md-6">
+                <h2>{{ producto.name }}</h2>
+                <p class="text-muted">{{ producto.description }}</p>
+                <p class="fs-4 fw-bold">€{{ producto.price }}</p>
+
+                <!-- Selector de talla -->
+                <form method="POST" action="/carrito">
+                    <input type="hidden" name="add_to_cart" value="1" />
+                    <input type="hidden" name="product_id" value="{{ producto.id }}" />
+                    <div class="mb-3">
+                        <label for="talla" class="form-label fw-semibold">Talla:</label>
+                        <select id="talla" name="talla" class="form-select" required>
+                            <option value="" selected disabled>Selecciona una talla</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-cart-plus"></i> Añadir al carrito
+                    </button>
+                </form>
+
+                <!-- Información adicional -->
+                <div class="accordion mt-4" id="infoAccordion">
+                    <!-- Información del producto -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="infoHeading">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#infoCollapse"
+                                aria-expanded="false"
+                                aria-controls="infoCollapse"
+                            >
+                                Información del producto
+                            </button>
+                        </h2>
+                        <div
+                            id="infoCollapse"
+                            class="accordion-collapse collapse"
+                            aria-labelledby="infoHeading"
+                            data-bs-parent="#infoAccordion"
+                        >
+                            <div class="accordion-body">
+                                <p>{{ producto.full_description ?? 'Este producto está confeccionado con materiales de alta calidad y diseñado para ofrecer comodidad y estilo.' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Política de devolución -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="devolucionHeading">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#devolucionCollapse"
+                                aria-expanded="false"
+                                aria-controls="devolucionCollapse"
+                            >
+                                Política de devolución
+                            </button>
+                        </h2>
+                        <div
+                            id="devolucionCollapse"
+                            class="accordion-collapse collapse"
+                            aria-labelledby="devolucionHeading"
+                            data-bs-parent="#infoAccordion"
+                        >
+                            <div class="accordion-body">
+                                <p>
+                                    Puedes devolver este producto en un plazo de 30 días a partir de la fecha de compra. El artículo debe estar en perfectas condiciones y con su embalaje original.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cuidados y lavado -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="cuidadosHeading">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#cuidadosCollapse"
+                                aria-expanded="false"
+                                aria-controls="cuidadosCollapse"
+                            >
+                                Cuidados y lavado
+                            </button>
+                        </h2>
+                        <div
+                            id="cuidadosCollapse"
+                            class="accordion-collapse collapse"
+                            aria-labelledby="cuidadosHeading"
+                            data-bs-parent="#infoAccordion"
+                        >
+                            <div class="accordion-body">
+                                <ul class="mb-0">
+                                    <li>Lavar a máquina con agua fría.</li>
+                                    <li>No usar lejía.</li>
+                                    <li>Planchar a temperatura baja.</li>
+                                    <li>No limpiar en seco.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para activar/desactivar el modo oscuro
+        function toggleDarkMode() {
+            const body = document.body;
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Alternar clase dark-mode en el body
+            body.classList.toggle('dark-mode');
+            
+            // Guardar preferencia en localStorage
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            // Actualizar el estado del interruptor
+            if (darkModeToggle) {
+                darkModeToggle.checked = isDarkMode;
+            }
+            
+            // Cambiar icono
+            const darkModeIcon = document.querySelector('.dark-mode-icon i');
+            if (darkModeIcon) {
+                if (isDarkMode) {
+                    darkModeIcon.classList.remove('bi-moon-fill');
+                    darkModeIcon.classList.add('bi-sun-fill');
+                } else {
+                    darkModeIcon.classList.remove('bi-sun-fill');
+                    darkModeIcon.classList.add('bi-moon-fill');
+                }
+            }
+        }
+
+        // Verificar preferencia al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                if (darkModeToggle) {
+                    darkModeToggle.checked = true;
+                }
+                
+                // Cambiar icono a sol si está en modo oscuro
+                const darkModeIcon = document.querySelector('.dark-mode-icon i');
+                if (darkModeIcon) {
+                    darkModeIcon.classList.remove('bi-moon-fill');
+                    darkModeIcon.classList.add('bi-sun-fill');
+                }
+            }
+            
+            // Configurar evento para el interruptor
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', toggleDarkMode);
+            }
+        });
+    </script>
+
+    {% include 'navegacion/footer.html' %}
+</body>
+</html>

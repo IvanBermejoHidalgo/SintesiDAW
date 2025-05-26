@@ -116,7 +116,7 @@ switch ($route) {
         $homeData = $homeController->handleRequest();
         echo $twig->render('home.html', [
             'messages' => $homeData['messages'],
-            'userData' => $homeData['userData'],
+            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
             'current_user_id' => $_SESSION['user_id'],
             'language' => $language,
             'current_page' => 'home'
@@ -142,9 +142,9 @@ switch ($route) {
     case 'carrito':
         $cartController = new CartController();
         $data = $cartController->handleRequest();
-        echo $twig->render('carrito.html', [
+        echo $twig->render('tienda/carrito.html', [
             'cartItems' => $data['cartItems'],
-            'userData' => $data['userData'],
+            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
             'language' => $language,
             'current_page' => 'carrito'
         ]);
@@ -154,9 +154,9 @@ switch ($route) {
         if (isset($_SESSION['user_id'], $path[1])) {
             $productId = $path[1];
             $producto = (new TiendaController())->getProductoPorId($productId);
-            echo $twig->render('producto.html', [
+            echo $twig->render('tienda/producto.html', [
                 'producto' => $producto,
-                'userData' => SessionController::getUserData($_SESSION['user_id']),
+                'userData' => DatabaseController::getUserById($_SESSION['user_id']),
                 'language' => $language,
                 'current_page' => 'producto'
             ]);
@@ -191,10 +191,10 @@ switch ($route) {
         }
         $tiendaController = new TiendaController();
         $tiendaData = $tiendaController->handleRequest();
-        echo $twig->render('tienda.html', [
+        echo $twig->render('tienda/tienda.html', [
             'productos' => $tiendaData['productos'],
             'categoria_actual' => $tiendaData['categoria_actual'],
-            'userData' => $tiendaData['userData'],
+            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
             'current_page' => 'tienda/' . $tiendaData['categoria_actual'],
             'language' => $language
         ]);

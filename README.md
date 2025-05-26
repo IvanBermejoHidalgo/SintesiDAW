@@ -168,3 +168,6 @@ sudo vim /etc/apache2/sites-available/000-default.conf
 DocumentRoot /var/www/sintesi.local/public
 
 sudo systemctl restart apache2
+
+
+composer require phpmailer/phpmailer
