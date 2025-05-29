@@ -577,8 +577,36 @@
             // Configurar evento para el interruptor
             darkModeToggle.addEventListener('change', toggleDarkMode);
         });
-    </script>
 
+
+
+
+         // Mostrar botón cuando se hace scroll más de 100px
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('btnBackToTop');
+
+            // Mostrar botón al hacer scroll
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 100) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+
+            // Volver arriba al hacer clic
+            btn.addEventListener('click', function () {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+    <button id="btnBackToTop" class="btn btn-primary"
+        style="position: fixed; bottom: 100px; right: 40px; display: none; z-index: 2000;">
+        <i class="bi bi-arrow-up"></i>
+    </button>
     {% include 'navegacion/footer.html' %}
 </body>
 </html>
