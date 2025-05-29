@@ -13,8 +13,8 @@ require_once "../src/controller/TiendaController.php";
 require_once "../src/controller/CartController.php";
 require_once "../src/controller/CheckoutController.php";
 require_once "../src/controller/PedidoConfirmadoController.php";
-require_once "../src/controller/MisPedidosController.php";
 require_once "../src/controller/MisListasController.php";
+require_once "../src/controller/PedidosController.php";
 
 
 session_start();
@@ -209,14 +209,48 @@ switch ($route) {
             'language' => $language
         ]);
         break;
+
     case 'mis_pedidos':
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: /");
-            exit();
-        }   
-        $mispedidosController = new MisPedidosController($twig);
-        $mispedidosController->handleRequest();
-        break;
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: /");
+        exit();
+    }
+    $userId = $_SESSION['user_id'];
+    $db = DatabaseController::connect();
+
+    $stmt = $db->prepare("
+        SELECT p.id, p.fecha, p.metodo_pago, p.nombre, p.email, p.telefono, p.direccion, p.ciudad, p.codigo_postal, p.pais,
+               COALESCE(SUM(pd.cantidad * pd.precio), 0) AS total_amount
+        FROM pedidos p
+        LEFT JOIN pedido_detalles pd ON pd.pedido_id = p.id
+        WHERE p.usuario_id = ?
+        GROUP BY p.id
+        ORDER BY p.fecha DESC
+    ");
+    $stmt->execute([$userId]);
+    $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($pedidos as &$pedido) {
+        $stmtItems = $db->prepare("
+            SELECT pr.name AS name, pd.talla, pd.cantidad, pd.precio
+            FROM pedido_detalles pd
+            JOIN productos pr ON pr.id = pd.producto_id
+            WHERE pd.pedido_id = ?
+        ");
+        $stmtItems->execute([$pedido['id']]);
+        $pedido['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+    }
+    unset($pedido);
+
+    echo $twig->render('tienda/mis_pedidos.html', [
+        'pedidos' => $pedidos,
+        'userData' => DatabaseController::getUserById($userId),
+        'language' => $language,
+        'current_page' => 'mis_pedidos'
+    ]);
+    break;
+
+
     case 'mis_listas':
         if (!isset($_SESSION['user_id'])) {
             header("Location: /");
