@@ -441,6 +441,21 @@
         background-color: #0a58ca;
         border-color: #084298;
     }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .modal-content .text-danger {
+        color: #dc3545 !important;
+        font-weight: bold;
+    }
         
     </style>
 </head>
@@ -485,8 +500,41 @@
                         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                             <i class="bi bi-pencil"></i> {{ _('Editar perfil') }}
                         </button>
+
+                        <!-- Botón para abrir el modal de eliminar cuenta -->
+                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="bi bi-trash"></i> {{ _('Eliminar cuenta') }}
+                        </button>
                     </div>
                 </div>
+
+
+                <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteAccountModalLabel">{{ _('Eliminar cuenta') }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="/profile">
+                                <div class="modal-body">
+                                    <p>{{ _('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.') }}</p>
+                                    <p class="text-danger">{{ _('Todos tus datos, mensajes y comentarios serán eliminados permanentemente.') }}</p>
+                                    
+                                    <div class="mb-3">
+                                        <label for="passwordConfirm" class="form-label">{{ _('Confirma tu contraseña') }}</label>
+                                        <input type="password" class="form-control" id="passwordConfirm" name="password" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                                    <button type="submit" name="delete_account" class="btn btn-danger">{{ _('Eliminar cuenta') }}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
                     <div class="modal-dialog">

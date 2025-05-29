@@ -252,47 +252,53 @@ switch ($route) {
 
 
     case 'mis_listas':
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: /");
-        exit();
-    }
-
-    $db = DatabaseController::connect();
-    $userId = $_SESSION['user_id'];
-    $controller = new MisListasController($db, $userId);
-
-    // Procesar formularios antes de renderizar
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $uri = $_SERVER['REQUEST_URI'];
-
-        if (strpos($uri, '/mis_listas/eliminar_producto') !== false) {
-            $controller->eliminarProductoDeLista($_POST['lista_id'], $_POST['producto_id']);
-            header("Location: /mis_listas");
-            exit;
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
         }
 
-        if (strpos($uri, '/mis_listas/eliminar_lista') !== false) {
-            $controller->eliminarLista($_POST['lista_id']);
-            header("Location: /mis_listas");
-            exit;
+        $db = DatabaseController::connect();
+        $userId = $_SESSION['user_id'];
+        $controller = new MisListasController($db, $userId);
+
+        // Procesar formularios antes de renderizar
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $uri = $_SERVER['REQUEST_URI'];
+
+            if (strpos($uri, '/mis_listas/eliminar_producto') !== false) {
+                $controller->eliminarProductoDeLista($_POST['lista_id'], $_POST['producto_id']);
+                header("Location: /mis_listas");
+                exit;
+            }
+
+            if (strpos($uri, '/mis_listas/eliminar_lista') !== false) {
+                $controller->eliminarLista($_POST['lista_id']);
+                header("Location: /mis_listas");
+                exit;
+            }
+
+            if (strpos($uri, '/mis_listas/crear') !== false) {
+                $controller->crearLista($_POST['nombre_lista']);
+                header("Location: /mis_listas");
+                exit;
+            }
+
+            // Crear nueva lista o añadir producto
+            $controller->procesarFormulario();
         }
 
-        // Crear nueva lista o añadir producto
-        $controller->procesarFormulario();
-    }
+        // Obtener listas y productos
+        $listas = $controller->getListas();
+        foreach ($listas as &$lista) {
+            $lista['productos'] = $controller->getProductosPorLista($lista['id']);
+        }
 
-    // Obtener listas y productos
-    $listas = $controller->getListas();
-    foreach ($listas as &$lista) {
-        $lista['productos'] = $controller->getProductosPorLista($lista['id']);
-    }
-
-    echo $twig->render('tienda/mis_listas.html', [
-        'listas' => $listas,
-        'userData' => DatabaseController::getUserById($userId),
-        'language' => $language,
-        'current_page' => 'mis_listas'
-    ]);
+        echo $twig->render('tienda/mis_listas.html', [
+            'listas' => $listas,
+            'userData' => DatabaseController::getUserById($userId),
+            'language' => $language,
+            'current_page' => 'mis_listas'
+        ]);
     break;
 
     case 'user':
