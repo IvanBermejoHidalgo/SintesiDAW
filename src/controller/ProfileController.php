@@ -2,6 +2,21 @@
 class ProfileController {
     public function handleRequest() {
         $userId = $_GET['id'] ?? $_SESSION['user_id'];
+
+        // Manejar la eliminación de cuenta
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
+            $this->handleAccountDeletion($userId);
+            return; // Salir después de manejar la eliminación
+        }
+
+        // Manejar la actualización del perfil si se envió el formulario
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['update_profile'])) {
+                $this->handleProfileUpdate($userId);
+            } elseif (isset($_POST['delete_account'])) {
+                $this->handleAccountDeletion($userId);
+            }
+        }
         
         // Manejar la actualización del perfil si se envió el formulario
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
@@ -122,24 +137,42 @@ class ProfileController {
     }
 
     private function handleAccountDeletion($userId) {
-        $password = $_POST['password'] ?? '';
+        // Verificar que el usuario está intentando eliminar su propia cuenta
+        if ($userId != $_SESSION['user_id']) {
+            $_SESSION['error'] = "No puedes eliminar esta cuenta";
+            header("Location: /profile");
+            exit();
+        }
+
+        $password = $_POST['password'] ?? null;
+        if (is_null($password) || $password === '') {
+            $_SESSION['error'] = "Debes ingresar tu contraseña";
+            header("Location: /profile");
+            exit();
+        }
         
-        // Verificar contraseña
+        if (empty($password)) {
+            $_SESSION['error'] = "Debes ingresar tu contraseña";
+            header("Location: /profile");
+            exit();
+        }
+
+        // Obtener usuario y verificar contraseña
         $user = DatabaseController::getUserById($userId);
-        if (!password_verify($password, $user['password'])) {
+        if (!$user || !password_verify($password, $user['password'])) {
             $_SESSION['error'] = "Contraseña incorrecta";
             header("Location: /profile");
             exit();
         }
         
-        // Eliminar la cuenta y todos los datos asociados
+        // Eliminar la cuenta
         if (DatabaseController::deleteUserAccount($userId)) {
             // Cerrar sesión y redirigir
             session_destroy();
             header("Location: /");
             exit();
         } else {
-            $_SESSION['error'] = "Error al eliminar la cuenta";
+            $_SESSION['error'] = "Error al eliminar la cuenta. Por favor, inténtalo de nuevo.";
             header("Location: /profile");
             exit();
         }

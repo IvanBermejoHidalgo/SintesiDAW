@@ -8,10 +8,6 @@
 
 <style>
     .bg-usuarios { background-color: #4a90e2; color: white; }
-    .bg-productos { background-color: #5a5f66; color: white; }
-    .bg-mensajes { background-color: #7bb661; color: white; }
-    .bg-compras { background-color: #8ca6db; color: white; }
-    .bg-cantidad-compras { background-color: #757575; color: white; }
     /* Opcional: bordes redondeados suaves para más elegancia */
     .card {
         border-radius: 0.5rem;
@@ -50,7 +46,7 @@
 
         <div class="col-md-4">
             <a href="/admin/products-by-category" style="text-decoration: none;">
-                <div class="card bg-productos mb-3">
+                <div class="card bg-usuarios mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Productos Totales</h5>
                         <p class="card-text display-4">{{ productCount }}</p>
@@ -60,7 +56,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card bg-mensajes mb-3">
+            <div class="card bg-usuarios mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Mensajes Totales</h5>
                     <p class="card-text display-4">{{ messageCount }}</p>
@@ -69,7 +65,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card bg-compras mb-3">
+            <div class="card bg-usuarios mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Total de Compras (€)</h5>
                     <p class="card-text display-4">€ {{ totalCompras|number_format(2, ',', '.') }}</p>
@@ -78,7 +74,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card bg-cantidad-compras mb-3">
+            <div class="card bg-usuarios mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Cantidad Total de Compras</h5>
                     <p class="card-text display-4">{{ totalCantidadCompras }}</p>
@@ -87,7 +83,7 @@
         </div>
 
         <div class="col-md-4">
-                <div class="card text-white bg-secondary mb-3">
+                <div class="card text-white bg-usuarios mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Listas Creadas</h5>
                         <p class="card-text display-4">{{ totalListas }}</p>

@@ -134,7 +134,7 @@ class DatabaseController {
     public static function getUserById($userId) {
         $pdo = self::connect();
         $stmt = $pdo->prepare("
-            SELECT id, username, email, profile_image, created_at 
+            SELECT id, username, email, password, profile_image, created_at 
             FROM User 
             WHERE id = ?
         ");
@@ -330,13 +330,16 @@ class DatabaseController {
         
         // Iniciar transacción para asegurar la integridad de los datos
         $pdo->beginTransaction();
+        error_log("Iniciando eliminación de cuenta para usuario ID: $userId");
         
         try {
-            // 1. Eliminar likes del usuario
+             // 1. Eliminar likes del usuario
+            error_log("Eliminando likes...");
             $stmt = $pdo->prepare("DELETE FROM likes WHERE user_id = ?");
             $stmt->execute([$userId]);
             
             // 2. Eliminar comentarios del usuario
+            error_log("Eliminando comentarios...");
             $stmt = $pdo->prepare("DELETE FROM comments WHERE user_id = ?");
             $stmt->execute([$userId]);
             
@@ -386,16 +389,19 @@ class DatabaseController {
             $stmt = $pdo->prepare("DELETE FROM password_resets WHERE user_id = ?");
             $stmt->execute([$userId]);
             
-            // 8. Finalmente, eliminar al usuario
+             // 8. Finalmente, eliminar al usuario
+            error_log("Eliminando usuario...");
             $stmt = $pdo->prepare("DELETE FROM User WHERE id = ?");
             $stmt->execute([$userId]);
+        
             
             // Confirmar todas las operaciones
             $pdo->commit();
+            error_log("Cuenta eliminada exitosamente");
             
-            // Eliminar la imagen de perfil si no es la predeterminada
+            // Eliminar imagen de perfil si no es la predeterminada
             $user = self::getUserById($userId);
-            if ($user['profile_image'] && $user['profile_image'] !== '/images/default-profile.png') {
+            if ($user && $user['profile_image'] && $user['profile_image'] !== '/images/default-profile.png') {
                 $imagePath = $_SERVER['DOCUMENT_ROOT'] . $user['profile_image'];
                 if (file_exists($imagePath)) {
                     unlink($imagePath);

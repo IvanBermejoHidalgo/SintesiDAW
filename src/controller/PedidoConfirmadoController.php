@@ -43,7 +43,7 @@ class PedidoConfirmadoController {
             'pedido' => $pedido,
             'orderItems' => $detalles,
             'total' => $total,
-            'userData' => $userData,
+            'userData' => DatabaseController::getUserById($userId),
             'current_page' => 'pedido_confirmado',
             'current_user_id' => $userId,
             'language' => $_SESSION['language'] ?? 'es'
