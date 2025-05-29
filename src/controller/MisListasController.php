@@ -34,6 +34,20 @@ class MisListasController {
         $stmt = $this->db->prepare("INSERT INTO listas (usuario_id, nombre) VALUES (?, ?)");
         return $stmt->execute([$this->userId, $nombreLista]);
     }
+    public function eliminarProductoDeLista($lista_id, $producto_id) {
+    $stmt = $this->db->prepare("DELETE FROM lista_productos WHERE lista_id = ? AND producto_id = ?");
+    $stmt->execute([$lista_id, $producto_id]);
+}
+
+    public function eliminarLista($lista_id) {
+    // Eliminar productos asociados primero
+        $stmt = $this->db->prepare("DELETE FROM lista_productos WHERE lista_id = ?");
+        $stmt->execute([$lista_id]);
+
+    // Luego eliminar la lista
+        $stmt = $this->db->prepare("DELETE FROM listas WHERE id = ? AND usuario_id = ?");
+        $stmt->execute([$lista_id, $this->userId]);
+}
 
     private function getImagenesBase64($producto_id) {
         $stmt = $this->db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");

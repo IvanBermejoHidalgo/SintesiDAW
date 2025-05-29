@@ -97,6 +97,64 @@
             background-color: #3a3a3a;
             color: #fff;
         }
+        /* Accordion completo */
+body.dark-mode .accordion-item {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #444;
+}
+
+body.dark-mode .accordion-button {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border-color: #444;
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .accordion-body {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Inputs */
+body.dark-mode .form-control {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border-color: #444;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #aaa;
+}
+
+/* Tabla */
+body.dark-mode .table,
+body.dark-mode .table-striped,
+body.dark-mode .table-hover {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    border-color: #444;
+}
+
+body.dark-mode .table thead {
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+body.dark-mode .table th,
+body.dark-mode .table td {
+    border-color: #444;
+}
+
+
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: #333;
+}
+
     </style>
 </head>
 
@@ -127,11 +185,20 @@
             {% for lista in listas %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="heading{{ lista.id }}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapse{{ lista.id }}" aria-expanded="false"
-                        aria-controls="collapse{{ lista.id }}">
-                        {{ lista.nombre }}
-                    </button>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="accordion-button collapsed flex-grow-1 text-start" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapse{{ lista.id }}" aria-expanded="false"
+                            aria-controls="collapse{{ lista.id }}">
+                            {{ lista.nombre }}
+                        </button>
+                        <form method="POST" action="/mis_listas/eliminar_lista" class="ms-2">
+                            <input type="hidden" name="lista_id" value="{{ lista.id }}">
+                            <button type="submit" class="btn btn-sm btn-link text-danger" title="Eliminar lista">
+                                <i class="bi bi-x-square"></i>
+                            </button>
+                        </form>
+                    </div>
+
                 </h2>
                 <div id="collapse{{ lista.id }}" class="accordion-collapse collapse"
                     aria-labelledby="heading{{ lista.id }}" data-bs-parent="#listasAccordion">
@@ -161,8 +228,20 @@
                                             {% endif %}
                                         </td>
                                         <td>{{ producto.name }}</td>
-                                        <td>{{ producto.price|number_format(2, '.', ',') }}</td>
+                                        <td>
+                                            {{ producto.price|number_format(2, '.', ',') }}
+                                            <form method="POST" action="/mis_listas/eliminar_producto"
+                                                class="d-inline ms-2">
+                                                <input type="hidden" name="lista_id" value="{{ lista.id }}">
+                                                <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                                <button type="submit" class="btn btn-sm btn-link text-danger"
+                                                    title="Eliminar producto">
+                                                    <i class="bi bi-x-square"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
+
                                     {% endfor %}
                                 </tbody>
                             </table>
