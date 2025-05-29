@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ language }}">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -114,11 +115,13 @@
         }
 
         .accordion-button::after {
-            filter: invert(0.6); /* Invertir color del icono del acordeón en modo oscuro */
+            filter: invert(0.6);
+            /* Invertir color del icono del acordeón en modo oscuro */
         }
 
         .dark-mode .accordion-button::after {
-            filter: invert(0.8); /* Ajustar icono para modo oscuro */
+            filter: invert(0.8);
+            /* Ajustar icono para modo oscuro */
         }
 
         /* Estilos para dropdowns */
@@ -148,20 +151,20 @@
             align-items: center;
             margin-right: 1rem;
         }
-        
+
         .switch {
             position: relative;
             display: inline-block;
             width: 50px;
             height: 24px;
         }
-        
+
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-        
+
         .slider {
             position: absolute;
             cursor: pointer;
@@ -173,7 +176,7 @@
             transition: .4s;
             border-radius: 24px;
         }
-        
+
         .slider:before {
             position: absolute;
             content: "";
@@ -185,37 +188,41 @@
             transition: .4s;
             border-radius: 50%;
         }
-        
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: #2196F3;
         }
-        
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(26px);
         }
-        
+
         .dark-mode-icon {
             margin-left: 8px;
             font-size: 18px;
         }
+
         body.dark-mode {
             background-color: #121212;
             color: #f1f1f1;
         }
+
         body.dark-mode .text-muted {
             color: #cccccc !important;
         }
 
-        body.dark-mode h1, 
-        body.dark-mode h2, 
-        body.dark-mode h3, 
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
         body.dark-mode p {
             color: #f1f1f1;
         }
+
         body.dark-mode .product-card {
             background-color: #1e1e1e;
             border-color: #444;
         }
+
         .accordion-body {
             color: var(--text-color);
         }
@@ -229,10 +236,11 @@
         }
     </style>
 </head>
+
 <body>
     {% include 'navegacion/navbar.html' with {
-        'current_page': 'tienda',
-        'userData': userData
+    'current_page': 'tienda',
+    'userData': userData
     } %}
 
     <div class="container py-5">
@@ -240,25 +248,17 @@
             <!-- Galería de imágenes -->
             <div class="col-md-6">
                 {% if producto.imagenes_base64 is not empty %}
-                    <img
-                        id="mainImage"
-                        src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}"
-                        class="main-image mb-3"
-                        alt="{{ producto.name }}"
-                    />
+                <img id="mainImage" src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}"
+                    class="main-image mb-3" alt="{{ producto.name }}" />
 
-                    <div class="d-flex gap-2">
-                        {% for imagen in producto.imagenes_base64 %}
-                            <img
-                                src="data:image/jpeg;base64,{{ imagen }}"
-                                class="thumbnail"
-                                width="100"
-                                onclick="document.getElementById('mainImage').src=this.src"
-                            />
-                        {% endfor %}
-                    </div>
+                <div class="d-flex gap-2">
+                    {% for imagen in producto.imagenes_base64 %}
+                    <img src="data:image/jpeg;base64,{{ imagen }}" class="thumbnail" width="100"
+                        onclick="document.getElementById('mainImage').src=this.src" />
+                    {% endfor %}
+                </div>
                 {% else %}
-                    <img src="/images/default-product.png" class="main-image mb-3" alt="{{ producto.name }}" />
+                <img src="/images/default-product.png" class="main-image mb-3" alt="{{ producto.name }}" />
                 {% endif %}
             </div>
 
@@ -268,7 +268,7 @@
                 <p class="text-muted">{{ producto.description }}</p>
                 <p class="fs-4 fw-bold">€{{ producto.price }}</p>
 
-                <!-- Selector de talla -->
+                <!-- Formulario para añadir al carrito -->
                 <form method="POST" action="/carrito">
                     <input type="hidden" name="add_to_cart" value="1" />
                     <input type="hidden" name="product_id" value="{{ producto.id }}" />
@@ -287,30 +287,42 @@
                     </button>
                 </form>
 
+                <!-- Formulario para añadir a mis listas -->
+                <form method="POST" action="/mis_listas" class="mt-3">
+                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                    <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+                        <select name="lista_id" class="form-select w-auto">
+                            <option value="" selected>Selecciona una lista (opcional)</option>
+                            {% for lista in listas_usuario %}
+                            <option value="{{ lista.id }}">{{ lista.nombre }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <input type="text" name="nombre_nueva_lista" class="form-control w-auto"
+                            placeholder="O crea una lista nueva" />
+
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="bi bi-bookmark-plus"></i> Añadir a lista
+                        </button>
+                    </div>
+                </form>
+
+
                 <!-- Información adicional -->
                 <div class="accordion mt-4" id="infoAccordion">
                     <!-- Información del producto -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="infoHeading">
-                            <button
-                                class="accordion-button collapsed"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#infoCollapse"
-                                aria-expanded="false"
-                                aria-controls="infoCollapse"
-                            >
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#infoCollapse" aria-expanded="false" aria-controls="infoCollapse">
                                 Información del producto
                             </button>
                         </h2>
-                        <div
-                            id="infoCollapse"
-                            class="accordion-collapse collapse"
-                            aria-labelledby="infoHeading"
-                            data-bs-parent="#infoAccordion"
-                        >
+                        <div id="infoCollapse" class="accordion-collapse collapse" aria-labelledby="infoHeading"
+                            data-bs-parent="#infoAccordion">
                             <div class="accordion-body">
-                                <p>{{ producto.full_description ?? 'Este producto está confeccionado con materiales de alta calidad y diseñado para ofrecer comodidad y estilo.' }}</p>
+                                <p>{{ producto.full_description ?? 'Este producto está confeccionado con materiales de
+                                    alta calidad y diseñado para ofrecer comodidad y estilo.' }}</p>
                             </div>
                         </div>
                     </div>
@@ -318,26 +330,18 @@
                     <!-- Política de devolución -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="devolucionHeading">
-                            <button
-                                class="accordion-button collapsed"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#devolucionCollapse"
-                                aria-expanded="false"
-                                aria-controls="devolucionCollapse"
-                            >
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#devolucionCollapse" aria-expanded="false"
+                                aria-controls="devolucionCollapse">
                                 Política de devolución
                             </button>
                         </h2>
-                        <div
-                            id="devolucionCollapse"
-                            class="accordion-collapse collapse"
-                            aria-labelledby="devolucionHeading"
-                            data-bs-parent="#infoAccordion"
-                        >
+                        <div id="devolucionCollapse" class="accordion-collapse collapse"
+                            aria-labelledby="devolucionHeading" data-bs-parent="#infoAccordion">
                             <div class="accordion-body">
                                 <p>
-                                    Puedes devolver este producto en un plazo de 30 días a partir de la fecha de compra. El artículo debe estar en perfectas condiciones y con su embalaje original.
+                                    Puedes devolver este producto en un plazo de 30 días a partir de la fecha de compra.
+                                    El artículo debe estar en perfectas condiciones y con su embalaje original.
                                 </p>
                             </div>
                         </div>
@@ -346,23 +350,14 @@
                     <!-- Cuidados y lavado -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="cuidadosHeading">
-                            <button
-                                class="accordion-button collapsed"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#cuidadosCollapse"
-                                aria-expanded="false"
-                                aria-controls="cuidadosCollapse"
-                            >
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#cuidadosCollapse" aria-expanded="false"
+                                aria-controls="cuidadosCollapse">
                                 Cuidados y lavado
                             </button>
                         </h2>
-                        <div
-                            id="cuidadosCollapse"
-                            class="accordion-collapse collapse"
-                            aria-labelledby="cuidadosHeading"
-                            data-bs-parent="#infoAccordion"
-                        >
+                        <div id="cuidadosCollapse" class="accordion-collapse collapse" aria-labelledby="cuidadosHeading"
+                            data-bs-parent="#infoAccordion">
                             <div class="accordion-body">
                                 <ul class="mb-0">
                                     <li>Lavar a máquina con agua fría.</li>
@@ -384,19 +379,19 @@
         function toggleDarkMode() {
             const body = document.body;
             const darkModeToggle = document.getElementById('darkModeToggle');
-            
+
             // Alternar clase dark-mode en el body
             body.classList.toggle('dark-mode');
-            
+
             // Guardar preferencia en localStorage
             const isDarkMode = body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isDarkMode);
-            
+
             // Actualizar el estado del interruptor
             if (darkModeToggle) {
                 darkModeToggle.checked = isDarkMode;
             }
-            
+
             // Cambiar icono
             const darkModeIcon = document.querySelector('.dark-mode-icon i');
             if (darkModeIcon) {
@@ -411,16 +406,16 @@
         }
 
         // Verificar preferencia al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            
+
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
                 if (darkModeToggle) {
                     darkModeToggle.checked = true;
                 }
-                
+
                 // Cambiar icono a sol si está en modo oscuro
                 const darkModeIcon = document.querySelector('.dark-mode-icon i');
                 if (darkModeIcon) {
@@ -428,7 +423,7 @@
                     darkModeIcon.classList.add('bi-sun-fill');
                 }
             }
-            
+
             // Configurar evento para el interruptor
             if (darkModeToggle) {
                 darkModeToggle.addEventListener('change', toggleDarkMode);
@@ -438,4 +433,5 @@
 
     {% include 'navegacion/footer.html' %}
 </body>
+
 </html>

@@ -46,7 +46,7 @@ class CheckoutController {
                 $this->clearCart($userId);
                 $this->db->commit();
 
-                header("Location: tienda/pedido_confirmado?id=" . $pedidoId);
+                header("Location: /pedido_confirmado?id=" . $pedidoId);
                 exit();
 
             } catch (Exception $e) {
@@ -56,7 +56,6 @@ class CheckoutController {
             }
         }
 
-        // GET: mostrar página checkout
         return $this->renderCheckoutPage();
     }
 
@@ -69,11 +68,23 @@ class CheckoutController {
             $total += $item['price'] * $item['cantidad'];
         }
 
+        // Aquí agregamos la consulta para traer pedidos previos del usuario
+        $stmt = $this->db->prepare("
+            SELECT id, nombre, email, telefono, direccion, ciudad, codigo_postal, pais, metodo_pago
+            FROM pedidos
+            WHERE usuario_id = ?
+            ORDER BY fecha DESC
+            LIMIT 5
+        ");
+        $stmt->execute([$userId]);
+        $previousOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         echo $this->twig->render('tienda/checkout.html', [
-            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
+            'userData' => DatabaseController::getUserById($userId),
             'cartItems' => $cartItems,
             'total' => $total,
             'error' => $error,
+            'previousOrders' => $previousOrders,  
             'current_user_id' => $userId,
             'current_page' => 'checkout',
             'language' => $_SESSION['language'] ?? 'es'

@@ -1,5 +1,7 @@
 <?php
 
+require_once 'MisListasController.php'; 
+
 class TiendaController {
     private $db;
 
@@ -15,13 +17,15 @@ class TiendaController {
 
         $categoria = $this->getCategoriaDesdeRuta();
         $userId = $_SESSION['user_id'];
+        $misListasController = new MisListasController($this->db, $userId);
+        $listas = $misListasController->getListas();
 
         return [
             'productos' => $this->getProductosPorCategoria($categoria),
             'categoria_actual' => $categoria,
             'userData' => SessionController::getUserData($userId),
             'carrito' => $this->getProductosCarrito($userId),
-            'listas' => $this->getProductosLista($userId),
+            'listas' => $listas,
             'current_page' => 'tienda/' . $categoria
         ];
     }
@@ -71,7 +75,14 @@ class TiendaController {
         $imagenes_base64 = [];
         foreach ($imagenes as $imagen) {
             if (!empty($imagen['url'])) {
-                $imagenes_base64[] = base64_encode($imagen['url']);
+                
+                $path = $imagen['url'];
+                if (file_exists($path)) {
+                    $imgData = file_get_contents($path);
+                    $imagenes_base64[] = base64_encode($imgData);
+                } else {
+                    $imagenes_base64[] = base64_encode($imagen['url']);
+                }
             }
         }
 
@@ -97,18 +108,19 @@ class TiendaController {
 
     private function getProductosLista($usuario_id) {
         $stmt = $this->db->prepare("
-            SELECT p.* 
-            FROM listas l 
-            JOIN productos p ON l.producto_id = p.id 
+            SELECT p.*
+            FROM lista_productos lp
+            JOIN productos p ON lp.producto_id = p.id
+            JOIN listas l ON l.id = lp.lista_id
             WHERE l.usuario_id = ?
         ");
         $stmt->execute([$usuario_id]);
-        $listas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($listas as &$producto) {
+        foreach ($productos as &$producto) {
             $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
         }
 
-        return $listas;
+        return $productos;
     }
 }

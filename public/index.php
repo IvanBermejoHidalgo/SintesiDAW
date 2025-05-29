@@ -13,6 +13,9 @@ require_once "../src/controller/TiendaController.php";
 require_once "../src/controller/CartController.php";
 require_once "../src/controller/CheckoutController.php";
 require_once "../src/controller/PedidoConfirmadoController.php";
+require_once "../src/controller/MisPedidosController.php";
+require_once "../src/controller/MisListasController.php";
+
 
 session_start();
 
@@ -153,11 +156,18 @@ switch ($route) {
     case 'producto':
         if (isset($_SESSION['user_id'], $path[1])) {
             $productId = $path[1];
+            $userId = $_SESSION['user_id'];
+
             $producto = (new TiendaController())->getProductoPorId($productId);
+            
+            $misListasController = new MisListasController(DatabaseController::connect(), $userId);
+            $listas = $misListasController->getListas();
+            
             echo $twig->render('tienda/producto.html', [
                 'producto' => $producto,
                 'userData' => DatabaseController::getUserById($_SESSION['user_id']),
                 'language' => $language,
+                'listas_usuario' => $listas,
                 'current_page' => 'producto'
             ]);
         } else {
@@ -197,6 +207,43 @@ switch ($route) {
             'userData' => DatabaseController::getUserById($_SESSION['user_id']),
             'current_page' => 'tienda/' . $tiendaData['categoria_actual'],
             'language' => $language
+        ]);
+        break;
+    case 'mis_pedidos':
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }   
+        $mispedidosController = new MisPedidosController($twig);
+        $mispedidosController->handleRequest();
+        break;
+    case 'mis_listas':
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
+
+        $db = DatabaseController::connect();
+        $userId = $_SESSION['user_id'];
+        $misListasController = new MisListasController($db, $userId);
+
+        // Si viene un POST para crear lista
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $misListasController->procesarFormulario();
+        }
+
+
+        // Obtener listas con sus productos
+        $listas = $misListasController->getListas();
+        foreach ($listas as &$lista) {
+        $lista['productos'] = $misListasController->getProductosPorLista($lista['id']);
+        }
+
+        echo $twig->render('tienda/mis_listas.html', [
+            'listas' => $listas,
+            'userData' => DatabaseController::getUserById($userId),
+            'language' => $language,
+            'current_page' => 'mis_listas'
         ]);
         break;
 

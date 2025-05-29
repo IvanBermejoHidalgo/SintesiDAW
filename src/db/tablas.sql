@@ -73,10 +73,17 @@ CREATE TABLE carrito (
 CREATE TABLE listas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES `User`(id)
+);
+CREATE TABLE lista_productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    lista_id INT NOT NULL,
     producto_id INT NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (lista_id) REFERENCES listas(id) ON DELETE CASCADE,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE pedidos (
     id INT AUTO_INCREMENT PRIMARY KEY,
