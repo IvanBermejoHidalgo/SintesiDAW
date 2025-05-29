@@ -302,6 +302,26 @@ class DatabaseController {
     
         return $counts;
     }
+
+    public static function obtenerTotalCompras(): float {
+        $pdo = self::connect();
+        $stmt = $pdo->query("SELECT SUM(cantidad * precio) AS total_compras FROM pedido_detalles");
+        $total = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (float) ($total['total_compras'] ?? 0);
+    }
+
+    public static function obtenerCantidadCompras(): int {
+        $pdo = self::connect();
+        $stmt = $pdo->query("SELECT COUNT(*) AS total_compras FROM pedido_detalles");
+        $total = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int) ($total['total_compras'] ?? 0);
+    }
     
+    public static function getTotalListas(): int {
+        $pdo = self::connect();
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM listas");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($row['count'] ?? 0);
+    }
 
   }

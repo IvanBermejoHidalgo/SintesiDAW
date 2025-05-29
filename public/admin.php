@@ -31,12 +31,18 @@ if (isset($path[0]) && $path[0] === 'admin') {
             $messageCount = DatabaseController::getMessageCount();
             $activeUsers = DatabaseController::getActiveUsers();
             $productCount = DatabaseController::getProductCount();
+            $totalCompras = DatabaseController::obtenerTotalCompras();
+            $totalCantidadCompras = DatabaseController::obtenerCantidadCompras();
+            $totalListas = DatabaseController::getTotalListas();
 
             echo $twig->render('dashboard.php', [
                 'userCount' => $userCount,
                 'messageCount' => $messageCount,
                 'activeUsers' => $activeUsers,
-                'productCount' => $productCount
+                'productCount' => $productCount,
+                'totalCompras' => $totalCompras,
+                'totalCantidadCompras' => $totalCantidadCompras,
+                'totalListas' => $totalListas,
             ]);
         } else {
             header("Location: /admin");
