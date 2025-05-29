@@ -32,6 +32,11 @@ class ProfileController {
             header("Location: /profile");
             exit();
         }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
+            $this->handleAccountDeletion($userId);
+            return; // Salir después de manejar la eliminación
+        }
         
         $changesMade = false;
         
@@ -114,5 +119,29 @@ class ProfileController {
             'profileUser' => $profileUser,
             'userMessages' => $userMessages
         ];
+    }
+
+    private function handleAccountDeletion($userId) {
+        $password = $_POST['password'] ?? '';
+        
+        // Verificar contraseña
+        $user = DatabaseController::getUserById($userId);
+        if (!password_verify($password, $user['password'])) {
+            $_SESSION['error'] = "Contraseña incorrecta";
+            header("Location: /profile");
+            exit();
+        }
+        
+        // Eliminar la cuenta y todos los datos asociados
+        if (DatabaseController::deleteUserAccount($userId)) {
+            // Cerrar sesión y redirigir
+            session_destroy();
+            header("Location: /");
+            exit();
+        } else {
+            $_SESSION['error'] = "Error al eliminar la cuenta";
+            header("Location: /profile");
+            exit();
+        }
     }
 }

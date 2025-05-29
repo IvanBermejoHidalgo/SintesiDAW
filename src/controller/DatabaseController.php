@@ -324,4 +324,91 @@ class DatabaseController {
         return (int)($row['count'] ?? 0);
     }
 
+
+    public static function deleteUserAccount($userId) {
+        $pdo = self::connect();
+        
+        // Iniciar transacción para asegurar la integridad de los datos
+        $pdo->beginTransaction();
+        
+        try {
+            // 1. Eliminar likes del usuario
+            $stmt = $pdo->prepare("DELETE FROM likes WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            // 2. Eliminar comentarios del usuario
+            $stmt = $pdo->prepare("DELETE FROM comments WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            // 3. Eliminar mensajes del usuario (esto eliminará automáticamente los likes y comentarios asociados)
+            $stmt = $pdo->prepare("DELETE FROM messages WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            // 4. Eliminar elementos del carrito del usuario
+            $stmt = $pdo->prepare("DELETE FROM carrito WHERE usuario_id = ?");
+            $stmt->execute([$userId]);
+            
+            // 5. Eliminar listas del usuario y sus productos asociados
+            // Primero obtenemos las listas del usuario
+            $stmt = $pdo->prepare("SELECT id FROM listas WHERE usuario_id = ?");
+            $stmt->execute([$userId]);
+            $listas = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            if (!empty($listas)) {
+                // Eliminar productos de las listas
+                $placeholders = implode(',', array_fill(0, count($listas), '?'));
+                $stmt = $pdo->prepare("DELETE FROM lista_productos WHERE lista_id IN ($placeholders)");
+                $stmt->execute($listas);
+                
+                // Eliminar las listas
+                $stmt = $pdo->prepare("DELETE FROM listas WHERE usuario_id = ?");
+                $stmt->execute([$userId]);
+            }
+            
+            // 6. Eliminar pedidos del usuario
+            // Primero obtenemos los pedidos del usuario
+            $stmt = $pdo->prepare("SELECT id FROM pedidos WHERE usuario_id = ?");
+            $stmt->execute([$userId]);
+            $pedidos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            if (!empty($pedidos)) {
+                // Eliminar detalles de pedidos
+                $placeholders = implode(',', array_fill(0, count($pedidos), '?'));
+                $stmt = $pdo->prepare("DELETE FROM pedido_detalles WHERE pedido_id IN ($placeholders)");
+                $stmt->execute($pedidos);
+                
+                // Eliminar los pedidos
+                $stmt = $pdo->prepare("DELETE FROM pedidos WHERE usuario_id = ?");
+                $stmt->execute([$userId]);
+            }
+            
+            // 7. Eliminar tokens de reseteo de contraseña
+            $stmt = $pdo->prepare("DELETE FROM password_resets WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            // 8. Finalmente, eliminar al usuario
+            $stmt = $pdo->prepare("DELETE FROM User WHERE id = ?");
+            $stmt->execute([$userId]);
+            
+            // Confirmar todas las operaciones
+            $pdo->commit();
+            
+            // Eliminar la imagen de perfil si no es la predeterminada
+            $user = self::getUserById($userId);
+            if ($user['profile_image'] && $user['profile_image'] !== '/images/default-profile.png') {
+                $imagePath = $_SERVER['DOCUMENT_ROOT'] . $user['profile_image'];
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            
+            return true;
+        } catch (PDOException $e) {
+            // Revertir en caso de error
+            $pdo->rollBack();
+            error_log("Error al eliminar cuenta de usuario: " . $e->getMessage());
+            return false;
+        }
+    }
+
   }
