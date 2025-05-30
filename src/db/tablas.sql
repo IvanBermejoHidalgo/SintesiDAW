@@ -119,3 +119,5 @@ CREATE TABLE password_resets (
     INDEX (token),
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
 );
+
+ALTER TABLE pedidos MODIFY metodo_pago ENUM('card', 'cash') NOT NULL;

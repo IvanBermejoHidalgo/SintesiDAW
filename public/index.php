@@ -142,6 +142,16 @@ switch ($route) {
         ]);
         break;
 
+    case 'aboutus':
+        echo $twig->render('aboutus.html', [
+            'language' => $language,
+            'current_user_id' => $_SESSION['user_id'],
+            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
+            'language' => $language,
+            'current_page' => 'aboutus'
+        ]);
+        break;
+
     case 'carrito':
         $cartController = new CartController();
         $data = $cartController->handleRequest();
