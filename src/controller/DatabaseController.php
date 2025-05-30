@@ -478,11 +478,6 @@ class DatabaseController {
         $stmt = $db->prepare("DELETE FROM productos WHERE id = ?");
         return $stmt->execute([$id]);
     }
-
-
-
-
-
     public static function addProductToList($listaId, $productoId) {
         $pdo = self::connect();
         try {
@@ -500,13 +495,6 @@ class DatabaseController {
             error_log("Error añadiendo producto a lista: " . $e->getMessage());
             return false;
         }
-    }
-
-    public static function createProduct($nombre, $categoria, $precio, $descripcion = null) {
-        $pdo = self::connect();
-        $stmt = $pdo->prepare("INSERT INTO productos (nombre, category, precio, descripcion) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$nombre, $categoria, $precio, $descripcion]);
-        return $pdo->lastInsertId();
     }
 
     public static function getImagenesBase64PorProductoId($producto_id) {
@@ -563,8 +551,4 @@ class DatabaseController {
         $stmt->execute([$listaId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    
-
-
   }

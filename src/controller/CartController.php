@@ -10,32 +10,64 @@ class CartController {
             exit();
         }
     }
+    private function getImagenesBase64($producto_id) {
+        $stmt = $this->db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");
+        $stmt->execute([$producto_id]);
+        $imagenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $imagenes_base64 = [];
+        foreach ($imagenes as $imagen) {
+            if (!empty($imagen['url'])) {
+                $path = $imagen['url'];
+                if (file_exists($path)) {
+                    $imgData = file_get_contents($path);
+                    $imagenes_base64[] = base64_encode($imgData);
+                } else {
+                    $imagenes_base64[] = base64_encode($imagen['url']);
+                }
+            }
+        }
+        return $imagenes_base64;
+    }
 
     public function handleRequest() {
-        $userId = $_SESSION['user_id'];
+    $userId = $_SESSION['user_id'];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['add_to_cart'])) {
-                $productId = intval($_POST['product_id']);
-                $talla     = trim($_POST['talla']);
-                $this->addToCart($userId, $productId, $talla);
-            } elseif (isset($_POST['remove_from_cart'])) {
-                $productId = intval($_POST['product_id']);
-$talla     = $_POST['talla'] ?? '';
-$this->removeFromCart($userId, $productId, $talla);
-
-            }
-            header("Location: /carrito");
-            exit();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['add_to_cart'])) {
+            $productId = intval($_POST['product_id']);
+            $talla     = trim($_POST['talla']);
+            $this->addToCart($userId, $productId, $talla);
+        } elseif (isset($_POST['remove_from_cart'])) {
+            $productId = intval($_POST['product_id']);
+            $talla     = $_POST['talla'] ?? '';
+            $this->removeFromCart($userId, $productId, $talla);
         }
-
-        $items = $this->getCartItems($userId);
-
-        return [
-            'cartItems' => $items,
-            'userData'  => SessionController::getUserData($userId),
-        ];
+        header("Location: /carrito");
+        exit();
     }
+
+    $items = $this->getCartItems($userId);
+
+    // Añadimos las imágenes base64 a cada item
+    foreach ($items as &$item) {
+        $imagenesBase64 = $this->getImagenesBase64($item['id']);
+        if (!empty($imagenesBase64)) {
+            // Ponemos la primera imagen en un formato base64 completo para usar en <img>
+            $item['image_url'] = 'data:image/jpeg;base64,' . $imagenesBase64[0];
+        } else {
+            // Imagen por defecto si no hay imagenes
+            $item['image_url'] = '/images/default-product.png';
+        }
+    }
+    unset($item); // buena práctica para referencia
+
+    return [
+        'cartItems' => $items,
+        'userData'  => SessionController::getUserData($userId),
+    ];
+}
+
 
     private function addToCart($userId, $productId, $talla) {
         // Verifica si ya existe el mismo producto+talla

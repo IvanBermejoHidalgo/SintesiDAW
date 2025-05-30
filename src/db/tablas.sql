@@ -121,3 +121,16 @@ CREATE TABLE password_resets (
 );
 
 ALTER TABLE pedidos MODIFY metodo_pago ENUM('card', 'cash') NOT NULL;
+
+CREATE TABLE shared_lists (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    message_id INT NOT NULL,
+    lista_id INT NOT NULL,
+    shared_by INT NOT NULL,
+    shared_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    is_public TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (message_id) REFERENCES messages(id),
+    FOREIGN KEY (lista_id) REFERENCES listas(id),
+    FOREIGN KEY (shared_by) REFERENCES User(id)
+);
+
