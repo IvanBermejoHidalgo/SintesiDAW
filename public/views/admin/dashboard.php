@@ -23,6 +23,9 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/editar-productos">Editar productos</a>
+                </li>
             </ul>
             <a href="/admin/logout" class="btn btn-outline-light">Cerrar Sesión</a>
         </div>

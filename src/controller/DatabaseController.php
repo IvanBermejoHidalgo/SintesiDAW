@@ -417,4 +417,119 @@ class DatabaseController {
         }
     }
 
+    public static function getAllProductos() {
+        $conn = self::connect();
+        $stmt = $conn->query("SELECT * FROM productos");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getImagenPorProductoId($productoId) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("SELECT url FROM imagenes WHERE producto_id = ? LIMIT 1");
+        $stmt->execute([$productoId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return $row['url']; // Es binario, se puede enviar directamente
+        }
+
+        return null;
+    }
+
+
+    // Obtener un producto por ID
+    public static function getProductoById(int $id) {
+        $db = self::connect();
+        $stmt = $db->prepare("SELECT * FROM productos WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Insertar un producto nuevo
+    public static function insertarProducto(array $data) {
+        $db = self::connect();
+        $stmt = $db->prepare("INSERT INTO productos (name, description, price, category, image_path) VALUES (?, ?, ?, ?, ?)");
+        return $stmt->execute([
+            $data['name'], 
+            $data['description'], 
+            $data['price'], 
+            $data['category'], 
+            $data['image_path'] ?? null
+        ]);
+    }
+
+    // Actualizar producto existente
+    public static function actualizarProducto(int $id, array $data) {
+        $db = self::connect();
+        $stmt = $db->prepare("UPDATE productos SET name = ?, description = ?, price = ?, category = ?, image_path = ? WHERE id = ?");
+        return $stmt->execute([
+            $data['name'], 
+            $data['description'], 
+            $data['price'], 
+            $data['category'], 
+            $data['image_path'] ?? null,
+            $id
+        ]);
+    }
+
+    // Eliminar producto por ID
+    public static function eliminarProducto(int $id) {
+        $db = self::connect();
+        $stmt = $db->prepare("DELETE FROM productos WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
+
+
+
+
+    public static function addProductToList($listaId, $productoId) {
+        $pdo = self::connect();
+        try {
+            // Verificar que no exista ya la relación para evitar duplicados
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM lista_productos WHERE lista_id = ? AND producto_id = ?");
+            $stmt->execute([$listaId, $productoId]);
+            if ($stmt->fetchColumn() > 0) {
+                return false; // Ya existe esta relación
+            }
+            
+            // Insertar la relación
+            $stmt = $pdo->prepare("INSERT INTO lista_productos (lista_id, producto_id) VALUES (?, ?)");
+            return $stmt->execute([$listaId, $productoId]);
+        } catch (PDOException $e) {
+            error_log("Error añadiendo producto a lista: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function createProduct($nombre, $categoria, $precio, $descripcion = null) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("INSERT INTO productos (nombre, category, precio, descripcion) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$nombre, $categoria, $precio, $descripcion]);
+        return $pdo->lastInsertId();
+    }
+
+
+
+    public static function getImagenesBase64PorProductoId($producto_id) {
+        $db = self::connect(); // o la conexión que uses
+        $stmt = $db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");
+        $stmt->execute([$producto_id]);
+        $imagenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $imagenes_base64 = [];
+        foreach ($imagenes as $imagen) {
+            if (!empty($imagen['url'])) {
+                $path = $imagen['url'];
+                if (file_exists($path)) {
+                    $imgData = file_get_contents($path);
+                    $imagenes_base64[] = base64_encode($imgData);
+                }
+            }
+        }
+        return $imagenes_base64;
+    }
+
+
+
   }

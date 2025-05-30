@@ -20,9 +20,9 @@ function isAdminLoggedIn() {
     return isset($_SESSION['admin_id']);
 }
 
-// Rutas: /admin, /admin/dashboard, /admin/logout
+// Rutas: /admin, /admin/dashboard, /admin/logout, /admin/crear-producto, /admin/editar-producto/{id}, /admin/eliminar-producto/{id}
 if (isset($path[0]) && $path[0] === 'admin') {
-    $action = $path[1] ?? null;
+    $action = isset($path[2]) ? $path[1] . '/' . $path[2] : ($path[1] ?? '');
 
     if ($action === 'dashboard') {
         if (isAdminLoggedIn()) {
@@ -68,20 +68,107 @@ if (isset($path[0]) && $path[0] === 'admin') {
                 'mujerCount' => $genderStats['mujer'] ?? 0,
                 'todosCount' => $genderStats['todos'] ?? 0
             ]);
-            
         } else {
             header("Location: /admin");
             exit();
         }
-    
-    
-    
+        
     } elseif ($action === 'logout') {
         session_destroy();
         header("Location: /admin");
         exit();
 
+    } elseif ($action === 'editar-productos') {
+        if (isAdminLoggedIn()) {
+            $productos = DatabaseController::getAllProductos();
+
+            // Para cada producto, añadimos la URL de la imagen
+            foreach ($productos as &$producto) {
+                $producto['imagenes_base64'] = DatabaseController::getImagenesBase64PorProductoId($producto['id']);
+            }
+            unset($producto);
+
+            echo $twig->render('editar_productos.php', [
+                'productos' => $productos
+            ]);
+        } else {
+            header("Location: /admin");
+            exit();
+        }
+    } elseif ($action === 'crear-producto') {
+        if (!isAdminLoggedIn()) {
+            header("Location: /admin");
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'price' => $_POST['price'] ?? 0,
+                'category' => $_POST['category'] ?? '',
+                'image_path' => $_POST['image_path'] ?? null,
+            ];
+            $success = DatabaseController::insertarProducto($data);
+            if ($success) {
+                header("Location: /admin/editar-productos");
+                exit();
+            } else {
+                $error = "Error al crear el producto";
+            }
+        }
+        echo $twig->render('crear_producto.php', [
+            'error' => $error ?? null,
+            'data' => $_POST ?? []
+        ]);
+
+    } elseif (preg_match('#^editar-producto/(\d+)$#', $action, $matches)) {
+        if (!isAdminLoggedIn()) {
+            header("Location: /admin");
+            exit();
+        }
+        $id = intval($matches[1]);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'price' => $_POST['price'] ?? 0,
+                'category' => $_POST['category'] ?? '',
+                'image_path' => $_POST['image_path'] ?? null,
+            ];
+            $success = DatabaseController::actualizarProducto($id, $data);
+            if ($success) {
+                header("Location: /admin/editar-productos");
+                exit();
+            } else {
+                $error = "Error al actualizar el producto";
+            }
+        } else {
+            $data = DatabaseController::getProductoById($id);
+            if (!$data) {
+                http_response_code(404);
+                echo $twig->render('404.php');
+                exit();
+            }
+        }
+        echo $twig->render('editar_producto.php', [
+            'error' => $error ?? null,
+            'data' => $data
+        ]);
+
+    } elseif (preg_match('#^eliminar-producto/(\d+)$#', $action, $matches)) {
+        if (!isAdminLoggedIn()) {
+            header("Location: /admin");
+            exit();
+        }
+        $id = intval($matches[1]);
+        DatabaseController::eliminarProducto($id);
+        header("Location: /admin/editar-productos");
+        exit();
+
     } else {
+        // Página login admin
         require $views . 'login.php';
 
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
