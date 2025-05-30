@@ -1,11 +1,12 @@
 html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 :root {
+  /* Variables generales */
   --bg-color: #ffffff;
   --text-color: #212529;
   --card-bg: #ffffff;
@@ -48,7 +49,52 @@ html, body {
   /* Variables extra */
   --accordion-bg: #ffffff;
   --accordion-button-bg: #f8f9fa;
+
+  /* NAVIGATION COLORS por defecto (modo claro) */
+  --nav-link-color: var(--text-color-light);
+  --nav-link-hover-bg: var(--hover-bg);
+  --nav-link-hover-color: var(--primary-color);
+  --nav-link-active-color: #0d6efd; /* azul bootstrap */
+  --nav-link-active-underline: #0d6efd;
 }
+
+/* Cambios para modo oscuro */
+body.dark-mode {
+  --nav-link-color: var(--text-color-dark);
+  --nav-link-hover-bg: rgba(255 255 255 / 0.1); /* más suave para modo oscuro */
+  --nav-link-hover-color: #66b0ff;
+  --nav-link-active-color: #3399ff;
+  --nav-link-active-underline: #3399ff;
+}
+
+/* Uso de variables */
+.nav-link {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  position: relative;
+  color: var(--nav-link-color);
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: var(--nav-link-hover-bg);
+  color: var(--nav-link-hover-color);
+}
+
+.nav-link.active {
+  color: var(--nav-link-active-color) !important;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 2px;
+  background-color: var(--nav-link-active-underline);
+}
+
 main {
     flex: 1 0 auto;
     padding-bottom: 60px; 
@@ -61,1814 +107,944 @@ footer {
     width: 100%;
 }
 
-    body.dark-mode footer {
-        background-color: #1e1e1e !important;
-        color: #ccc !important;
-    }
-
-    body.dark-mode footer a {
-        color: #ccc !important;
-    }
-
-    body.dark-mode footer hr {
-        border-color: #444 !important;
-    }
-    /* Estilos base de la navbar */
-    .dark-mode-switch {
-        display: flex;
-        align-items: center;
-        margin-right: 1rem;
-    }
-    
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 24px;
-    }
-    
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 24px;
-    }
-    
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-    
-    input:checked + .slider {
-        background-color: #2196F3;
-    }
-    
-    input:checked + .slider:before {
-        transform: translateX(26px);
-    }
-    
-    .dark-mode-icon {
-        margin-left: 8px;
-        font-size: 18px;
-    }
-    .navbar {
-        padding: 0.8rem 1rem;
-        background-color: #ffffff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    
-    body.dark-mode .navbar {
-        background-color: #1e1e1e !important;
-        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
-    }
-    
-    .navbar-brand img {
-        height: 40px;
-        margin-right: 10px;
-        transition: transform 0.3s ease;
-    }
-    
-    .navbar-brand:hover img {
-        transform: scale(1.05);
-    }
-    
-    .dropdown-menu {
-        border: none;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
-    
-    .nav-link {
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        position: relative;
-    }
-    
-    .nav-link.active {
-        color: #0d6efd !important;
-    }
-    
-    .nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 1rem;
-        right: 1rem;
-        height: 2px;
-        background-color: #0d6efd;
-    }
-    
-    .dropdown-item.active {
-        background-color: #f8f9fa;
-        color: #0d6efd;
-        font-weight: 500;
-    }
-    
-    @media (max-width: 991.98px) {
-        .navbar-collapse {
-            padding: 1rem 0;
-        }
-        .nav-link.active::after {
-            display: none;
-        }
-    }
-
-    .dark-mode-switch-fixed {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1050; /* encima de la navbar */
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 0.5rem;
-    border-radius: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
 }
-
-body.dark-mode .dark-mode-switch-fixed {
-    background-color: rgba(30, 30, 30, 0.9);
+    
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
-
-.dark-mode-fab {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 1050;
-    background-color: #ffffff;
-    color: #000000;
-    border: none;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    
+.slider {
+    position: absolute;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+    
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+    
+input:checked + .slider {
+    background-color: #2196F3;
+}
+    
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+    
+.navbar {
+    padding: 0.8rem 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+    
+.navbar-brand img {
+    height: 40px;
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+}
+    
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+    
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+/* Transiciones comunes para varios elementos */
+body, .navbar, .card, .dropdown-menu, .btn, .form-control, .modal-content, .list-group-item {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.dark-mode-fab:hover {
-    background-color: #f0f0f0;
+/* Estilos base para selects y controles de formulario */
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border-color: var(--border-color);
 }
 
-body.dark-mode .dark-mode-fab {
-    background-color: #333333;
-    color: #ffffff;
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
+/* Placeholder */
+textarea.form-control::placeholder,
+input.form-control::placeholder {
+    color: #6c757d;
+}
 
+/* Formularios de comentario */
+.comment-form {
+    margin-top: 15px;
+}
 
-  .dark-mode {
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --card-bg: #1e1e1e;
-    --border-color: #333;
-    --navbar-bg: #1a1a1a;
-    --text-muted: #a0a0a0;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-  }
+/* Formularios dentro de btn-group */
+.btn-group form {
+    display: inline-block;
+    margin-right: 5px;
+}
+/* Dropdown activo */
+.dropdown-item.active {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    font-weight: 500;
+}
 
-  body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+/* Responsive navbar */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        padding: 1rem 0;
+    }
+    .nav-link.active::after {
+        display: none;
+    }
+}
+
+/* Body y transiciones generales */
+body {
+    background-color: var(--bg-color-light, var(--bg-color, #f5f7fb));
+    color: var(--text-color-light, var(--text-color, var(--dark-color)));
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
-  }
+}
 
-  .navbar {
+/* Navbar */
+.navbar {
     background-color: var(--navbar-bg) !important;
     box-shadow: 0 2px 10px var(--shadow-color);
-  }
+}
 
-  .card {
-    background-color: var(--card-bg);
+/* Cards */
+.card, .profile-card, .message-card, .comment-card, .list-group-item, .dropdown-menu {
+    background-color: var(--card-bg-light, var(--card-bg));
     border-color: var(--border-color);
-    color: var(--text-color);
-  }
+    color: var(--text-color-light, var(--text-color));
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
 
-  .text-muted {
+.profile-card, .message-card {
+    border: none;
+}
+
+.message-card {
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--card-bg-light, var(--card-bg));
+    color: var(--text-color-light, var(--dark-color));
+}
+
+.message-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Text muted */
+.text-muted {
     color: var(--text-muted) !important;
-  }
+}
 
-  body.dark-mode {
-    background-color: #121212 !important;
-    color: #f1f1f1 !important;
-  }
-
-  body.dark-mode .navbar {
-    background-color: #1e1e1e !important;
-  }
-
-  body.dark-mode .card {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-  }
-
-  body.dark-mode .btn,
-  body.dark-mode a {
-    color: #f1f1f1;
-  }
-
-  body.dark-mode .text-dark {
-    color: #f1f1f1 !important;
-  }
-  .navbar-nav .nav-link {
-    color: var(--text-color);
-    transition: color 0.3s ease, background-color 0.3s ease;
-  }
-
-  .navbar-nav .nav-link:hover {
+/* Navbar links hover */
+.navbar-nav .nav-link:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: #007bff;
-  }
+}
 
-  body.dark-mode .dropdown-menu {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-    border-color: #444;
-  }
-
-  body.dark-mode .dropdown-menu .dropdown-item {
-    color: #f1f1f1;
-  }
-
-  body.dark-mode .dropdown-menu .dropdown-item:hover,
-  body.dark-mode .dropdown-menu .dropdown-item:focus {
-    background-color: #3a3a3a;
-    color: #fff;
-  }
-
-  .dark-mode {
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --card-bg: #1e1e1e;
-    --border-color: #333;
-    --navbar-bg: #1a1a1a;
-    --text-muted: #a0a0a0;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-  }
-
-  body {
-    background-color: var(--bg-color);
+/* Tablas */
+table.table, table.table th, table.table td {
+    background-color: var(--navbar-bg);
     color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
+    border-color: var(--border-color);
+}
 
-  .card {
+/* Página producto - imágenes */
+.main-image {
+    width: 100%;
+    max-width: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.thumbnail {
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: transform 0.2s ease;
+}
+
+.thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Acordeón */
+.accordion-button,
+.accordion-button:not(.collapsed) {
+    background-color: var(--accordion-button-bg);
+    color: var(--text-color);
+}
+
+.accordion-item {
+    background-color: var(--accordion-bg);
+    border-color: var(--border-color);
+}
+
+.accordion-button::after {
+    filter: invert(0.6);
+}
+
+/* Dropdown */
+.dropdown-menu {
     background-color: var(--card-bg);
     border-color: var(--border-color);
+}
+
+.dropdown-item {
     color: var(--text-color);
-  }
+}
 
-  .text-muted {
-    color: var(--text-muted) !important;
-  }
-
-  body.dark-mode {
-    background-color: #121212 !important;
-    color: #f1f1f1 !important;
-  }
-
-  body.dark-mode .navbar {
-    background-color: #1e1e1e !important;
-  }
-
-  body.dark-mode .card {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-  }
-
-  body.dark-mode .btn,
-  body.dark-mode a {
-    color: #f1f1f1;
-  }
-
-  body.dark-mode .text-dark {
-    color: #f1f1f1 !important;
-  }
-  .navbar-nav .nav-link {
+.dropdown-item:hover {
+    background-color: var(--hover-bg);
     color: var(--text-color);
-    transition: color 0.3s ease, background-color 0.3s ease;
-  }
+}
 
-  .navbar-nav .nav-link:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: #007bff;
-  }
+/* Botones */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
 
-  body.dark-mode .dropdown-menu {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-    border-color: #444;
-  }
+/* Slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
 
-  body.dark-mode .dropdown-menu .dropdown-item {
-    color: #f1f1f1;
-  }
+input:checked + .slider {
+    background-color: #2196F3;
+}
 
-  body.dark-mode .dropdown-menu .dropdown-item:hover,
-  body.dark-mode .dropdown-menu .dropdown-item:focus {
-    background-color: #3a3a3a;
-    color: #fff;
-  }
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Accordion body */
+.accordion-body {
+    color: var(--text-color);
+}
+
+/* Contenedores de comentarios */
+.comments-container {
+    background-color: var(--comments-bg);
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.comment-card {
+    background-color: var(--comment-card-bg, var(--card-bg-light, white));
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px var(--shadow-color, rgba(0,0,0,0.1));
+    color: var(--text-color-light, var(--dark-color));
+}
+
+/* Likes */
+.like-button {
+    transition: all 0.2s ease;
+}
+
+.like-button:hover {
+    transform: scale(1.05);
+}
+
+/* Imagenes en mensajes */
+.message-image {
+    max-height: 400px;
+    width: auto;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.message-image:hover {
+    transform: scale(1.02);
+}
+
+/* Preview de imágenes */
+.image-preview {
+    max-width: 100px;
+    max-height: 100px;
+    margin-top: 10px;
+    display: none;
+}
+
+/* Perfil */
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    position: relative;
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.profile-image-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    gap: 1.5rem;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid var(--card-bg-light, white);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: var(--transition);
+}
+
+.profile-image:hover {
+    transform: scale(1.05);
+}
+
+.profile-info {
+    flex-grow: 1;
+    margin-left: 1.5rem;
+}
+
+.profile-username {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--text-color-light, var(--dark-color));
+}
+
+.profile-join-date {
+    color: var(--text-secondary-light, #6c757d);
+    font-size: 0.9rem;
+}
+
+.profile-stats-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding-left: 2rem;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 1.5rem;
+    background: var(--stat-bg-light);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--stat-border-light);
+    color: var(--text-secondary-light);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-count {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Mensajes */
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.message-user {
+    display: flex;
+    align-items: center;
+}
+
+.message-user-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.75rem;
+}
+
+.message-content {
+    padding: 1rem;
+}
+
+.message-text {
+    margin-bottom: 1rem;
+}
+
+.message-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* No messages */
+.no-messages {
+    text-align: center;
+    padding: 3rem 0;
+    color: var(--text-secondary-light, #6c757d);
+}
+
+.no-messages i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .profile-image-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-info {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+    
+    .profile-stats-container {
+        margin-left: 0;
+        padding-left: 0;
+        margin-top: 1.5rem;
+        justify-content: center;
+    }
+}
 
 
-        .dark-mode {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: #1e1e1e;
-            --border-color: #333;
-            --navbar-bg: #1a1a1a;
-            --text-muted: #a0a0a0;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-        }
+/* Variables para dark mode */
+body.dark-mode {
+  --bg-color: #121212;
+  --text-color: #f1f1f1;
+  --card-bg: #1e1e1e;
+  --card-alt-bg: #2a2a2a;
+  --border-color: #444;
+  --border-alt-color: #333;
+  --navbar-bg: #1a1a1a;
+  --text-muted: #aaa;
+  --hover-bg: #333;
+  --shadow-color: rgba(0, 0, 0, 0.7);
+  --btn-primary-bg: #0d6efd;
+  --btn-primary-hover-bg: #0a58ca;
+  --btn-outline-danger-color: #ff6b6b;
+  --btn-outline-danger-hover-bg: #dc3545;
+  --scrollbar-thumb-bg: #0d6efd;
+}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
+/* Body and base */
+body.dark-mode {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
 
-        .text-muted {
-            color: var(--text-muted) !important;
-        }
+body.dark-mode .text-muted {
+  color: var(--text-muted) !important;
+}
 
-        body.dark-mode {
-            background-color: #121212 !important;
-            color: #f1f1f1 !important;
-        }
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode p {
+  color: var(--text-color);
+}
 
-        body.dark-mode .navbar {
-            background-color: #1e1e1e !important;
-        }
+/* Links and buttons */
+body.dark-mode a,
+body.dark-mode .btn,
+body.dark-mode .text-dark,
+body.dark-mode .nav-link {
+  color: var(--text-color);
+  transition: color 0.3s;
+}
 
-        body.dark-mode .card {
-            background-color: #2a2a2a;
-            color: #f1f1f1;
-        }
+body.dark-mode .nav-link:hover,
+body.dark-mode .nav-link.active {
+  color: var(--btn-primary-bg) !important;
+}
 
-        body.dark-mode .btn,
-        body.dark-mode a {
-            color: #f1f1f1;
-        }
+body.dark-mode .btn-primary {
+  background-color: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+  color: #fff;
+  transition: background-color 0.3s, border-color 0.3s;
+}
 
-        body.dark-mode .text-dark {
-            color: #f1f1f1 !important;
-        }
+body.dark-mode .btn-primary:hover,
+body.dark-mode .btn-primary:focus {
+  background-color: var(--btn-primary-hover-bg);
+  border-color: #084298;
+}
 
-        .navbar-nav .nav-link {
-            color: var(--text-color);
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
+body.dark-mode .btn-outline-secondary {
+  color: var(--text-color);
+  border-color: var(--border-alt-color);
+}
 
-        .navbar-nav .nav-link:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-            color: #007bff;
-        }
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+}
 
-        body.dark-mode .dropdown-menu {
-            background-color: #2a2a2a;
-            color: #f1f1f1;
-            border-color: #444;
-        }
+body.dark-mode .btn-outline-danger {
+  color: var(--btn-outline-danger-color);
+  border-color: var(--btn-outline-danger-color);
+}
 
-        body.dark-mode .dropdown-menu .dropdown-item {
-            color: #f1f1f1;
-        }
+body.dark-mode .btn-outline-danger:hover {
+  background-color: var(--btn-outline-danger-hover-bg);
+  color: #fff;
+}
 
-        body.dark-mode .dropdown-menu .dropdown-item:hover,
-        body.dark-mode .dropdown-menu .dropdown-item:focus {
-            background-color: #3a3a3a;
-            color: #fff;
-        }
-        /* Accordion completo */
-body.dark-mode .accordion-item {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-    border: 1px solid #444;
+/* Navbar */
+body.dark-mode .navbar {
+  background-color: var(--navbar-bg) !important;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Footer */
+body.dark-mode footer {
+  background-color: var(--card-bg);
+  color: #ccc !important;
+}
+
+body.dark-mode footer a {
+  color: #ccc !important;
+}
+
+body.dark-mode footer hr {
+  border-color: var(--border-color) !important;
+}
+
+/* Cards */
+body.dark-mode .card,
+body.dark-mode .profile-card,
+body.dark-mode .message-card,
+body.dark-mode .comment-card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-alt-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  border-radius: 8px;
+}
+
+/* Accordions */
+body.dark-mode .accordion-item,
+body.dark-mode .dropdown-menu {
+  background-color: var(--card-alt-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
 }
 
 body.dark-mode .accordion-button {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-    border-color: #444;
+  background-color: var(--card-alt-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
 }
 
 body.dark-mode .accordion-button:not(.collapsed) {
-    background-color: #333;
-    color: #fff;
+  background-color: var(--hover-bg);
+  color: #fff;
 }
 
 body.dark-mode .accordion-body {
-    background-color: #1e1e1e;
-    color: #e0e0e0;
+  background-color: var(--card-bg);
+  color: #e0e0e0;
+}
+
+.dark-mode .accordion-button::after {
+  filter: invert(0.8);
 }
 
 /* Inputs */
-body.dark-mode .form-control {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
-    border-color: #444;
+body.dark-mode .form-control,
+body.dark-mode textarea,
+body.dark-mode input {
+  background-color: #292929;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
-body.dark-mode .form-control::placeholder {
-    color: #aaa;
+body.dark-mode .form-control::placeholder,
+body.dark-mode textarea::placeholder,
+body.dark-mode input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
 }
 
-/* Tabla */
+body.dark-mode .form-control:focus {
+  background-color: #3a3a3a;
+  border-color: var(--btn-primary-bg);
+  color: #fff;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+body.dark-mode .form-label {
+  color: #ddd;
+}
+
+body.dark-mode .form-text {
+  color: var(--text-muted);
+}
+
+/* Tables */
 body.dark-mode .table,
 body.dark-mode .table-striped,
 body.dark-mode .table-hover {
-    background-color: #1e1e1e;
-    color: #f1f1f1;
-    border-color: #444;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
 }
 
 body.dark-mode .table thead {
-    background-color: #2a2a2a;
-    color: #ffffff;
+  background-color: var(--card-alt-bg);
+  color: #fff;
 }
 
 body.dark-mode .table th,
 body.dark-mode .table td {
-    border-color: #444;
+  border-color: var(--border-color);
 }
-
 
 body.dark-mode .table-hover tbody tr:hover {
-    background-color: #333;
+  background-color: var(--hover-bg);
 }
 
-
-        .dark-mode {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: #1e1e1e;
-            --border-color: #333;
-            --navbar-bg: #1a1a1a;
-            --text-muted: #a0a0a0;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .text-muted {
-            color: var(--text-muted) !important;
-        }
-
-        body.dark-mode .navbar {
-            background-color: #1e1e1e !important;
-        }
-
-        body.dark-mode .card {
-            background-color: #2a2a2a;
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .btn,
-        body.dark-mode a {
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .text-dark {
-            color: #f1f1f1 !important;
-        }
-
-        .navbar-nav .nav-link {
-            color: var(--text-color);
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-            color: #007bff;
-        }
-
-        body.dark-mode .dropdown-menu {
-            background-color: #2a2a2a;
-            color: #f1f1f1;
-            border-color: #444;
-        }
-
-        body.dark-mode .dropdown-menu .dropdown-item {
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .dropdown-menu .dropdown-item:hover,
-        body.dark-mode .dropdown-menu .dropdown-item:focus {
-            background-color: #3a3a3a;
-            color: #fff;
-        }
-
-        table.table {
-            background-color: var(--navbar-bg);
-            color: var(--text-color);
-            border-color: var(--border-color);
-        }
-
-        table.table th,
-        table.table td {
-            background-color: var(--navbar-bg);
-            color: var(--text-color);
-            border-color: var(--border-color);
-        }
-
-        .dark-mode {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: #1e1e1e;
-            --border-color: #333;
-            --navbar-bg: #1a1a1a;
-            --input-bg: #2d2d2d;
-            --input-text: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --hover-bg: #333;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --accordion-bg: #2a2a2a;
-            --accordion-button-bg: #2a2a2a;
-        }
-
-        /* Estilos base */
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-
-        .nav-link {
-            color: var(--text-color);
-        }
-
-        .text-muted {
-            color: var(--text-muted) !important;
-        }
-
-        /* Estilos específicos de la página de producto */
-        .main-image {
-            width: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-            max-width: 400px;
-        }
-
-        .thumbnail {
-            height: 80px;
-            object-fit: cover;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: transform 0.2s ease;
-        }
-
-        .thumbnail:hover {
-            transform: scale(1.05);
-        }
-
-        /* Estilos para formularios y desplegables */
-        .form-select {
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-color: var(--border-color);
-        }
-
-        .form-select:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        /* Estilos para acordeón */
-        .accordion-button {
-            background-color: var(--accordion-button-bg);
-            color: var(--text-color);
-        }
-
-        .accordion-button:not(.collapsed) {
-            background-color: var(--accordion-button-bg);
-            color: var(--text-color);
-        }
-
-        .accordion-item {
-            background-color: var(--accordion-bg);
-            border-color: var(--border-color);
-        }
-
-        .accordion-button::after {
-            filter: invert(0.6);
-            /* Invertir color del icono del acordeón en modo oscuro */
-        }
-
-        .dark-mode .accordion-button::after {
-            filter: invert(0.8);
-            /* Ajustar icono para modo oscuro */
-        }
-
-        /* Estilos para dropdowns */
-        .dropdown-menu {
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        .dropdown-item {
-            color: var(--text-color);
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--hover-bg);
-            color: var(--text-color);
-        }
-
-        /* Estilos para botones */
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        /* Estilos para el interruptor de modo oscuro */
-        .dark-mode-switch {
-            display: flex;
-            align-items: center;
-            margin-right: 1rem;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #2196F3;
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(26px);
-        }
-
-        .dark-mode-icon {
-            margin-left: 8px;
-            font-size: 18px;
-        }
-
-        body.dark-mode {
-            background-color: #121212;
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .text-muted {
-            color: #cccccc !important;
-        }
-
-        body.dark-mode h1,
-        body.dark-mode h2,
-        body.dark-mode h3,
-        body.dark-mode p {
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .product-card {
-            background-color: #1e1e1e;
-            border-color: #444;
-        }
-
-        .accordion-body {
-            color: var(--text-color);
-        }
-
-        .accordion-button::after {
-            filter: invert(0.6);
-        }
-
-        .dark-mode .accordion-button::after {
-            filter: invert(0.8);
-        }
-        body, .navbar, .card, .dropdown-menu, .btn, .form-control, .modal-content, .list-group-item {
-        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-
-
-    /* Variables para modo oscuro */
-    .dark-mode {
-        --bg-color: #121212;
-        --text-color: #e0e0e0;
-        --card-bg: #1e1e1e;
-        --border-color: #333;
-        --navbar-bg: #1a1a1a;
-        --input-bg: #2d2d2d;
-        --input-text: #e0e0e0;
-        --comments-bg: #2d2d2d;
-        --comment-card-bg: #252525;
-        --text-muted: #a0a0a0;
-        --hover-bg: #333;
-        --shadow-color: rgba(0, 0, 0, 0.3);
-        --modal-bg: #252525;
-    }
-
-    /* Aplicación de variables */
-    body {
-        background-color: var(--bg-color);
-        color: var(--text-color);
-    }
-
-    .dropdown-menu {
-        background-color: var(--card-bg);
-        border-color: var(--border-color);
-    }
-
-    .dropdown-item {
-        color: var(--text-color);
-    }
-
-    .dropdown-item:hover {
-        background-color: var(--hover-bg);
-        color: var(--text-color);
-    }
-
-    .form-control, .form-select {
-        background-color: var(--input-bg);
-        color: var(--input-text);
-        border-color: var(--border-color);
-    }
-
-    .form-control:focus, .form-select:focus {
-        background-color: var(--input-bg);
-        color: var(--input-text);
-        border-color: #86b7fe;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-
-    .comments-container {
-        background-color: var(--comments-bg);
-    }
-
-    .comment-card {
-        background-color: var(--comment-card-bg);
-    }
-
-    .text-muted {
-        color: var(--text-muted) !important;
-    }
-
-    .modal-content {
-        background-color: var(--modal-bg);
-    }
-
-    .list-group-item {
-        background-color: var(--card-bg);
-        border-color: var(--border-color);
-        color: var(--text-color);
-    }
-
-    /* Estilos específicos de componentes */
-    .message-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .message-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px var(--shadow-color);
-    }
-    
-    .message-image {
-        max-height: 400px;
-        width: auto;
-        border-radius: 8px;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-    }
-    
-    .message-image:hover {
-        transform: scale(1.02);
-    }
-    
-    .image-preview {
-        max-width: 100px;
-        max-height: 100px;
-        margin-top: 10px;
-        display: none;
-    }
-    
-    .comments-container {
-        max-height: 300px;
-        overflow-y: auto;
-        margin-top: 10px;
-        padding: 10px;
-        border-radius: 8px;
-    }
-    
-    .comment-card {
-        border-radius: 8px;
-        padding: 10px;
-        margin-bottom: 10px;
-        box-shadow: 0 1px 3px var(--shadow-color);
-    }
-    
-    .comment-form {
-        margin-top: 15px;
-    }
-    
-    .btn-group form {
-        display: inline-block;
-        margin-right: 5px;
-    }
-    
-    .like-button {
-        transition: all 0.2s ease;
-    }
-    
-    .like-button:hover {
-        transform: scale(1.05);
-    }
-
-    /* Estilos para el interruptor de modo oscuro */
-    .dark-mode-switch {
-        display: flex;
-        align-items: center;
-        margin-right: 1rem;
-    }
-    
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 24px;
-    }
-    
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 24px;
-    }
-    
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-    
-    input:checked + .slider {
-        background-color: #2196F3;
-    }
-    
-    input:checked + .slider:before {
-        transform: translateX(26px);
-    }
-    
-    .dark-mode-icon {
-        margin-left: 8px;
-        font-size: 18px;
-    }
-
-    /* Ajustes para elementos específicos de Bootstrap en modo oscuro */
-    .dark-mode .btn-outline-secondary {
-        color: var(--text-color);
-        border-color: var(--border-color);
-    }
-
-    .dark-mode .btn-outline-secondary:hover {
-        background-color: var(--hover-bg);
-        color: var(--text-color);
-    }
-
-    .dark-mode .btn-outline-danger {
-        color: #ff6b6b;
-        border-color: #ff6b6b;
-    }
-
-    .dark-mode .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .dark-mode .btn-primary {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-
-    .dark-mode .modal-header, .dark-mode .modal-footer {
-        border-color: var(--border-color);
-    }
-
-    .dark-mode .text-primary {
-        color: #6ea8fe !important;
-    }
-
-    .dark-mode .nav-link {
-        color: var(--text-color);
-    }
-
-    .dark-mode .nav-link:hover {
-        color: #6ea8fe;
-    }
-
-    .dark-mode .nav-link.active {
-        color: #6ea8fe !important;
-    }
-    
-    .form-control, .form-select {
-        background-color: var(--input-bg);
-        color: var(--input-text);
-        border-color: var(--border-color);
-    }
-    textarea.form-control::placeholder {
-    color: #6c757d;
-    }
-
-    input.form-control::placeholder {
-    color: #6c757d;
-    }
-    
-    /* --- Modo Claro (default) --- */
-    body {
-        background-color: #f5f7fb;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--dark-color);
-    }
-    
-    .profile-container {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    
-    .profile-card {
-        background: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        overflow: hidden;
-        margin-bottom: 2rem;
-        border: none;
-        color: var(--dark-color);
-    }
-    
-    .profile-header {
-        position: relative;
-        padding: 2rem;
-        display: flex;
-        flex-wrap: wrap;
-        border-bottom: 1px solid #ddd;
-    }
-    
-    .profile-image-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        width: 100%;
-    }
-    
-    .profile-image {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 5px solid white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: var(--transition);
-    }
-    
-    .profile-image:hover {
-        transform: scale(1.05);
-    }
-    
-    .profile-info {
-        margin-left: 1.5rem;
-        flex-grow: 1;
-    }
-    
-    .profile-username {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-        color: var(--dark-color);
-    }
-    
-    .profile-join-date {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    
-    .profile-stats-container {
-        display: flex;
-        align-items: center;
-        margin-left: auto;
-        padding-left: 2rem;
-    }
-    
-    .profile-stats {
-        display: flex;
-        gap: 1.5rem;
-        background: rgba(67, 97, 238, 0.05);
-        padding: 1rem 1.5rem;
-        border-radius: var(--border-radius);
-        border: 1px solid rgba(67, 97, 238, 0.1);
-        color: var(--primary-color);
-    }
-    
-    .stat-item {
-        text-align: center;
-    }
-    
-    .stat-count {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--primary-color);
-    }
-    
-    .stat-label {
-        font-size: 0.85rem;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .message-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        margin-bottom: 1.5rem;
-        border-radius: var(--border-radius);
-        border: none;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        background: white;
-        color: var(--dark-color);
-    }
-    
-    .message-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .message-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    
-    .message-user {
-        display: flex;
-        align-items: center;
-    }
-    
-    .message-user-img {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 0.75rem;
-    }
-    
-    .message-content {
-        padding: 1rem;
-    }
-    
-    .message-text {
-        margin-bottom: 1rem;
-    }
-    
-    .message-image {
-        max-height: 400px;
-        width: auto;
-        border-radius: 8px;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-    }
-    
-    .message-image:hover {
-        transform: scale(1.02);
-    }
-    
-    .message-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    
-    .like-button {
-        transition: all 0.2s ease;
-    }
-    
-    .like-button:hover {
-        transform: scale(1.05);
-    }
-    
-    .comments-section {
-        max-height: 300px;
-        overflow-y: auto;
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        display: none;
-        color: var(--dark-color);
-    }
-    
-    .comment-card {
-        background-color: white;
-        border-radius: 8px;
-        padding: 10px;
-        margin-bottom: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        color: var(--dark-color);
-    }
-    
-    .comment-form {
-        margin-top: 15px;
-    }
-    
-    .btn-group form {
-        display: inline-block;
-        margin-right: 5px;
-    }
-    
-    .no-messages {
-        text-align: center;
-        padding: 3rem 0;
-        color: #6c757d;
-    }
-    
-    .no-messages i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-    
-    /* Responsive */
-    @media (max-width: 767.98px) {
-        .profile-image-container {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .profile-info {
-            margin-left: 0;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
-        .profile-stats-container {
-            margin-left: 0;
-            padding-left: 0;
-            width: 100%;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-        
-        .profile-stats {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .profile-username {
-            font-size: 1.5rem;
-        }
-    }
-
-    /* --- Modo Oscuro --- */
-    body.dark-mode {
-        background-color: #121212 !important;
-        color: #f1f1f1 !important;
-    }
-
-    body.dark-mode .navbar {
-        background-color: #1e1e1e !important;
-    }
-
-    body.dark-mode .card,
-    body.dark-mode .profile-card,
-    body.dark-mode .message-card,
-    body.dark-mode .comment-card {
-        background-color: #1e1e1e;
-        color: #f1f1f1;
-        border: 1px solid #333;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.7);
-        border-radius: 8px;
-    }
-
-    body.dark-mode .profile-header {
-        border-bottom: 1px solid #333;
-        padding: 1rem;
-    }
-
-    body.dark-mode .profile-image-container {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    body.dark-mode .profile-image, 
-    body.dark-mode #profileImagePreview {
-        border: 2px solid #444;
-        box-shadow: 0 0 8px #555 inset;
-        filter: drop-shadow(0 0 0.25rem #000);
-        transition: border-color 0.3s ease;
-    }
-
-    body.dark-mode .profile-image:hover, 
-    body.dark-mode #profileImagePreview:hover {
-        border-color: #0d6efd; /* azul Bootstrap */
-        cursor: pointer;
-    }
-
-    body.dark-mode .profile-info h1.profile-username {
-        color: #ffffff;
-    }
-
-    body.dark-mode .profile-join-date {
-        color: #bbb;
-    }
-
-    body.dark-mode .profile-stats-container {
-        margin-left: auto;
-    }
-
-    body.dark-mode .profile-stats {
-        background-color: #292929;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        color: #ccc;
-        text-align: center;
-        min-width: 100px;
-    }
-
-    body.dark-mode .stat-item .stat-count {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #0d6efd;
-    }
-
-    body.dark-mode .stat-item .stat-label {
-        font-size: 0.85rem;
-        color: #aaa;
-    }
-
-    body.dark-mode .profile-actions {
-        background-color: #1e1e1e;
-        border-top: 1px solid #333;
-    }
-
-    body.dark-mode .btn-outline-primary {
-        color: #0d6efd;
-        border-color: #0d6efd;
-    }
-
-    body.dark-mode .btn-outline-primary:hover, 
-    body.dark-mode .btn-outline-primary:focus {
-        background-color: #0d6efd;
-        color: #fff;
-        border-color: #0a58ca;
-    }
-
-    body.dark-mode .modal-content {
-        background-color: #1e1e1e;
-        color: #e0e0e0;
-        border-radius: 8px;
-        border: none;
-    }
-
-    body.dark-mode .modal-header, 
-    body.dark-mode .modal-footer {
-        border-color: #333;
-    }
-
-    body.dark-mode .form-label {
-        color: #ddd;
-    }
-
-    body.dark-mode .form-control {
-        background-color: #292929;
-        border: 1px solid #444;
-        color: #eee;
-    }
-
-    body.dark-mode .form-control:focus {
-        background-color: #3a3a3a;
-        border-color: #0d6efd;
-        color: #fff;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-
-    body.dark-mode .form-text {
-        color: #aaa;
-    }
-
-    body.dark-mode .btn-primary {
-        background-color: #0d6efd;
-        border-color: #0a58ca;
-        color: #fff;
-    }
-
-    body.dark-mode .btn-primary:hover, 
-    body.dark-mode .btn-primary:focus {
-        background-color: #0a58ca;
-        border-color: #084298;
-        color: #fff;
-    }
-
-    /* Ajustes para las imágenes dentro de mensajes en modo oscuro */
-    body.dark-mode .message-image {
-        filter: brightness(0.9);
-        border: 1px solid #444;
-    }
-
-    /* Scrollbars personalizados para modo oscuro */
-    body.dark-mode ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    body.dark-mode ::-webkit-scrollbar-track {
-        background: #1e1e1e;
-    }
-
-    body.dark-mode ::-webkit-scrollbar-thumb {
-        background-color: #0d6efd;
-        border-radius: 4px;
-    }
-
-    .navbar-nav .nav-link {
-        color: var(--text-color);
-        transition: color 0.3s ease, background-color 0.3s ease;
-    }
-
-    .navbar-nav .nav-link:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-        color: #007bff;
-    }
-
-    body.dark-mode .dropdown-menu {
-        background-color: #2a2a2a;
-        color: #f1f1f1;
-        border-color: #444;
-    }
-
-    body.dark-mode .dropdown-menu .dropdown-item {
-        color: #f1f1f1;
-    }
-
-    body.dark-mode .dropdown-menu .dropdown-item:hover,
-    body.dark-mode .dropdown-menu .dropdown-item:focus {
-        background-color: #3a3a3a;
-        color: #fff;
-    }
-
-    .text-muted {
-        color: var(--text-muted) !important;
-    }
-
-    body.dark-mode .comments-section {
-        background-color: #2a2a2a;
-        color: #f1f1f1;
-        border: 1px solid #444;
-    }
-    body.dark-mode textarea::placeholder,
-    body.dark-mode input::placeholder {
-        color: #aaa; /* Un gris claro que contraste bien en fondo oscuro */
-        opacity: 1;  /* Para asegurar que el color se aplique con claridad */
-    }
-
-
-        body {
-            background-color: var(--bg-color-light);
-            color: var(--text-color-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .profile-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .profile-card {
-            background: var(--card-bg-light);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-            margin-bottom: 2rem;
-            border: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .profile-header {
-            position: relative;
-            padding: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.3s ease;
-        }
-
-        .profile-image-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            width: 100%;
-            gap: 1.5rem;
-        }
-
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 5px solid var(--card-bg-light);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: var(--transition);
-        }
-
-        .profile-image:hover {
-            transform: scale(1.05);
-        }
-
-        .profile-info {
-            flex-grow: 1;
-        }
-
-        .profile-username {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            color: var(--text-color-light);
-        }
-
-        .profile-join-date {
-            color: var(--text-secondary-light);
-            font-size: 0.9rem;
-        }
-
-        .profile-stats-container {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-            padding-left: 2rem;
-        }
-
-        .profile-stats {
-            display: flex;
-            gap: 1.5rem;
-            background: var(--stat-bg-light);
-            padding: 1rem 1.5rem;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--stat-border-light);
-            color: var(--text-secondary-light);
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-count {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .message-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-bottom: 1.5rem;
-            border-radius: var(--border-radius);
-            border: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            background-color: var(--card-bg-light);
-            color: var(--text-color-light);
-        }
-
-        .message-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .message-user {
-            display: flex;
-            align-items: center;
-        }
-
-        .message-user-img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 0.75rem;
-        }
-
-        .message-content {
-            padding: 1rem;
-        }
-
-        .message-text {
-            margin-bottom: 1rem;
-        }
-
-        .message-image {
-            max-height: 400px;
-            width: auto;
-            border-radius: 8px;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .message-image:hover {
-            transform: scale(1.02);
-        }
-
-        .message-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .like-button {
-            transition: all 0.2s ease;
-        }
-
-        .like-button:hover {
-            transform: scale(1.05);
-        }
-
-        .comments-section {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: var(--light-color);
-            border-radius: 8px;
-            display: none;
-        }
-
-        .comment-card {
-            background-color: var(--card-bg-light);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .comment-form {
-            margin-top: 15px;
-        }
-
-        .btn-group form {
-            display: inline-block;
-            margin-right: 5px;
-        }
-
-        .no-messages {
-            text-align: center;
-            padding: 3rem 0;
-            color: var(--text-secondary-light);
-        }
-
-        .no-messages i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        @media (max-width: 767.98px) {
-            .profile-image-container {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .profile-info {
-                margin-left: 0;
-                margin-top: 1rem;
-                text-align: center;
-            }
-            
-            .profile-stats-container {
-                margin-left: 0;
-                padding-left: 0;
-                width: 100%;
-                justify-content: center;
-                margin-top: 1rem;
-            }
-            
-            .profile-stats {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .profile-username {
-                font-size: 1.5rem;
-            }
-        }
-
-        /* === Modo oscuro === */
-        body.dark-mode {
-            background-color: var(--bg-color-dark) !important;
-            color: var(--text-color-dark) !important;
-        }
-
-        body.dark-mode .navbar {
-            background-color: #1e1e1e !important;
-        }
-
-        body.dark-mode .profile-card {
-            background-color: var(--card-bg-dark);
-            color: var(--text-color-dark);
-            border: 1px solid var(--stat-border-dark);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.7);
-        }
-
-        body.dark-mode .profile-header {
-            border-bottom: 1px solid var(--stat-border-dark);
-        }
-
-        body.dark-mode .profile-image {
-            border: 2px solid #444;
-            box-shadow: 0 0 8px #555 inset;
-            filter: drop-shadow(0 0 0.25rem #000);
-            transition: border-color 0.3s ease;
-        }
-
-        body.dark-mode .profile-image:hover {
-            border-color: #0d6efd;
-            cursor: pointer;
-        }
-
-        body.dark-mode .profile-info h1.profile-username {
-            color: #ffffff;
-        }
-
-        body.dark-mode .profile-join-date {
-            color: var(--text-secondary-dark);
-        }
-
-        body.dark-mode .profile-stats-container {
-            margin-left: auto;
-        }
-
-        body.dark-mode .profile-stats {
-            background-color: var(--stat-bg-dark);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            color: #ccc;
-            text-align: center;
-            min-width: 100px;
-        }
-
-        body.dark-mode .stat-item .stat-count {
-            color: #0d6efd;
-        }
-
-        body.dark-mode .message-card {
-            background-color: var(--card-bg-dark);
-            color: var(--text-color-dark);
-            box-shadow: none;
-            border: 1px solid #333;
-        }
-
-        body.dark-mode .message-header {
-            border-bottom: 1px solid #444;
-        }
-
-        body.dark-mode .message-actions {
-            border-top: 1px solid #444;
-        }
-
-        body.dark-mode .comments-section {
-            background-color: #222;
-            color: #ccc;
-            border-radius: 8px;
-        }
-
-        body.dark-mode .comment-card {
-            background-color: #2b2b2b;
-            box-shadow: none;
-        }
-
-        body.dark-mode .message-image:hover {
-            transform: scale(1.05);
-        }
-
-        /* Para que el botón "like" se destaque un poco */
-        body.dark-mode .like-button {
-            color: #0d6efd;
-        }
-
-        .text-muted {
-            color: var(--text-muted) !important;
-        }
-
-        body.dark-mode .navbar {
-            background-color: #1e1e1e !important;
-        }
-        .navbar-nav .nav-link {
-            color: var(--text-color);
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-            color: #007bff;
-        }
-
-        body.dark-mode .dropdown-menu {
-            background-color: #2a2a2a;
-            color: #f1f1f1;
-            border-color: #444;
-        }
-
-        body.dark-mode .dropdown-menu .dropdown-item {
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .dropdown-menu .dropdown-item:hover,
-        body.dark-mode .dropdown-menu .dropdown-item:focus {
-            background-color: #3a3a3a;
-            color: #fff;
-        }
+/* Dropdowns */
+body.dark-mode .dropdown-menu .dropdown-item {
+  color: var(--text-color);
+}
+
+body.dark-mode .dropdown-menu .dropdown-item:hover,
+body.dark-mode .dropdown-menu .dropdown-item:focus {
+  background-color: var(--hover-bg);
+  color: #fff;
+}
+
+/* Profile */
+body.dark-mode .profile-header {
+  border-bottom: 1px solid var(--border-alt-color);
+  padding: 1rem;
+}
+
+body.dark-mode .profile-image-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+body.dark-mode .profile-image,
+body.dark-mode #profileImagePreview {
+  border: 2px solid var(--border-color);
+  box-shadow: 0 0 8px #555 inset;
+  filter: drop-shadow(0 0 0.25rem #000);
+  transition: border-color 0.3s ease;
+}
+
+body.dark-mode .profile-image:hover,
+body.dark-mode #profileImagePreview:hover {
+  border-color: var(--btn-primary-bg);
+  cursor: pointer;
+}
+
+body.dark-mode .profile-info h1.profile-username {
+  color: #fff;
+}
+
+body.dark-mode .profile-join-date {
+  color: #bbb;
+}
+
+body.dark-mode .profile-stats-container {
+  margin-left: auto;
+}
+
+body.dark-mode .profile-stats {
+  background-color: #292929;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #ccc;
+  text-align: center;
+  min-width: 100px;
+}
+
+body.dark-mode .stat-item .stat-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--btn-primary-bg);
+}
+
+body.dark-mode .stat-item .stat-label {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+body.dark-mode .profile-actions {
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--border-alt-color);
+}
+
+/* Modal */
+body.dark-mode .modal-content {
+  background-color: var(--card-bg);
+  color: #e0e0e0;
+  border-radius: 8px;
+  border: none;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: var(--border-alt-color);
+}
+
+/* Messages */
+body.dark-mode .message-card {
+  background-color: var(--card-bg);
+  box-shadow: none;
+  border: 1px solid var(--border-alt-color);
+}
+
+body.dark-mode .message-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.dark-mode .message-actions {
+  border-top: 1px solid var(--border-color);
+}
+
+body.dark-mode .message-image {
+  filter: brightness(0.9);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease;
+}
+
+body.dark-mode .message-image:hover {
+  transform: scale(1.05);
+}
+
+/* Comments */
+body.dark-mode .comments-section {
+  background-color: var(--card-alt-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+body.dark-mode .comment-card {
+  background-color: #2b2b2b;
+  box-shadow: none;
+}
+
+/* Like button */
+body.dark-mode .like-button {
+  color: var(--btn-primary-bg);
+}
+
+/* Dark mode switch fixed */
+.dark-mode-switch-fixed {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  background-color: rgba(30, 30, 30, 0.9);
+  padding: 0.5rem;
+  border-radius: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Dark mode icon */
+.dark-mode-icon {
+  margin-left: 8px;
+  font-size: 18px;
+}
+
+/* Floating action button */
+.dark-mode-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1050;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode-fab:hover {
+  background-color: #444;
+}
+
+/* Scrollbars */
+body.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: var(--card-bg);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-bg);
+  border-radius: 4px;
+}
+body.dark-mode .navbar {
+    background-color: #1e1e1e !important;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode-icon {
+    margin-left: 8px;
+    font-size: 18px;
+}
+
+body.dark-mode footer {
+    background-color: #1e1e1e !important;
+    color: #ccc !important;
+}
+
+body.dark-mode footer a {
+    color: #ccc !important;
+}
+
+body.dark-mode footer hr {
+    border-color: #444 !important;
+}
+
+/* Contenedor de comentarios en modo oscuro */
+body.dark-mode .comments-container {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* Inputs select en modo oscuro */
+body.dark-mode select,
+body.dark-mode .form-select {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+/* Opciones dentro del select */
+body.dark-mode select option,
+body.dark-mode .form-select option {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+}
+
+/* Hover y focus para select */
+body.dark-mode select:focus,
+body.dark-mode .form-select:focus {
+    background-color: #333;
+    border-color: #0d6efd;
+    outline: none;
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+body.dark-mode .like-button {
+  color: #ccc; /* color base para modo oscuro */
+  border-color: #555;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.3s;
+}
+
+body.dark-mode .like-button i,
+body.dark-mode .like-button .like-count {
+  transition: color 0.3s;
+  color: #ccc;
+}
+
+/* Cuando está activo en modo oscuro */
+body.dark-mode .like-button.active {
+  color: #ff6b81; /* rojo más suave para modo oscuro */
+  border-color: #ff6b81;
+  background-color: transparent;
+}
+
+body.dark-mode .like-button.active i,
+body.dark-mode .like-button.active .like-count {
+  color: #ff6b81;
+}
+
+/* Hover para botón en modo oscuro */
+body.dark-mode .like-button:hover {
+  color: #66b0ff;
+  border-color: #66b0ff;
+  cursor: pointer;
+}
