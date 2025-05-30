@@ -33,6 +33,14 @@ $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/views');
 $twig = new \Twig\Environment($loader, ['cache' => false]);
 $twig->addFunction(new \Twig\TwigFunction('_', fn($string) => gettext($string)));
 
+$twig->addFunction(new \Twig\TwigFunction('get_shared_list', function($messageId) {
+        return DatabaseController::getSharedList($messageId);
+}));
+
+$twig->addFunction(new \Twig\TwigFunction('get_list_products', function($listaId) {
+    return DatabaseController::getListProducts($listaId);
+}));
+
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = explode('/', trim($requestUri, '/'));
 $views = __DIR__ . '/views/';
@@ -115,14 +123,19 @@ switch ($route) {
             header("Location: /");
             exit();
         }
+
+        
         $homeController = new HomeController();
         $homeData = $homeController->handleRequest();
+        $misListasController = new MisListasController(DatabaseController::connect(), $_SESSION['user_id']);
+        $listasUsuario = $misListasController->getListas();
         echo $twig->render('home.html', [
             'messages' => $homeData['messages'],
             'userData' => DatabaseController::getUserById($_SESSION['user_id']),
             'current_user_id' => $_SESSION['user_id'],
             'language' => $language,
-            'current_page' => 'home'
+            'current_page' => 'home',
+            'listas_usuario' => $listasUsuario
         ]);
         break;
 

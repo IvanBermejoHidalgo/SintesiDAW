@@ -530,7 +530,41 @@ class DatabaseController {
         return $imagenes_base64;
     }
 
+    public static function shareList($listaId, $messageId, $sharedById, $isPublic = false) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            INSERT INTO shared_lists (message_id, lista_id, shared_by, is_public) 
+            VALUES (?, ?, ?, ?)
+        ");
+        return $stmt->execute([$messageId, $listaId, $sharedById, $isPublic]);
+    }
 
+    public static function getSharedList($messageId) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT sl.*, l.nombre as lista_nombre, u.username as shared_by_username
+            FROM shared_lists sl
+            JOIN listas l ON sl.lista_id = l.id
+            JOIN User u ON sl.shared_by = u.id
+            WHERE sl.message_id = ?
+        ");
+        $stmt->execute([$messageId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function getListProducts($listaId) {
+        $pdo = self::connect();
+        $stmt = $pdo->prepare("
+            SELECT p.* 
+            FROM lista_productos lp
+            JOIN productos p ON lp.producto_id = p.id
+            WHERE lp.lista_id = ?
+        ");
+        $stmt->execute([$listaId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    
 
 
   }

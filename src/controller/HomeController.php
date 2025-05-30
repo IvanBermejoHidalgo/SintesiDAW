@@ -50,28 +50,60 @@ class HomeController {
     private function handleNewMessage() {
         $content = trim($_POST['content'] ?? '');
         $imagePath = null;
+        $listaId = $_POST['lista_id'] ?? null;
+        $isPublic = isset($_POST['lista_publica']) ? 1 : 0;
         
-        // Procesar la imagen solo si se subió un archivo
-        if (isset($_FILES['message_image']) && $_FILES['message_image']['error'] === UPLOAD_ERR_OK) {
-            $imagePath = $this->handleImageUpload();
-            if (!$imagePath) {
-                $_SESSION['error'] = "Error al subir la imagen";
-                return;
-            }
-        }
-        
-        if (empty($content) && !$imagePath) {
-            $_SESSION['error'] = "Debes escribir un mensaje o subir una imagen";
+        // Validación básica
+        if (empty($content) && empty($_FILES['message_image']['name']) && empty($listaId)) {
+            $_SESSION['error'] = "Debes escribir un mensaje, subir una imagen o compartir una lista";
             return;
         }
-    
+
         try {
+            $this->db->beginTransaction();
+            
+            // Insertar mensaje (aunque no tenga contenido)
             $stmt = $this->db->prepare(
                 "INSERT INTO messages (user_id, content, image_path, created_at) VALUES (?, ?, ?, NOW())"
             );
             $stmt->execute([$_SESSION['user_id'], $content, $imagePath]);
-        } catch (PDOException $e) {
-            $_SESSION['error'] = "Error al guardar el mensaje: " . $e->getMessage();
+            $messageId = $this->db->lastInsertId();
+            
+            // Si se está compartiendo una lista
+            if ($listaId) {
+                // Verificar que la lista pertenece al usuario
+                $stmt = $this->db->prepare("SELECT id FROM listas WHERE id = ? AND usuario_id = ?");
+                $stmt->execute([$listaId, $_SESSION['user_id']]);
+                
+                if (!$stmt->fetch()) {
+                    throw new Exception("No tienes permiso para compartir esta lista");
+                }
+                
+                // Compartir la lista
+                $stmt = $this->db->prepare(
+                    "INSERT INTO shared_lists (message_id, lista_id, shared_by, is_public) VALUES (?, ?, ?, ?)"
+                );
+                if (!$stmt->execute([$messageId, $listaId, $_SESSION['user_id'], $isPublic])) {
+                    throw new Exception("Error al compartir la lista");
+                }
+            }
+            
+            // Procesar imagen si existe
+            if (!empty($_FILES['message_image']['name'])) {
+                $imagePath = $this->handleImageUpload();
+                if ($imagePath) {
+                    $stmt = $this->db->prepare(
+                        "UPDATE messages SET image_path = ? WHERE id = ?"
+                    );
+                    $stmt->execute([$imagePath, $messageId]);
+                }
+            }
+            
+            $this->db->commit();
+            $_SESSION['success'] = "Publicación creada correctamente";
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            $_SESSION['error'] = "Error al publicar: " . $e->getMessage();
         }
     }
 
@@ -157,11 +189,12 @@ class HomeController {
     private function getAllMessagesWithUsers() {
         $stmt = $this->db->query("
             SELECT m.*, 
-                   u.username, 
-                   u.profile_image,
-                   (SELECT COUNT(*) FROM likes WHERE message_id = m.id) as like_count,
-                   EXISTS(SELECT 1 FROM likes WHERE message_id = m.id AND user_id = {$_SESSION['user_id']}) as has_liked,
-                   (SELECT COUNT(*) FROM comments WHERE message_id = m.id) as comment_count
+                u.username, 
+                u.profile_image,
+                (SELECT COUNT(*) FROM likes WHERE message_id = m.id) as like_count,
+                EXISTS(SELECT 1 FROM likes WHERE message_id = m.id AND user_id = {$_SESSION['user_id']}) as has_liked,
+                (SELECT COUNT(*) FROM comments WHERE message_id = m.id) as comment_count,
+                EXISTS(SELECT 1 FROM shared_lists WHERE message_id = m.id) as has_shared_list
             FROM messages m
             JOIN User u ON m.user_id = u.id
             ORDER BY m.created_at DESC
