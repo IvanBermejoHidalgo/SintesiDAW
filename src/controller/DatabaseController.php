@@ -509,10 +509,8 @@ class DatabaseController {
         return $pdo->lastInsertId();
     }
 
-
-
     public static function getImagenesBase64PorProductoId($producto_id) {
-        $db = self::connect(); // o la conexión que uses
+        $db = self::connect(); // o ajusta si usas $this->db
         $stmt = $db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");
         $stmt->execute([$producto_id]);
         $imagenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -524,11 +522,14 @@ class DatabaseController {
                 if (file_exists($path)) {
                     $imgData = file_get_contents($path);
                     $imagenes_base64[] = base64_encode($imgData);
+                } else {
+                    $imagenes_base64[] = base64_encode($imagen['url']);
                 }
             }
         }
         return $imagenes_base64;
     }
+
 
 
 
