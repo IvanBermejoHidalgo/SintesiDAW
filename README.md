@@ -1,12 +1,13 @@
-# 🛠️ Panel de Administración - Proyecto Síntesi
+# 🛠️ ShopList
 
-Este proyecto es un panel de administración web construido con **PHP**, **Twig**, **Bootstrap**, y **MySQL**, desarrollado como parte del proyecto de síntesi. Incluye autenticación de administradores, gestión de productos y estadísticas dinámicas con visualizaciones.
+Aplicación web completa que combina una tienda online con funcionalidades de red social. Los usuarios pueden registrarse, iniciar sesión, navegar productos por categorías, añadir productos a listas personalizadas y realizar pedidos. Además, cada usuario dispone de un perfil personal, dar "like" y comentar. El sistema incluye un modo admin en el que se muestran estadísticas, gráficos interactivos y un modo oscuro para mejorar la experiencia de usuario.
 
 ## 🚀 Tecnologías utilizadas
 
-- **PHP 8.x**
+- **PHP**
+- **Apache**
 - **Twig** (motor de plantillas)
-- **Bootstrap 5**
+- **Bootstrap**
 - **MySQL**
 - **Routing personalizado**
 - **Gráficos con Chart.js / ApexCharts**
@@ -14,37 +15,84 @@ Este proyecto es un panel de administración web construido con **PHP**, **Twig*
 - **Soporte para modo oscuro (Dark Mode)**
 
 ## 📁 Estructura del proyecto
+```bash
+ShopList/
+├── public/
+│ ├── css/
+│ │ │ ├── estilos.css
+│ ├── views/
+│ │ ├── admin/
+│ │ │ ├── crear_producto.php
+│ │ │ ├── dashboard.php
+│ │ │ ├── editar_producto.php
+│ │ │ ├── editar_productos.php
+│ │ │ ├── imagen.php
+│ │ │ ├── login.php
+│ │ │ ├── products_by_category.php
+│ │ │ ├── users_by_gender.php
+│ │ ├── navegacion/
+│ │ │ ├── error.html
+│ │ │ ├── footer.html
+│ │ ├── reset_password/
+│ │ │ ├── forgot_password.php
+│ │ │ ├── invalid_token.html
+│ │ │ ├── reset_form.html
+│ │ │ ├── reset_request.php
+│ │ │ ├── reset_success.html
+│ │ ├── tienda/
+│ │ │ ├── carrito.html
+│ │ │ ├── checkout.html
+│ │ │ ├── mis_listas.html
+│ │ │ ├── mis_pedidos.html
+│ │ │ ├── pedido_confirmado.html
+│ │ │ ├── producto.html
+│ │ │ ├── tienda.html
+│ │ ├── 404.php
+│ │ ├── aboutus.html
+│ │ ├── home.html
+│ │ ├── login.php
+│ │ ├── profile.html
+│ │ ├── signup.php
+│ │ ├── user.html
+│ ├── .htaccess
+│ ├── admin.php
+│ ├── index.php
+├── src/
+│ ├── controller/
+│ │ ├── AdminController.php
+│ │ ├── AuthController.php
+│ │ ├── CartController.php
+│ │ ├── CheckoutController.php
+│ │ ├── DatabaseController.php
+│ │ ├── HomeController.php
+│ │ ├── MisListasController.php
+│ │ ├── PedidoConfirmadoController.php
+│ │ ├── PedidosController.php
+│ │ ├── ProfileController.php
+│ │ ├── SessionController.php
+│ │ ├── TiendaController.php
+│ ├── db/
+│ │ ├── InsertProducts.php
+│ │ ├── productos.csv
+│ │ ├── tablas.sql
 
-/public
-index.php
-admin.php
-/views
-/admin
-dashboard.php
-editar_productos.php
-crear_producto.php
-login.php
-...
-/src
-/controller
-AdminController.php
-DatabaseController.php
-/vendor
-
+```
 
 ## 🧪 Funcionalidades clave
 
-- 🔐 Login de administrador con sesión
-- 📊 Dashboard con estadísticas de usuarios, compras y productos
-- 🛒 CRUD de productos (crear, editar, eliminar)
+- 🔐 Inicio de sesión y registro
+- 🧑🤝🧑 Red social: seguir usuarios, dar like a listas, comentar
+- 🛒 Tienda para comprar productos por categorias
+- 📊 Dashboard con estadísticas de usuarios, compras y productos (Admin)
+- 👤 Perfil de usuario con foto, bio y actividad
+- 📦 Sección "Mis pedidos" con historial y detalles
 - 📈 Gráficos por categoría, género, etc.
-- 🌙 Modo oscuro con variables CSS personalizadas
+- 🌙 Modo oscuro
 - 📁 Gestión de imágenes en base64
-- 📉 Visualización de listas de usuarios y sus productos
+- 📉 Visualización de listas con los productos añadidos
 
-## ✅ Requisitos
 
-- PHP 8.x
-- MySQL
-- Apache (con soporte para `.htaccess`)
-- Composer
+## Contacto
+
+- **Nombre:** Sara Essakkal Martínez | Iván Bermejo Hidalgo
+- **Email:** sessakkal@elpuig.xeill.net | ibermejo@elpuig.xeill.net
