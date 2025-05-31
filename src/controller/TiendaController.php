@@ -23,11 +23,13 @@ class TiendaController {
         return [
             'productos' => $this->getProductosPorCategoria($categoria),
             'categoria_actual' => $categoria,
+            'buscar' => isset($_GET['buscar']) ? $_GET['buscar'] : '',
             'userData' => SessionController::getUserData($userId),
             'carrito' => $this->getProductosCarrito($userId),
             'listas' => $listas,
             'current_page' => 'tienda/' . $categoria
         ];
+
     }
 
     private function getCategoriaDesdeRuta() {
@@ -39,14 +41,26 @@ class TiendaController {
     }
 
     private function getProductosPorCategoria($categoria) {
+        $buscar = isset($_GET['buscar']) ? trim($_GET['buscar']) : '';
+
         if ($categoria === 'todos') {
-            $stmt = $this->db->query("SELECT * FROM productos");
-            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($buscar !== '') {
+                $stmt = $this->db->prepare("SELECT * FROM productos WHERE name LIKE ?");
+                $stmt->execute(["%$buscar%"]);
+            } else {
+                $stmt = $this->db->query("SELECT * FROM productos");
+            }
         } else {
-            $stmt = $this->db->prepare("SELECT * FROM productos WHERE category = ?");
-            $stmt->execute([$categoria]);
-            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($buscar !== '') {
+                $stmt = $this->db->prepare("SELECT * FROM productos WHERE category = ? AND name LIKE ?");
+                $stmt->execute([$categoria, "%$buscar%"]);
+            } else {
+                $stmt = $this->db->prepare("SELECT * FROM productos WHERE category = ?");
+                $stmt->execute([$categoria]);
+            }
         }
+
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($productos as &$producto) {
             $producto['imagenes_base64'] = $this->getImagenesBase64($producto['id']);
@@ -54,6 +68,7 @@ class TiendaController {
 
         return $productos;
     }
+
 
     public function getProductoPorId($id) {
         $stmt = $this->db->prepare("SELECT * FROM productos WHERE id = ?");

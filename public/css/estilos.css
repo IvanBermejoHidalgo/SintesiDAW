@@ -889,6 +889,9 @@ body.dark-mode .message-image {
 body.dark-mode .message-image:hover {
   transform: scale(1.05);
 }
+.comments-section{
+  display: none;;
+}
 
 /* Comments */
 body.dark-mode .comments-section {
