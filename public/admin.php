@@ -107,9 +107,11 @@ if (isset($path[0]) && $path[0] === 'admin') {
                 'description' => $_POST['description'] ?? '',
                 'price' => $_POST['price'] ?? 0,
                 'category' => $_POST['category'] ?? '',
-                'image_path' => $_POST['image_path'] ?? null,
             ];
-            $success = DatabaseController::insertarProducto($data);
+
+            $files = $_FILES;
+
+            $success = DatabaseController::insertarProducto($data, $files);
             if ($success) {
                 header("Location: /admin/editar-productos");
                 exit();
@@ -117,6 +119,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
                 $error = "Error al crear el producto";
             }
         }
+
         echo $twig->render('crear_producto.php', [
             'error' => $error ?? null,
             'data' => $_POST ?? []

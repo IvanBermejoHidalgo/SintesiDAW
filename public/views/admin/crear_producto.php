@@ -46,16 +46,8 @@
 
             <!-- URLs de imagen -->
             <div class="mb-3">
-                <label for="image_url_1" class="form-label">URL Imagen 1</label>
-                <input type="url" id="image_url_1" name="image_urls[]" class="form-control" placeholder="https://example.com/imagen1.jpg">
-            </div>
-            <div class="mb-3">
-                <label for="image_url_2" class="form-label">URL Imagen 2</label>
-                <input type="url" id="image_url_2" name="image_urls[]" class="form-control" placeholder="https://example.com/imagen2.jpg">
-            </div>
-            <div class="mb-3">
-                <label for="image_url_3" class="form-label">URL Imagen 3</label>
-                <input type="url" id="image_url_3" name="image_urls[]" class="form-control" placeholder="https://example.com/imagen3.jpg">
+               <label for="images" class="form-label">Imágenes del producto</label>
+                <input type="file" id="images" name="images[]" class="form-control" accept="image/*" multiple required>
             </div>
 
             <!-- Botones -->
