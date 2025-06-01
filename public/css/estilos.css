@@ -622,7 +622,7 @@ body.dark-mode a,
 body.dark-mode .btn,
 body.dark-mode .text-dark,
 body.dark-mode .nav-link {
-  color: var(--text-color);
+  color: var(--text-color-dark)!important;
   transition: color 0.3s;
 }
 

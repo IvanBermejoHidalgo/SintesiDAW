@@ -72,16 +72,26 @@
                                 <tbody>
                                     {% for producto in lista.productos %}
                                     <tr>
-                                        <td style="width: 80px;">
-                                            {% if producto.imagenes_base64 is not empty %}
-                                            <img src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}"
-                                                alt="{{ producto.name }}" class="img-fluid" style="max-height: 60px;">
-                                            {% else %}
-                                            <img src="/images/default-product.png" alt="{{ producto.name }}"
-                                                class="img-fluid" style="max-height: 60px;">
-                                            {% endif %}
+                                        <td>
+                                            <a href="/producto/{{ producto.id }}" class="text-decoration-none">
+                                                {% if producto.imagenes_base64 is not empty %}
+                                                <img src="data:image/jpeg;base64,{{ producto.imagenes_base64[0] }}" 
+                                                    alt="{{ producto.name }}" 
+                                                    class="img-fluid" 
+                                                    style="max-height: 60px;">
+                                                {% else %}
+                                                <img src="/images/default-product.png" 
+                                                    alt="{{ producto.name }}" 
+                                                    class="img-fluid" 
+                                                    style="max-height: 60px;">
+                                                {% endif %}
+                                            </a>
                                         </td>
-                                        <td>{{ producto.name }}</td>
+                                        <td>
+                                            <a href="/producto/{{ producto.id }}" class="text-decoration-none text-dark">
+                                                {{ producto.name }}
+                                            </a>
+                                        </td>
                                         <td>
                                             {{ producto.price|number_format(2, '.', ',') }}
                                             <form method="POST" action="/mis_listas/eliminar_producto"
