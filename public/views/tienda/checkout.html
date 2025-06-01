@@ -203,19 +203,28 @@
   <script>
     // Función para mostrar/ocultar campos dependiendo del método de pago seleccionado
     function togglePaymentFields() {
-      var paymentMethodInput = document.querySelector('input[name="payment_method"]:checked');
+      const paymentMethodInput = document.querySelector('input[name="payment_method"]:checked');
       if (!paymentMethodInput) return;
 
-      var paymentMethod = paymentMethodInput.value;
+      const paymentMethod = paymentMethodInput.value;
+      const cardFields = document.getElementById('cardFields');
+      const cardNumber = document.getElementById('card_number');
+      const expiryDate = document.getElementById('expiry_date');
+      const cvv = document.getElementById('cvv');
 
-      // Ocultar todos los campos
-      document.getElementById('cardFields').style.display = 'none';
-
-      // Mostrar los campos correspondientes
       if (paymentMethod === 'card') {
-        document.getElementById('cardFields').style.display = 'block';
+        cardFields.style.display = 'block';
+        cardNumber.required = true;
+        expiryDate.required = true;
+        cvv.required = true;
+      } else {
+        cardFields.style.display = 'none';
+        cardNumber.required = false;
+        expiryDate.required = false;
+        cvv.required = false;
       }
     }
+
 
     // Rellenar formulario con datos de pedido previo
     document.querySelectorAll('.selectOrderRow').forEach(card => {
