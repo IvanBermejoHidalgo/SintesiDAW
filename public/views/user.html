@@ -72,6 +72,45 @@
                                  onclick="openModal('{{ message.image_path }}')">
                         </div>
                         {% endif %}
+                        
+                        {% set sharedList = get_shared_list(message.id) %}
+                            {% if sharedList and message.has_shared_list %}
+                            <div class="shared-list-container mt-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-list-ul"></i> {{ sharedList.lista_nombre }}
+                                        <small class="text-muted">por {{ sharedList.shared_by_username }}</small>
+                                    </h6>
+                                </div>
+                                
+                                <div class="list-group mt-2">
+                                    {% set productos = get_list_products(sharedList.lista_id) %}
+                                    {% for producto in productos %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ producto.name }}</strong>
+                                                <div class="text-muted small">{{ producto.description }}</div>
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">{{ producto.price }}€</span>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="list-group-item text-muted">
+                                        Esta lista no contiene productos
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if sharedList.shared_by == current_user_id %}
+                                <div class="mt-2">
+                                    <a href="/mis_listas/editar/{{ sharedList.lista_id }}" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="bi bi-pencil"></i> Editar lista
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
                     
                     <div class="message-actions">

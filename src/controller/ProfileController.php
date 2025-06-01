@@ -33,6 +33,7 @@ class ProfileController {
         
         // Obtener mensajes del usuario
         $userMessages = DatabaseController::getMessagesByUser($userId, $_SESSION['user_id']);
+        $userMessages = DatabaseController::getMessagesByUser($userId, $userId); // incluye el usuario actual para likes y shared_lists
         
         return [
             'profileUser' => $profileUser,

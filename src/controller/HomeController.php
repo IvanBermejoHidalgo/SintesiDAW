@@ -161,21 +161,6 @@ class HomeController {
         return null;
     }
 
-    // private function getAllMessagesWithUsers() {
-    //     $stmt = $this->db->query("
-    //         SELECT m.*, 
-    //                u.username, 
-    //                u.profile_image,
-    //                (SELECT COUNT(*) FROM likes WHERE message_id = m.id) as like_count,
-    //                EXISTS(SELECT 1 FROM likes WHERE message_id = m.id AND user_id = {$_SESSION['user_id']}) as has_liked
-    //         FROM messages m
-    //         JOIN User u ON m.user_id = u.id
-    //         ORDER BY m.created_at DESC
-    //         LIMIT 50
-    //     ");
-    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    // }
-
 
     private function handleNewComment() {
         $content = trim($_POST['comment_content'] ?? '');

@@ -143,41 +143,42 @@ class DatabaseController {
     }
 
     public static function getMessagesByUser($userId, $currentUserId = null) {
-        $pdo = self::connect();
-        
-        $query = "
-            SELECT m.*, u.username, u.profile_image,
-            (SELECT COUNT(*) FROM likes l WHERE l.message_id = m.id) as like_count,
-            (SELECT COUNT(*) FROM comments c WHERE c.message_id = m.id) as comment_count";
-        
-        if ($currentUserId !== null) {
-            $query .= ",
-            EXISTS(SELECT 1 FROM likes l WHERE l.message_id = m.id AND l.user_id = :current_user) as has_liked";
-        }
-        
-        $query .= "
-            FROM messages m
-            JOIN User u ON m.user_id = u.id
-            WHERE m.user_id = :user_id
-            ORDER BY m.created_at DESC";
-        
-        $stmt = $pdo->prepare($query);
-        
-        $params = [':user_id' => $userId];
-        if ($currentUserId !== null) {
-            $params[':current_user'] = $currentUserId;
-        }
-        
-        $stmt->execute($params);
-        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Obtener comentarios para cada mensaje si es necesario
-        foreach ($messages as &$message) {
-            $message['comments'] = self::getComments($message['id']);
-        }
-        
-        return $messages;
+    $pdo = self::connect();
+
+    $query = "
+        SELECT m.*, u.username, u.profile_image,
+        (SELECT COUNT(*) FROM likes l WHERE l.message_id = m.id) as like_count,
+        (SELECT COUNT(*) FROM comments c WHERE c.message_id = m.id) as comment_count,
+        EXISTS(SELECT 1 FROM shared_lists WHERE message_id = m.id) as has_shared_list";
+
+    if ($currentUserId !== null) {
+        $query .= ",
+        EXISTS(SELECT 1 FROM likes l WHERE l.message_id = m.id AND l.user_id = :current_user) as has_liked";
     }
+
+    $query .= "
+        FROM messages m
+        JOIN User u ON m.user_id = u.id
+        WHERE m.user_id = :user_id
+        ORDER BY m.created_at DESC";
+
+    $stmt = $pdo->prepare($query);
+
+    $params = [':user_id' => $userId];
+    if ($currentUserId !== null) {
+        $params[':current_user'] = $currentUserId;
+    }
+
+    $stmt->execute($params);
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Obtener comentarios para cada mensaje
+    foreach ($messages as &$message) {
+        $message['comments'] = self::getComments($message['id']);
+    }
+
+    return $messages;
+}
 
     public static function getCommentCountByUser($userId) {
         $pdo = self::connect();
