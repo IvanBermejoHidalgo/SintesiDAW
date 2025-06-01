@@ -8,22 +8,27 @@
 <body class="p-4">
     <div class="container">
         <h1>Editar Producto</h1>
+
         {% if error %}
             <div class="alert alert-danger">{{ error }}</div>
         {% endif %}
-        <form method="POST" action="">
+
+        <form method="POST" action="" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">Nombre</label>
                 <input type="text" id="name" name="name" class="form-control" required value="{{ data.name }}">
             </div>
+
             <div class="mb-3">
                 <label for="description" class="form-label">Descripción</label>
                 <textarea id="description" name="description" class="form-control" required>{{ data.description }}</textarea>
             </div>
+
             <div class="mb-3">
                 <label for="price" class="form-label">Precio (€)</label>
                 <input type="number" step="0.01" id="price" name="price" class="form-control" required value="{{ data.price }}">
             </div>
+
             <div class="mb-3">
                 <label for="category" class="form-label">Categoría</label>
                 <select id="category" name="category" class="form-select" required>
@@ -32,10 +37,13 @@
                     <option value="todos" {{ data.category == 'todos' ? 'selected' : '' }}>Todos</option>
                 </select>
             </div>
+
             <div class="mb-3">
-                <label for="image_path" class="form-label">URL Imagen (opcional)</label>
-                <input type="text" id="image_path" name="image_path" class="form-control" value="{{ data.image_path }}">
+                <label for="images" class="form-label">Nuevas Imágenes (opcional)</label>
+                <input type="file" id="images" name="images[]" class="form-control" accept="image/*" multiple>
+                <div class="form-text">Puedes seleccionar una o más imágenes nuevas. La primera reemplazará la imagen principal.</div>
             </div>
+
             <button type="submit" class="btn btn-warning">Guardar cambios</button>
             <a href="/admin/editar-productos" class="btn btn-secondary">Cancelar</a>
         </form>

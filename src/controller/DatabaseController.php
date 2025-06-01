@@ -436,120 +436,45 @@ class DatabaseController {
         return null;
     }
 
-        public static function insertarProducto($data, $files) {
-    $pdo = self::connect();
-
-    try {
-        $pdo->beginTransaction();
-
-        // Insertar producto
-        $stmt = $pdo->prepare("INSERT INTO productos (name, description, price, category, image_path) VALUES (?, ?, ?, ?, ?)");
-        // Guardamos la primera imagen como image_path para mostrar en listados (opcional)
-        $defaultImagePath = '/public/images/default-product.png';
-        $stmt->execute([
-            $data['name'],
-            $data['description'],
-            $data['price'],
-            $data['category'],
-            $defaultImagePath
-        ]);
-
-        $producto_id = $pdo->lastInsertId();
-
-        // Procesar imágenes
-        if (isset($files['images'])) {
-            foreach ($files['images']['tmp_name'] as $index => $tmpName) {
-                if (is_uploaded_file($tmpName)) {
-                    $imgContent = file_get_contents($tmpName);
-
-                    $stmtImg = $pdo->prepare("INSERT INTO imagenes (producto_id, url) VALUES (?, ?)");
-                    $stmtImg->execute([
-                        $producto_id,
-                        $imgContent
-                    ]);
-
-                    // Para la primera imagen, actualizar la columna image_path con una ruta simulada (o en caso real, guarda la ruta del archivo en servidor)
-                    if ($index === 0) {
-                        // Podrías guardar la imagen en el sistema de archivos y luego guardar la ruta en image_path
-                        // Por simplicidad, actualizo con 'imagen guardada' (puedes mejorar esta parte)
-                        $stmtUpdate = $pdo->prepare("UPDATE productos SET image_path = ? WHERE id = ?");
-                        $stmtUpdate->execute([
-                            'imagen guardada', // Aquí va la ruta si la guardas físicamente
-                            $producto_id
-                        ]);
-                    }
-                }
-            }
-        }
-
-        $pdo->commit();
-        return true;
-
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        error_log('Error al insertar producto: ' . $e->getMessage());
-        return false;
-    }
-}
-
-    // Obtener un producto por ID
-    public static function getProductoById(int $id) {
-        $db = self::connect();
-        $stmt = $db->prepare("SELECT * FROM productos WHERE id = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    // Actualizar producto existente
-    public static function actualizarProducto(int $id, array $data, array $files = []): bool
-    {
+    public static function insertarProducto($data, $files) {
         $pdo = self::connect();
 
         try {
             $pdo->beginTransaction();
-
-            // 1. Actualizar los datos básicos del producto
-            $stmt = $pdo->prepare("UPDATE productos SET 
-                                name = ?, 
-                                description = ?, 
-                                price = ?, 
-                                category = ? 
-                                WHERE id = ?");
-            
+            // Insertar producto
+            $stmt = $pdo->prepare("INSERT INTO productos (name, description, price, category, image_path) VALUES (?, ?, ?, ?, ?)");
+            // Guardamos la primera imagen como image_path para mostrar en listados (opcional)
+            $defaultImagePath = '/public/images/default-product.png';
             $stmt->execute([
                 $data['name'],
                 $data['description'],
                 $data['price'],
                 $data['category'],
-                $id
+                $defaultImagePath
             ]);
 
-            // 2. Manejar eliminación de imágenes si es necesario
-            if (!empty($data['delete_images'])) {
-                foreach ($data['delete_images'] as $imageId) {
-                    $stmtDelete = $pdo->prepare("DELETE FROM imagenes WHERE id = ?");
-                    $stmtDelete->execute([$imageId]);
-                }
-            }
+            $producto_id = $pdo->lastInsertId();
 
-            // 3. Procesar nuevas imágenes
-            if (!empty($files['images']['tmp_name'][0])) {
+            // Procesar imágenes
+            if (isset($files['images'])) {
                 foreach ($files['images']['tmp_name'] as $index => $tmpName) {
                     if (is_uploaded_file($tmpName)) {
                         $imgContent = file_get_contents($tmpName);
 
                         $stmtImg = $pdo->prepare("INSERT INTO imagenes (producto_id, url) VALUES (?, ?)");
                         $stmtImg->execute([
-                            $id,
+                            $producto_id,
                             $imgContent
                         ]);
 
-                        // Si es la primera imagen, actualizar image_path en productos
-                        if ($index === 0 && empty($data['delete_images'])) {
+                        // Para la primera imagen, actualizar la columna image_path con una ruta simulada (o en caso real, guarda la ruta del archivo en servidor)
+                        if ($index === 0) {
+                            // Podrías guardar la imagen en el sistema de archivos y luego guardar la ruta en image_path
+                            // Por simplicidad, actualizo con 'imagen guardada' (puedes mejorar esta parte)
                             $stmtUpdate = $pdo->prepare("UPDATE productos SET image_path = ? WHERE id = ?");
                             $stmtUpdate->execute([
-                                'imagen actualizada', // O la ruta real si guardas en filesystem
-                                $id
+                                'imagen guardada', // Aquí va la ruta si la guardas físicamente
+                                $producto_id
                             ]);
                         }
                     }
@@ -561,10 +486,70 @@ class DatabaseController {
 
         } catch (Exception $e) {
             $pdo->rollBack();
-            error_log('Error al actualizar producto: ' . $e->getMessage());
+            error_log('Error al insertar producto: ' . $e->getMessage());
             return false;
         }
     }
+
+    // Obtener un producto por ID
+    public static function getProductoById(int $id) {
+        $db = self::connect();
+        $stmt = $db->prepare("SELECT * FROM productos WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Actualizar producto existente
+    public static function actualizarProducto($id, $data, $files) {
+    $pdo = self::connect();
+
+    try {
+        $pdo->beginTransaction();
+
+        // Actualizar datos básicos del producto
+        $stmt = $pdo->prepare("UPDATE productos SET name = ?, description = ?, price = ?, category = ? WHERE id = ?");
+        $stmt->execute([
+            $data['name'],
+            $data['description'],
+            $data['price'],
+            $data['category'],
+            $id
+        ]);
+
+        // Procesar nuevas imágenes si se subieron
+        if (isset($files['images']) && !empty($files['images']['tmp_name'][0])) {
+            // Opcional: Eliminar imágenes existentes (descomentar si quieres esto)
+            // $stmtDelImg = $pdo->prepare("DELETE FROM imagenes WHERE producto_id = ?");
+            // $stmtDelImg->execute([$id]);
+
+            foreach ($files['images']['tmp_name'] as $index => $tmpName) {
+                if (is_uploaded_file($tmpName)) {
+                    $imgContent = file_get_contents($tmpName);
+
+                    $stmtImg = $pdo->prepare("INSERT INTO imagenes (producto_id, url) VALUES (?, ?)");
+                    $stmtImg->execute([
+                        $id,
+                        $imgContent
+                    ]);
+
+                    // Actualizar la imagen principal si es la primera
+                    if ($index === 0) {
+                        $stmtUpdate = $pdo->prepare("UPDATE productos SET image_path = ? WHERE id = ?");
+                    }
+                }
+            }
+        }
+
+        $pdo->commit();
+        return true;
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        error_log('Error al actualizar producto: ' . $e->getMessage());
+        return false;
+    }
+}
+
 
     // Eliminar producto por ID
     public static function eliminarProducto(int $id) {

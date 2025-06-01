@@ -130,36 +130,40 @@ if (isset($path[0]) && $path[0] === 'admin') {
             header("Location: /admin");
             exit();
         }
+
         $id = intval($matches[1]);
 
+        // Obtener los datos del producto, siempre, por si hay error al guardar
+        $data = DatabaseController::getProductoById($id);
+        if (!$data) {
+            http_response_code(404);
+            echo $twig->render('404.php');
+            exit();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'name' => $_POST['name'] ?? '',
-                'description' => $_POST['description'] ?? '',
-                'price' => $_POST['price'] ?? 0,
-                'category' => $_POST['category'] ?? '',
-                'image_path' => $_POST['image_path'] ?? null,
-            ];
-            $success = DatabaseController::actualizarProducto($id, $data);
+    $data = [
+        'name' => $_POST['name'] ?? '',
+        'description' => $_POST['description'] ?? '',
+        'price' => $_POST['price'] ?? 0,
+        'category' => $_POST['category'] ?? ''
+    ];
+
+
+            $success = DatabaseController::actualizarProducto($id, $data, $_FILES);
+
             if ($success) {
                 header("Location: /admin/editar-productos");
                 exit();
             } else {
                 $error = "Error al actualizar el producto";
             }
-        } else {
-            $data = DatabaseController::getProductoById($id);
-            if (!$data) {
-                http_response_code(404);
-                echo $twig->render('404.php');
-                exit();
-            }
         }
+
         echo $twig->render('editar_producto.php', [
             'error' => $error ?? null,
             'data' => $data
         ]);
-
     } elseif (preg_match('#^eliminar-producto/(\d+)$#', $action, $matches)) {
         if (!isAdminLoggedIn()) {
             header("Location: /admin");
