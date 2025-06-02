@@ -167,7 +167,7 @@
                                 <div class="list-group mt-2">
                                     {% set productos = get_list_products(sharedList.lista_id) %}
                                     {% for producto in productos %}
-                                    <div class="list-group-item">
+                                    <a href="/producto/{{ producto.id }}" class="list-group-item text-decoration-none">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <strong>{{ producto.name }}</strong>
@@ -175,7 +175,7 @@
                                             </div>
                                             <span class="badge bg-primary rounded-pill">{{ producto.price }}€</span>
                                         </div>
-                                    </div>
+                                    </a>
                                     {% else %}
                                     <div class="list-group-item text-muted">
                                         Esta lista no contiene productos
