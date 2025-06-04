@@ -26,9 +26,22 @@ class HomeService {
         } elseif (isset($_POST['unlike_message'])) {
             $this->messageRepo->unlikeMessage($_SESSION['user_id'], (int)$_POST['unlike_message']);
         } elseif (isset($_POST['comment_content'])) {
-            $this->messageRepo->addComment($_SESSION['user_id'], (int)$_POST['message_id'], $_POST['comment_content']);
+            $comment = $this->messageRepo->addComment($_SESSION['user_id'], (int)$_POST['message_id'], $_POST['comment_content']);
+            if ($comment) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'comment' => $comment
+                ]);
+                exit();
+            }
         } elseif (isset($_POST['delete_comment'])) {
-            $this->messageRepo->deleteComment($_SESSION['user_id'], (int)$_POST['delete_comment']);
+            $result = $this->messageRepo->deleteComment($_SESSION['user_id'], (int)$_POST['delete_comment']);
+            if ($result) {
+                header('Content-Type: application/json');
+                echo json_encode($result);
+                exit();
+            }
         }
 
         header("Location: /home");

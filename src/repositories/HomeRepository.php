@@ -110,13 +110,53 @@ class HomeRepository {
     public static function addComment($userId, $messageId, $content) {
         $pdo = DatabaseController::connect();
         $stmt = $pdo->prepare("INSERT INTO comments (user_id, message_id, content) VALUES (?, ?, ?)");
-        return $stmt->execute([$userId, $messageId, $content]);
+        $success = $stmt->execute([$userId, $messageId, $content]);
+        
+        if ($success) {
+            $commentId = $pdo->lastInsertId();
+            $stmt = $pdo->prepare("
+                SELECT c.*, u.username, u.profile_image, 
+                    COALESCE(u.profile_image, '/images/default-profile.png') as profile_image
+                FROM comments c
+                JOIN User u ON c.user_id = u.id
+                WHERE c.id = ?
+            ");
+            $stmt->execute([$commentId]);
+            $comment = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Asegurar que siempre haya una imagen de perfil
+            if (empty($comment['profile_image'])) {
+                $comment['profile_image'] = '/images/default-profile.png';
+            }
+            
+            return $comment;
+        }
+        
+        return false;
     }
 
     public static function deleteComment($userId, $commentId) {
         $pdo = DatabaseController::connect();
+        
+        // Primero obtener el message_id para actualizar el contador
+        $stmt = $pdo->prepare("SELECT message_id FROM comments WHERE id = ? AND user_id = ?");
+        $stmt->execute([$commentId, $userId]);
+        $comment = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$comment) return false;
+        
+        // Eliminar el comentario
         $stmt = $pdo->prepare("DELETE FROM comments WHERE id = ? AND user_id = ?");
-        return $stmt->execute([$commentId, $userId]);
+        $success = $stmt->execute([$commentId, $userId]);
+        
+        if ($success) {
+            return [
+                'success' => true,
+                'message_id' => $comment['message_id']
+            ];
+        }
+        
+        return false;
     }
 
     public function getAllMessagesWithUsers(int $currentUserId): array {
