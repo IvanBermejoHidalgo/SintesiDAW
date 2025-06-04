@@ -147,29 +147,40 @@
                     e.preventDefault();
                     const nombre = document.getElementById('nombreLista').value.trim();
                     
-                    if (!nombre) return;
-                    
+                    if (!nombre) {
+                        showAlert('Por favor ingresa un nombre para la lista', 'warning');
+                        return;
+                    }
                     fetch('/mis_listas/crear', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'  // <-- esta línea es clave
                         },
                         body: `nombre_lista=${encodeURIComponent(nombre)}`
                     })
-                    .then(response => response.json())
+
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
-                            // Recargar la página para mostrar la nueva lista
+                            showAlert('Lista creada correctamente', 'success');
+                            // Opcional: limpiar input
+                            document.getElementById('nombreLista').value = '';
+                            // Recargar la página o actualizar la UI dinámicamente
                             location.reload();
                         } else {
                             showAlert(data.message || 'Error al crear la lista', 'danger');
                         }
                     })
                     .catch(error => {
-                        showAlert('Error en la solicitud', 'danger');
+                        showAlert('Error en la solicitud: ' + error.message, 'danger');
                         console.error('Error:', error);
                     });
                 });
+
 
                 // Eliminar lista
                 document.querySelectorAll('.eliminar-lista').forEach(button => {

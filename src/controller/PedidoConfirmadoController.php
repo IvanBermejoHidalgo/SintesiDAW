@@ -36,11 +36,14 @@ class PedidoConfirmadoController {
 
         $total = array_reduce($detalles, fn($sum, $item) => $sum + $item['precio'] * $item['cantidad'], 0);
 
+        $homeController = new HomeController();
+        $userData = $homeController->getUserById($userId);
+
         echo $this->twig->render('tienda/pedido_confirmado.html', [
             'pedido' => $pedido,
             'orderItems' => $detalles,
             'total' => $total,
-            'userData' => DatabaseController::getUserById($userId),
+            'userData' => $userData,
             'current_page' => 'pedido_confirmado',
             'current_user_id' => $userId,
             'language' => $_SESSION['language'] ?? 'es'

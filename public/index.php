@@ -162,25 +162,45 @@ switch ($route) {
         break;
 
     case 'aboutus':
+        if (isset($_SESSION['user_id'])) {
+            $userId = $_SESSION['user_id'];
+            $homeController = new HomeController();
+            $userData = $homeController->getUserById($userId);
+        } else {
+            $userId = null;
+            $userData = null;
+        }
+
         echo $twig->render('aboutus.html', [
             'language' => $language,
-            'current_user_id' => $_SESSION['user_id'],
-            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
-            'language' => $language,
+            'current_user_id' => $userId,
+            'userData' => $userData,
             'current_page' => 'aboutus'
         ]);
         break;
 
+
     case 'carrito':
+        if (isset($_SESSION['user_id'])) {
+            $userId = $_SESSION['user_id'];
+            $homeController = new HomeController();
+            $userData = $homeController->getUserById($userId);
+        } else {
+            $userId = null;
+            $userData = null;
+        }
+
         $cartController = new CartController();
         $data = $cartController->handleRequest();
+
         echo $twig->render('tienda/carrito.html', [
             'cartItems' => $data['cartItems'],
-            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
+            'userData' => $userData,
             'language' => $language,
             'current_page' => 'carrito'
         ]);
         break;
+
 
     case 'producto':
         if (isset($_SESSION['user_id'], $path[1])) {
@@ -188,13 +208,16 @@ switch ($route) {
             $userId = $_SESSION['user_id'];
 
             $producto = (new TiendaController())->getProductoPorId($productId);
-            
+
             $misListasController = new MisListasController(DatabaseController::connect(), $userId);
             $listas = $misListasController->getListas();
-            
+
+            $homeController = new HomeController();
+            $userData = $homeController->getUserById($userId);
+
             echo $twig->render('tienda/producto.html', [
                 'producto' => $producto,
-                'userData' => DatabaseController::getUserById($_SESSION['user_id']),
+                'userData' => $userData,
                 'language' => $language,
                 'listas_usuario' => $listas,
                 'current_page' => 'producto'
@@ -204,6 +227,7 @@ switch ($route) {
             exit();
         }
         break;
+
 
     case 'checkout':
         if (!isset($_SESSION['user_id'])) {
@@ -228,12 +252,14 @@ switch ($route) {
             header("Location: /");
             exit();
         }
+        $userId = $_SESSION['user_id'];
+        $homeController = new HomeController();
         $tiendaController = new TiendaController();
         $tiendaData = $tiendaController->handleRequest();
         echo $twig->render('tienda/tienda.html', [
             'productos' => $tiendaData['productos'],
             'categoria_actual' => $tiendaData['categoria_actual'],
-            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
+            'userData' => $homeController->getUserById($userId),
             'current_page' => 'tienda/' . $tiendaData['categoria_actual'],
             'language' => $language
         ]);
@@ -281,6 +307,7 @@ switch ($route) {
 
 
     case 'mis_listas':
+        // Verificar sesión
         if (!isset($_SESSION['user_id'])) {
             header("Location: /");
             exit();
@@ -289,15 +316,17 @@ switch ($route) {
         $db = DatabaseController::connect();
         $userId = $_SESSION['user_id'];
         $controller = new MisListasController($db, $userId);
+        $homeController = new HomeController();
+        $userData = $homeController->getUserById($userId);
 
-        // Procesar solicitudes AJAX
+        // Procesar solicitudes POST (AJAX o no)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uri = $_SERVER['REQUEST_URI'];
-            
-            // Verificar si es una solicitud AJAX
-            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-            
+
+            // Detectar si es petición AJAX (fetch u otro)
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
             if (strpos($uri, '/mis_listas/eliminar_producto') !== false) {
                 $response = $controller->eliminarProductoDeLista($_POST['lista_id'], $_POST['producto_id']);
                 header('Content-Type: application/json');
@@ -314,19 +343,20 @@ switch ($route) {
 
             if (strpos($uri, '/mis_listas/crear') !== false) {
                 $response = $controller->crearLista($_POST['nombre_lista']);
-                
+
                 if ($isAjax) {
+                    // Respuesta JSON para AJAX
                     header('Content-Type: application/json');
                     echo json_encode($response);
                     exit;
                 } else {
-                    // Redirección para solicitudes no AJAX (fallback)
+                    // Petición normal, redirigir a la página
                     header("Location: /mis_listas");
                     exit;
                 }
             }
 
-            // Crear nueva lista o añadir producto (fallback para navegadores sin JS)
+            // Fallback para navegadores sin JS
             $controller->procesarFormulario();
         }
 
@@ -338,11 +368,13 @@ switch ($route) {
 
         echo $twig->render('tienda/mis_listas.html', [
             'listas' => $listas,
-            'userData' => DatabaseController::getUserById($userId),
+            'userData' => $userData,
             'language' => $language,
             'current_page' => 'mis_listas'
         ]);
         break;
+
+
 
     case 'user':
         if (!isset($_SESSION['user_id'])) {
