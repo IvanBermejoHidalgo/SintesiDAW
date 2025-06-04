@@ -26,6 +26,8 @@ class ProfileController {
                         exit;
                     } else {
                         $_SESSION['error'] = "Error al eliminar la cuenta.";
+                        header("Location: /profile");
+                        exit;
                     }
                 }
             } catch (Exception $e) {
@@ -168,17 +170,4 @@ class ProfileController {
         }
         return $messages;
     }
-
-    public static function getComments($messageId) {
-      $pdo = DatabaseController::connect();
-      $stmt = $pdo->prepare("
-          SELECT c.*, u.username, u.profile_image 
-          FROM comments c
-          JOIN User u ON c.user_id = u.id
-          WHERE c.message_id = ?
-          ORDER BY c.created_at ASC
-      ");
-      $stmt->execute([$messageId]);
-      return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
 }

@@ -217,25 +217,52 @@
             }
         }
 
+        
+
         // Manejo de likes con AJAX (opcional)
-        document.querySelectorAll('.like-button').forEach(button => {
-            button.addEventListener('click', function(e) {
+        document.addEventListener('click', function(e) {
+            const likeButton = e.target.closest('.like-button');
+            if (likeButton) {
                 e.preventDefault();
-                const form = this.closest('form');
+                const form = likeButton.closest('form');
+                const formData = new FormData(form);
+                const icon = form.querySelector('i');
+                const countSpan = form.querySelector('.like-count');
+                let count = parseInt(countSpan.textContent) || 0;
+
                 fetch('/home', {
                     method: 'POST',
-                    body: new FormData(form),
-                    credentials: 'same-origin'
+                    body: formData
                 })
-                .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Alternar el estado del like
+                        const hiddenInput = form.querySelector('input[type="hidden"]');
+                        
+                        if (icon.classList.contains('bi-heart-fill')) {
+                            // Quitar like
+                            icon.classList.remove('bi-heart-fill');
+                            icon.classList.add('bi-heart');
+                            likeButton.classList.remove('btn-primary');
+                            likeButton.classList.add('btn-outline-primary');
+                            hiddenInput.name = 'like_message';
+                            countSpan.textContent = count - 1;
+                        } else {
+                            // Poner like
+                            icon.classList.remove('bi-heart');
+                            icon.classList.add('bi-heart-fill');
+                            likeButton.classList.remove('btn-outline-primary');
+                            likeButton.classList.add('btn-primary');
+                            hiddenInput.name = 'unlike_message';
+                            countSpan.textContent = count + 1;
+                        }
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error en like:', error);
                 });
-            });
+            }
         });
 
         document.addEventListener('DOMContentLoaded', function() {

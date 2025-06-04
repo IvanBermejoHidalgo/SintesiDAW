@@ -22,9 +22,19 @@ class HomeService {
         } elseif (isset($_POST['delete_message'])) {
             $this->messageRepo->deleteMessage($_SESSION['user_id'], (int)$_POST['delete_message']);
         } elseif (isset($_POST['like_message'])) {
-            $this->messageRepo->addLike($_SESSION['user_id'], (int)$_POST['like_message']);
+            $success = $this->messageRepo->addLike($_SESSION['user_id'], (int)$_POST['like_message']);
+            if ($success) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+                exit();
+            }
         } elseif (isset($_POST['unlike_message'])) {
-            $this->messageRepo->unlikeMessage($_SESSION['user_id'], (int)$_POST['unlike_message']);
+            $success = $this->messageRepo->removeLike($_SESSION['user_id'], (int)$_POST['unlike_message']);
+            if ($success) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+                exit();
+            }
         } elseif (isset($_POST['comment_content'])) {
             $comment = $this->messageRepo->addComment($_SESSION['user_id'], (int)$_POST['message_id'], $_POST['comment_content']);
             if ($comment) {
