@@ -1,55 +1,29 @@
 <?php
 
+require_once __DIR__ . '/../services/PedidosService.php';
+require_once __DIR__ . '/../repositories/PedidosRepository.php';
+
 class PedidosController {
-    private $db;
+    private $service;
 
     public function __construct() {
-        $this->db = DatabaseController::connect();
         if (!isset($_SESSION['user_id'])) {
             header("Location: /");
             exit();
         }
+
+        $repository = new PedidosRepository();
+        $this->service = new PedidosService($repository);
     }
 
     public function handleRequest() {
         $userId = $_SESSION['user_id'];
 
-        $pedidos = $this->getPedidosUsuario($userId);
+        $pedidos = $this->service->getPedidosUsuario($userId);
 
         return [
             'pedidos' => $pedidos,
             'userData' => SessionController::getUserData($userId),
         ];
-    }
-
-    private function getPedidosUsuario($userId) {
-        $stmt = $this->db->prepare("
-            SELECT id, fecha, metodo_pago, nombre, email, telefono, direccion, ciudad, codigo_postal, pais
-            FROM pedidos
-            WHERE usuario_id = ?
-            ORDER BY fecha DESC
-        ");
-        $stmt->execute([$userId]);
-        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($pedidos as &$pedido) {
-            $stmtItems = $this->db->prepare("
-                SELECT pd.cantidad, pd.talla, pd.precio, p.name
-                FROM pedido_detalles pd
-                JOIN productos p ON pd.producto_id = p.id
-                WHERE pd.pedido_id = ?
-            ");
-            $stmtItems->execute([$pedido['id']]);
-            $pedido['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
-
-            // Calcular total del pedido sumando precio*cantidad
-            $total = 0;
-            foreach ($pedido['items'] as $item) {
-                $total += $item['precio'] * $item['cantidad'];
-            }
-            $pedido['total_amount'] = $total;
-        }
-
-        return $pedidos;
     }
 }
