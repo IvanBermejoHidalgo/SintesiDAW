@@ -34,11 +34,17 @@ $twig = new \Twig\Environment($loader, ['cache' => false]);
 $twig->addFunction(new \Twig\TwigFunction('_', fn($string) => gettext($string)));
 
 $twig->addFunction(new \Twig\TwigFunction('get_shared_list', function($messageId) {
-        return DatabaseController::getSharedList($messageId);
+    $db = DatabaseController::connect();
+    $userId = $_SESSION['user_id'] ?? null;
+    $misListasController = new MisListasController($db, $userId);
+    return $misListasController->getSharedList($messageId);
 }));
 
 $twig->addFunction(new \Twig\TwigFunction('get_list_products', function($listaId) {
-    return DatabaseController::getListProducts($listaId);
+    $db = DatabaseController::connect();
+    $userId = $_SESSION['user_id'] ?? null;
+    $misListasController = new MisListasController($db, $userId);
+    return $misListasController->getListProducts($listaId);
 }));
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -131,7 +137,7 @@ switch ($route) {
         $listasUsuario = $misListasController->getListas();
         echo $twig->render('home.html', [
             'messages' => $homeData['messages'],
-            'userData' => DatabaseController::getUserById($_SESSION['user_id']),
+            'userData' => $homeController->getUserById($_SESSION['user_id']),
             'current_user_id' => $_SESSION['user_id'],
             'language' => $language,
             'current_page' => 'home',
@@ -234,44 +240,44 @@ switch ($route) {
         break;
 
     case 'mis_pedidos':
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: /");
-        exit();
-    }
-    $userId = $_SESSION['user_id'];
-    $db = DatabaseController::connect();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /");
+            exit();
+        }
+        $userId = $_SESSION['user_id'];
+        $db = DatabaseController::connect();
 
-    $stmt = $db->prepare("
-        SELECT p.id, p.fecha, p.metodo_pago, p.nombre, p.email, p.telefono, p.direccion, p.ciudad, p.codigo_postal, p.pais,
-               COALESCE(SUM(pd.cantidad * pd.precio), 0) AS total_amount
-        FROM pedidos p
-        LEFT JOIN pedido_detalles pd ON pd.pedido_id = p.id
-        WHERE p.usuario_id = ?
-        GROUP BY p.id
-        ORDER BY p.fecha DESC
-    ");
-    $stmt->execute([$userId]);
-    $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($pedidos as &$pedido) {
-        $stmtItems = $db->prepare("
-            SELECT pr.name AS name, pd.talla, pd.cantidad, pd.precio
-            FROM pedido_detalles pd
-            JOIN productos pr ON pr.id = pd.producto_id
-            WHERE pd.pedido_id = ?
+        $stmt = $db->prepare("
+            SELECT p.id, p.fecha, p.metodo_pago, p.nombre, p.email, p.telefono, p.direccion, p.ciudad, p.codigo_postal, p.pais,
+                COALESCE(SUM(pd.cantidad * pd.precio), 0) AS total_amount
+            FROM pedidos p
+            LEFT JOIN pedido_detalles pd ON pd.pedido_id = p.id
+            WHERE p.usuario_id = ?
+            GROUP BY p.id
+            ORDER BY p.fecha DESC
         ");
-        $stmtItems->execute([$pedido['id']]);
-        $pedido['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
-    }
-    unset($pedido);
+        $stmt->execute([$userId]);
+        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $homeController = new HomeController();
+        foreach ($pedidos as &$pedido) {
+            $stmtItems = $db->prepare("
+                SELECT pr.name AS name, pd.talla, pd.cantidad, pd.precio
+                FROM pedido_detalles pd
+                JOIN productos pr ON pr.id = pd.producto_id
+                WHERE pd.pedido_id = ?
+            ");
+            $stmtItems->execute([$pedido['id']]);
+            $pedido['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+        }
+        unset($pedido);
 
-    echo $twig->render('tienda/mis_pedidos.html', [
-        'pedidos' => $pedidos,
-        'userData' => DatabaseController::getUserById($userId),
-        'language' => $language,
-        'current_page' => 'mis_pedidos'
-    ]);
-    break;
+        echo $twig->render('tienda/mis_pedidos.html', [
+            'pedidos' => $pedidos,
+            'userData' => $homeController->getUserById($userId),
+            'language' => $language,
+            'current_page' => 'mis_pedidos'
+        ]);
+        break;
 
 
     case 'mis_listas':
@@ -350,7 +356,7 @@ switch ($route) {
         }
         $profileController = new ProfileController();
         $profileData = $profileController->handlePublicProfileRequest($userId);
-        $currentUserData = DatabaseController::getUserById($_SESSION['user_id']);
+        $currentUserData = ProfileController::getUserById($_SESSION['user_id']);
         echo $twig->render('user.html', [
             'profileUser' => $profileData['profileUser'],
             'userMessages' => $profileData['userMessages'],

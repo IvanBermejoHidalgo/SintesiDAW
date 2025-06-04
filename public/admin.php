@@ -7,6 +7,15 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once "../vendor/autoload.php";
 require_once "../src/controller/AdminController.php";
 require_once "../src/controller/DatabaseController.php";
+require_once "../src/repositories/AdminRepository.php";
+require_once "../src/services/AdminService.php";
+
+// Obtener la conexión PDO desde DatabaseController
+$pdo = DatabaseController::connect();
+
+// Crear repositorio y servicio
+$adminRepository = new AdminRepository($pdo);
+$adminService = new AdminService($adminRepository);
 
 // Configurar Twig para buscar plantillas en múltiples directorios
 $loader = new \Twig\Loader\FilesystemLoader('views/admin');
@@ -27,13 +36,14 @@ if (isset($path[0]) && $path[0] === 'admin') {
     if ($action === 'dashboard') {
         if (isAdminLoggedIn()) {
             // Obtener datos para el dashboard
-            $userCount = DatabaseController::getUserCount();
-            $messageCount = DatabaseController::getMessageCount();
-            $activeUsers = DatabaseController::getActiveUsers();
-            $productCount = DatabaseController::getProductCount();
-            $totalCompras = DatabaseController::obtenerTotalCompras();
-            $totalCantidadCompras = DatabaseController::obtenerCantidadCompras();
-            $totalListas = DatabaseController::getTotalListas();
+            $userCount = $adminRepository->getUserCount();
+            $messageCount = $adminRepository->getMessageCount();
+            $activeUsers = $adminRepository->getActiveUsers();
+            $productCount = $adminRepository->getProductCount();
+            $totalCompras = $adminRepository->obtenerTotalCompras();
+            $totalCantidadCompras = $adminRepository->obtenerCantidadCompras();
+            $totalListas = $adminRepository->getTotalListas();
+
 
             echo $twig->render('dashboard.php', [
                 'userCount' => $userCount,
@@ -51,7 +61,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
 
     } elseif ($action === 'users-by-gender') {
         if (isAdminLoggedIn()) {
-            $genderStats = DatabaseController::getUsersByGender();
+            $genderStats = $adminRepository->getUsersByGender();
             echo $twig->render('users_by_gender.php', [
                 'genderStats' => $genderStats
             ]);
@@ -62,7 +72,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
 
     } elseif ($action === 'products-by-category') {
         if (isAdminLoggedIn()) {
-            $genderStats = DatabaseController::getProductsByCategory();
+            $genderStats = $adminRepository->getProductsByCategory();
             echo $twig->render('products_by_category.php', [
                 'hombreCount' => $genderStats['hombre'] ?? 0,
                 'mujerCount' => $genderStats['mujer'] ?? 0,
@@ -80,11 +90,11 @@ if (isset($path[0]) && $path[0] === 'admin') {
 
     } elseif ($action === 'editar-productos') {
         if (isAdminLoggedIn()) {
-            $productos = DatabaseController::getAllProductos();
+            $productos = $adminRepository->getAllProductos();
 
             // Para cada producto, añadimos la URL de la imagen
             foreach ($productos as &$producto) {
-                $producto['imagenes_base64'] = DatabaseController::getImagenesBase64PorProductoId($producto['id']);
+                $producto['imagenes_base64'] = $adminRepository->getImagenesBase64PorProductoId($producto['id']);
             }
             unset($producto);
 
@@ -134,7 +144,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
         $id = intval($matches[1]);
 
         // Obtener los datos del producto, siempre, por si hay error al guardar
-        $data = DatabaseController::getProductoById($id);
+        $data = $adminRepository->getProductoById($id);
         if (!$data) {
             http_response_code(404);
             echo $twig->render('404.php');
@@ -150,7 +160,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
     ];
 
 
-            $success = DatabaseController::actualizarProducto($id, $data, $_FILES);
+            $success = $adminRepository->actualizarProducto($id, $data, $_FILES);
 
             if ($success) {
                 header("Location: /admin/editar-productos");
@@ -170,7 +180,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
             exit();
         }
         $id = intval($matches[1]);
-        DatabaseController::eliminarProducto($id);
+        $adminRepository->eliminarProducto($id);
         header("Location: /admin/editar-productos");
         exit();
 
@@ -181,7 +191,7 @@ if (isset($path[0]) && $path[0] === 'admin') {
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $username = $_POST['username'];
             $password = $_POST['password'];
-            $result = AdminController::adminLogin($username, $password);
+            $result = $adminService->login($username, $password);
 
             if ($result === "success") {
                 header("Location: /admin/dashboard");

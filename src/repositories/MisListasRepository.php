@@ -132,4 +132,29 @@ class MisListasRepository {
         }
         return $imagenes_base64;
     }
+
+    public static function getSharedList($messageId) {
+        $db = DatabaseController::connect();
+        $stmt = $db->prepare("
+            SELECT sl.*, l.nombre as lista_nombre, u.username as shared_by_username
+            FROM shared_lists sl
+            JOIN listas l ON sl.lista_id = l.id
+            JOIN User u ON sl.shared_by = u.id
+            WHERE sl.message_id = ?
+        ");
+        $stmt->execute([$messageId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function getListProducts($listaId) {
+        $pdo = DatabaseController::connect();
+        $stmt = $pdo->prepare("
+            SELECT p.* 
+            FROM lista_productos lp
+            JOIN productos p ON lp.producto_id = p.id
+            WHERE lp.lista_id = ?
+        ");
+        $stmt->execute([$listaId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

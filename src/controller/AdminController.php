@@ -1,56 +1,29 @@
 <?php
+// src/controllers/AdminController.php
+
+require_once __DIR__ . '/../repositories/AdminRepository.php';
+require_once __DIR__ . '/../services/AdminService.php';
 
 class AdminController {
-    private static $connection;
+    private $adminService;
 
-    private static function init() {
-        if (self::$connection === null) {
-            self::$connection = DatabaseController::connect();
+    public function __construct(AdminService $adminService) {
+        $this->adminService = $adminService;
+    }
+
+    public function loginAction(string $username, string $password) {
+        $result = $this->adminService->login($username, $password);
+        if ($result === "success") {
+            header("Location: /admin/dashboard");
+            exit;
+        } else {
+            echo $result;
         }
     }
 
-    public static function adminLogin($username, $password) {
-        self::init();
-        
-        try {
-            $sql = "SELECT id, password FROM User WHERE username = :username AND role = 'admin'";
-            $statement = self::$connection->prepare($sql);
-            $statement->bindValue(':username', $username);
-            $statement->execute();
-
-            $admin = $statement->fetch(PDO::FETCH_OBJ);
-
-            if ($admin && password_verify($password, $admin->password)) {
-                $_SESSION['admin_id'] = $admin->id;
-                $_SESSION['admin_username'] = $username;
-                return "success";
-            }
-            return "Credenciales incorrectas o no tienes privilegios de administrador";
-        } catch(PDOException $error) {
-            error_log("Error en login de admin: " . $error->getMessage());
-            return "Error en el sistema";
-        }
-    }
-
-    public static function existAdmin($username) {
-        self::init();
-        try {
-            $sql = "SELECT * FROM User WHERE username = :username AND role = 'admin'";
-            $statement = self::$connection->prepare($sql);
-            $statement->bindValue(':username', $username);
-            $statement->execute();
-
-            return $statement->fetch() !== false;
-        } catch(PDOException $error) {
-            error_log("Error verificando admin: " . $error->getMessage());
-            return false;
-        }
-    }
-
-    public static function getGenderDistribution() {
-        $pdo = DatabaseController::connect();
-        $sql = "SELECT gender, COUNT(*) as count FROM User GROUP BY gender";
-        $stmt = $pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function genderDistributionAction() {
+        $distribution = $this->adminService->getGenderDistribution();
+        header('Content-Type: application/json');
+        echo json_encode($distribution);
     }
 }

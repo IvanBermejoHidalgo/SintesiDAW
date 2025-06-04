@@ -32,4 +32,12 @@ class MisListasController {
     public function procesarFormulario() {
         $this->service->procesarFormulario();
     }
+
+    public function getSharedList($messageId) {
+        return $this->service->getSharedList($messageId);
+    }
+
+    public function getListProducts($listaId) {
+        return $this->service->getListProducts($listaId);
+    }
 }

@@ -1,59 +1,7 @@
 <?php
-require_once __DIR__ . '/../services/ProfileService.php';
+require_once __DIR__ . '/../controller/DatabaseController.php';
 
-class ProfileController {
-    private ProfileService $service;
-
-    public function __construct() {
-        $this->service = new ProfileService();
-    }
-
-    public function handleRequest() {
-        $userId = $_GET['id'] ?? $_SESSION['user_id'];
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            try {
-                if (isset($_POST['update_profile'])) {
-                    $changes = $this->service->updateProfile($userId, $_POST, $_FILES);
-                    $_SESSION[$changes ? 'success' : 'info'] = $changes ? "Perfil actualizado correctamente" : "No se realizaron cambios";
-                }
-
-                if (isset($_POST['delete_account'])) {
-                    $success = $this->service->deleteAccount($userId, $_POST['password']);
-                    if ($success) {
-                        session_destroy();
-                        header("Location: /");
-                        exit;
-                    } else {
-                        $_SESSION['error'] = "Error al eliminar la cuenta.";
-                    }
-                }
-            } catch (Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-            }
-
-            header("Location: /profile");
-            exit;
-        }
-
-        $data = $this->service->getProfileData($userId, $_SESSION['user_id']);
-        if (!$data) {
-            header("Location: /home");
-            exit;
-        }
-
-        return $data;
-    }
-
-    public function handlePublicProfileRequest($userId) {
-        $data = $this->service->getProfileData($userId, $_SESSION['user_id'] ?? null);
-        if (!$data) {
-            header("Location: /home");
-            exit;
-        }
-
-        return $data;
-    }
+class ProfileRepository {
 
     public static function getUserById($userId) {
         $pdo = DatabaseController::connect();
@@ -67,13 +15,13 @@ class ProfileController {
     }
 
     public static function updateUsername($userId, $newUsername) {
-        $pdo = self::connect();
+        $pdo = DatabaseController::connect();
         $stmt = $pdo->prepare("UPDATE User SET username = ?, updated_at = NOW() WHERE id = ?");
         return $stmt->execute([$newUsername, $userId]);
     }
 
     public static function updateProfileImage($userId, $imagePath) {
-        $pdo = self::connect();
+        $pdo = DatabaseController::connect();
         $stmt = $pdo->prepare("
             UPDATE User 
             SET profile_image = ? 
@@ -83,7 +31,7 @@ class ProfileController {
     }
 
     public static function deleteUserAccount($userId) {
-        $pdo = self::connect();
+        $pdo = DatabaseController::connect();
         $pdo->beginTransaction();
         error_log("Iniciando eliminación de cuenta para usuario ID: $userId");
         try {

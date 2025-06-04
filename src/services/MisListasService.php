@@ -61,4 +61,13 @@ class MisListasService {
         header("Location: " . $_SERVER['HTTP_REFERER']);
         exit();
     }
+
+    public function getSharedList($messageId) {
+        return MisListasRepository::getSharedList($messageId);
+    }
+
+    public function getListProducts($listaId) {
+        return MisListasRepository::getListProducts($listaId);
+    }
+
 }
