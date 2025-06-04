@@ -30,24 +30,67 @@ class MisListasController {
         return $productos;
     }
 
-    public function crearLista($nombreLista) {
-        $stmt = $this->db->prepare("INSERT INTO listas (usuario_id, nombre) VALUES (?, ?)");
-        return $stmt->execute([$this->userId, $nombreLista]);
-    }
     public function eliminarProductoDeLista($lista_id, $producto_id) {
-    $stmt = $this->db->prepare("DELETE FROM lista_productos WHERE lista_id = ? AND producto_id = ?");
-    $stmt->execute([$lista_id, $producto_id]);
-}
+        try {
+            $stmt = $this->db->prepare("DELETE FROM lista_productos WHERE lista_id = ? AND producto_id = ?");
+            $stmt->execute([$lista_id, $producto_id]);
+            
+            return [
+                'success' => true,
+                'message' => 'Producto eliminado de la lista correctamente'
+            ];
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al eliminar el producto: ' . $e->getMessage()
+            ];
+        }
+    }
 
     public function eliminarLista($lista_id) {
-    // Eliminar productos asociados primero
-        $stmt = $this->db->prepare("DELETE FROM lista_productos WHERE lista_id = ?");
-        $stmt->execute([$lista_id]);
+        try {
+            $this->db->beginTransaction();
+            
+            // Eliminar productos asociados primero
+            $stmt = $this->db->prepare("DELETE FROM lista_productos WHERE lista_id = ?");
+            $stmt->execute([$lista_id]);
 
-    // Luego eliminar la lista
-        $stmt = $this->db->prepare("DELETE FROM listas WHERE id = ? AND usuario_id = ?");
-        $stmt->execute([$lista_id, $this->userId]);
-}
+            // Luego eliminar la lista
+            $stmt = $this->db->prepare("DELETE FROM listas WHERE id = ? AND usuario_id = ?");
+            $stmt->execute([$lista_id, $this->userId]);
+            
+            $this->db->commit();
+            
+            return [
+                'success' => true,
+                'message' => 'Lista eliminada correctamente'
+            ];
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error al eliminar la lista: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function crearLista($nombreLista) {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO listas (usuario_id, nombre) VALUES (?, ?)");
+            $success = $stmt->execute([$this->userId, $nombreLista]);
+            
+            return [
+                'success' => $success,
+                'message' => $success ? 'Lista creada correctamente' : 'Error al crear la lista'
+            ];
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al crear la lista: ' . $e->getMessage()
+            ];
+        }
+    }
+
 
     private function getImagenesBase64($producto_id) {
         $stmt = $this->db->prepare("SELECT url FROM imagenes WHERE producto_id = ?");

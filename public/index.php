@@ -284,33 +284,47 @@ switch ($route) {
         $userId = $_SESSION['user_id'];
         $controller = new MisListasController($db, $userId);
 
-        // Procesar formularios antes de renderizar
+        // Procesar solicitudes AJAX
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uri = $_SERVER['REQUEST_URI'];
-
+            
+            // Verificar si es una solicitud AJAX
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+            
             if (strpos($uri, '/mis_listas/eliminar_producto') !== false) {
-                $controller->eliminarProductoDeLista($_POST['lista_id'], $_POST['producto_id']);
-                header("Location: /mis_listas");
+                $response = $controller->eliminarProductoDeLista($_POST['lista_id'], $_POST['producto_id']);
+                header('Content-Type: application/json');
+                echo json_encode($response);
                 exit;
             }
 
             if (strpos($uri, '/mis_listas/eliminar_lista') !== false) {
-                $controller->eliminarLista($_POST['lista_id']);
-                header("Location: /mis_listas");
+                $response = $controller->eliminarLista($_POST['lista_id']);
+                header('Content-Type: application/json');
+                echo json_encode($response);
                 exit;
             }
 
             if (strpos($uri, '/mis_listas/crear') !== false) {
-                $controller->crearLista($_POST['nombre_lista']);
-                header("Location: /mis_listas");
-                exit;
+                $response = $controller->crearLista($_POST['nombre_lista']);
+                
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode($response);
+                    exit;
+                } else {
+                    // Redirección para solicitudes no AJAX (fallback)
+                    header("Location: /mis_listas");
+                    exit;
+                }
             }
 
-            // Crear nueva lista o añadir producto
+            // Crear nueva lista o añadir producto (fallback para navegadores sin JS)
             $controller->procesarFormulario();
         }
 
-        // Obtener listas y productos
+        // Obtener listas y productos para renderizar la página
         $listas = $controller->getListas();
         foreach ($listas as &$lista) {
             $lista['productos'] = $controller->getProductosPorLista($lista['id']);
@@ -322,7 +336,7 @@ switch ($route) {
             'language' => $language,
             'current_page' => 'mis_listas'
         ]);
-    break;
+        break;
 
     case 'user':
         if (!isset($_SESSION['user_id'])) {
