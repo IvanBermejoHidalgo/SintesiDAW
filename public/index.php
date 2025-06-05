@@ -96,7 +96,7 @@ switch ($route) {
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
-            $result = SessionController::userLogin($username, $password);
+            $result = SessionController::login($username, $password);
             if ($result === "success") {
                 header("Location: /home");
                 exit();
@@ -113,7 +113,7 @@ switch ($route) {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
             $gender = $_POST['gender'] ?? '';
-            $result = SessionController::userSignUp($username, $email, $password, $gender);
+            $result = SessionController::signup($username, $email, $password, $gender);
             if ($result === "Usuario registrado exitosamente") {
                 header("Location: /");
                 exit();
@@ -387,8 +387,9 @@ switch ($route) {
             exit();
         }
         $profileController = new ProfileController();
+        $homeController = new HomeController();
         $profileData = $profileController->handlePublicProfileRequest($userId);
-        $currentUserData = ProfileController::getUserById($_SESSION['user_id']);
+        $currentUserData = $homeController->getUserById($_SESSION['user_id']);
         echo $twig->render('user.html', [
             'profileUser' => $profileData['profileUser'],
             'userMessages' => $profileData['userMessages'],
