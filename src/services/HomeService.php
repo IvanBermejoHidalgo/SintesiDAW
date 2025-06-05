@@ -18,7 +18,24 @@ class HomeService {
         if ($_SERVER["REQUEST_METHOD"] !== "POST") return;
 
         if (isset($_POST['content'])) {
+            ob_start();
             $this->messageRepo->createMessageWithOptionalImageAndList();
+            $messages = $this->getAllMessagesWithUsers();
+            $lastMessage = $messages[0] ?? null;
+
+            if ($lastMessage) {
+                global $twig;
+                echo $twig->render('components/message_card.html', [
+                    'message' => $lastMessage,
+                    'current_user_id' => $_SESSION['user_id'],
+                    'userData' => SessionController::getUserData($_SESSION['user_id']),
+                    'language' => $_SESSION['language'] ?? 'es'
+                ]);
+            }
+
+            $html = ob_get_clean();
+            echo $html;
+            exit();
         } elseif (isset($_POST['delete_message'])) {
             $this->messageRepo->deleteMessage($_SESSION['user_id'], (int)$_POST['delete_message']);
         } elseif (isset($_POST['like_message'])) {

@@ -263,11 +263,11 @@
             fetch('/home', { method: 'POST', body: formData })
             .then(res => res.text())
             .then(html => {
+                const container = document.querySelector('.card-body .card-title.mb-4').parentNode;
                 const temp = document.createElement('div');
                 temp.innerHTML = html;
-                const newMsg = temp.querySelector('.message-card');
+                const newMsg = temp.firstElementChild;
                 if (newMsg) {
-                const container = document.querySelector('.card-body .card-title.mb-4').parentNode;
                 container.insertBefore(newMsg, container.children[1]);
                 form.reset();
                 document.getElementById('imagePreview').style.display = 'none';
@@ -275,90 +275,80 @@
             });
         });
 
-        // Comentarios
-        document.querySelectorAll('.comment-form').forEach(f => {
-            f.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const fd = new FormData(this);
-                const input = this.querySelector('input[name="comment_content"]');
-                const container = this.parentElement.querySelector('.comments-container');
-                const messageId = this.querySelector('input[name="message_id"]').value;
-
-                fetch('/home', { 
-                    method: 'POST', 
-                    body: fd 
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('Error en la respuesta del servidor');
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.success && data.comment) {
-                        // Eliminar el mensaje "No hay comentarios aún" si existe
-                        const noCommentsMsg = container.querySelector('.text-muted.text-center');
-                        if (noCommentsMsg) noCommentsMsg.remove();
-                        
-                        const comment = data.comment;
-                        const div = document.createElement('div');
-                        div.className = 'comment-card';
-                        div.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <img src="${comment.profile_image}" 
-                                        width="24" height="24" 
-                                        class="rounded-circle me-2">
-                                    <strong class="small">${comment.username}</strong>
-                                </div>
-                                <div>
-                                    <small class="text-muted me-2">${new Date(comment.created_at).toLocaleString('es-ES')}</small>
-                                    <button class="btn btn-sm btn-outline-danger p-0 px-1 delete-comment-btn" data-comment-id="${comment.id}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="mb-0 mt-2">${comment.content}</p>`;
-                        
-                        // Insertar el nuevo comentario al principio de la lista
-                        container.insertBefore(div, container.firstChild);
-                        input.value = '';
-                        
-                        // Actualizar el contador de comentarios
-                        updateCommentCount(messageId, 1);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al publicar el comentario');
-                });
-            });
-        });
-
-        // Función mejorada para actualizar el contador de comentarios
+         // Función mejorada para actualizar el contador de comentarios
         function updateCommentCount(messageId, increment) {
-            // Encontrar todos los botones de comentarios para este mensaje
             const commentBtns = document.querySelectorAll(`button[onclick="toggleComments('${messageId}')]`);
-            
+
             commentBtns.forEach(commentBtn => {
                 let commentCountElement = commentBtn.querySelector('span.comment-count');
                 let currentCount = 0;
-                
+
                 if (commentCountElement) {
                     currentCount = parseInt(commentCountElement.textContent.replace(/[()]/g, '')) || 0;
                     commentCountElement.textContent = `(${currentCount + increment})`;
                 } else {
-                    // Si no existe el span, crearlo
                     commentCountElement = document.createElement('span');
                     commentCountElement.className = 'ms-1 comment-count';
                     commentCountElement.textContent = `(${Math.max(1, increment)})`;
                     commentBtn.appendChild(commentCountElement);
                 }
-                
-                // Asegurarse de que el contador no sea negativo
+
                 if (currentCount + increment < 0) {
                     commentCountElement.textContent = '(0)';
                 }
             });
         }
+
+        // Comentarios
+        document.addEventListener('submit', function (e) {
+            const form = e.target;
+            if (form.classList.contains('comment-form')) {
+                e.preventDefault();
+
+                const fd = new FormData(form);
+                const input = form.querySelector('input[name="comment_content"]');
+                const container = form.parentElement.querySelector('.comments-container');
+                const messageId = form.querySelector('input[name="message_id"]').value;
+
+                fetch('/home', { method: 'POST', body: fd })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error en la respuesta del servidor');
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success && data.comment) {
+                            const noCommentsMsg = container.querySelector('.text-muted.text-center');
+                            if (noCommentsMsg) noCommentsMsg.remove();
+
+                            const comment = data.comment;
+                            const div = document.createElement('div');
+                            div.className = 'comment-card';
+                            div.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="${comment.profile_image}" width="24" height="24" class="rounded-circle me-2">
+                                        <strong class="small">${comment.username}</strong>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted me-2">${new Date(comment.created_at).toLocaleString('es-ES')}</small>
+                                        <button class="btn btn-sm btn-outline-danger p-0 px-1 delete-comment-btn" data-comment-id="${comment.id}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="mb-0 mt-2">${comment.content}</p>
+                            `;
+                            container.insertBefore(div, container.firstChild);
+                            input.value = '';
+                            updateCommentCount(messageId, 1);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al publicar el comentario');
+                    });
+            }
+        });
 
         // Manejar eliminación de comentarios
         document.addEventListener('click', function(e) {

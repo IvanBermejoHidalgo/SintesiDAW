@@ -260,7 +260,7 @@
                         <p class="text-muted text-center py-2">{{ _('No hay comentarios aún') }}</p>
                         {% endfor %}
                         
-                        <!-- <form method="POST" action="/home" class="comment-form">
+                        <form method="POST" action="/home" class="comment-form">
                             <input type="hidden" name="message_id" value="{{ message.id }}">
                             <div class="input-group">
                                 <input type="text" name="comment_content" class="form-control" placeholder="{{ _('Escribe un comentario...') }}" required>
@@ -268,7 +268,7 @@
                                     <i class="bi bi-send"></i>
                                 </button>
                             </div>
-                        </form> -->
+                        </form>
                     </div>
                 </div>
                 {% endfor %}
@@ -417,22 +417,19 @@
 
         // Función para actualizar contador de comentarios
         function updateCommentCount(messageId, increment) {
-            const commentBtn = document.querySelector(`button[onclick="toggleComments('${messageId}')]`);
+            const commentBtn = document.querySelector(`button[onclick="toggleComments('${messageId}')"]`);
             if (!commentBtn) return;
-            
-            let commentCountElement = commentBtn.querySelector('span');
-            let currentCount = 0;
-            
-            if (commentCountElement) {
-                currentCount = parseInt(commentCountElement.textContent.replace(/[()]/g, '')) || 0;
-                commentCountElement.textContent = `(${currentCount + increment})`;
-            } else {
-                commentCountElement = document.createElement('span');
-                commentCountElement.className = 'ms-1';
-                commentCountElement.textContent = `(${increment})`;
-                commentBtn.appendChild(commentCountElement);
+
+            let countSpan = commentBtn.querySelector('span');
+            let count = countSpan ? parseInt(countSpan.textContent.replace(/[()]/g, '')) || 0 : 0;
+            count += increment;
+            if (!countSpan) {
+                countSpan = document.createElement('span');
+                countSpan.className = 'ms-1';
+                commentBtn.appendChild(countSpan);
             }
-        }
+            countSpan.textContent = `(${count < 0 ? 0 : count})`;
+            }
 
         // Manejo de eliminación de comentarios
         document.addEventListener('click', function(e) {
