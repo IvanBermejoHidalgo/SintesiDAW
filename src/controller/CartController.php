@@ -32,12 +32,54 @@ class CartController {
     }
 
     public function incrementar($productId, $talla) {
-        $this->service->increment($productId, $talla, $_SESSION['user_id']);
-    }
+    header('Content-Type: application/json');
+    $userId = $_SESSION['user_id'];
 
-    public function decrementar($productId, $talla) {
-        $this->service->decrement($productId, $talla, $_SESSION['user_id']);
-    }
+    $item = $this->service->increment($productId, $talla, $userId);
+    $total = $this->service->getCartTotal($userId);
+
+    echo json_encode([
+        'success' => true,
+        'item' => $item,
+        'total' => $total
+    ]);
+    exit();
+}
+
+public function decrementar($productId, $talla) {
+    header('Content-Type: application/json');
+    $userId = $_SESSION['user_id'];
+
+    $item = $this->service->decrement($productId, $talla, $userId);
+    $total = $this->service->getCartTotal($userId);
+
+    echo json_encode([
+        'success' => true,
+        'item' => $item,
+        'total' => $total
+    ]);
+    exit();
+}
+
+public function eliminar($productId, $talla) {
+    header('Content-Type: application/json');
+    $userId = $_SESSION['user_id'];
+
+    $this->service->removeFromCart($userId, [
+        'product_id' => $productId,
+        'talla' => $talla
+    ]);
+
+    $total = $this->service->getCartTotal($userId);
+
+    echo json_encode([
+        'success' => true,
+        'total' => $total
+    ]);
+    exit();
+}
+
+
 
     public function handleCheckout() {
         return $this->service->getCheckout($_SESSION['user_id']);

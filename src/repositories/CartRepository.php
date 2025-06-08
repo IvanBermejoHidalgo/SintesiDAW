@@ -66,4 +66,15 @@ class CartRepository {
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getItem($userId, $productId, $talla) {
+    $stmt = $this->db->prepare("
+        SELECT p.id, p.name, p.price, c.cantidad, c.talla
+        FROM carrito c
+        JOIN productos p ON c.producto_id = p.id
+        WHERE c.usuario_id = ? AND c.producto_id = ? AND c.talla = ?
+    ");
+    $stmt->execute([$userId, $productId, $talla]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 }

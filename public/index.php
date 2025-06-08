@@ -76,6 +76,23 @@ if (
     exit();
 }
 
+// Ruta para eliminar un ítem del carrito
+if (
+    isset($path[0], $path[1], $path[2]) &&
+    $path[0] === 'carrito' &&
+    $path[1] === 'eliminar' &&
+    is_numeric($path[2])
+) {
+    $cartController = new CartController();
+    $productId = intval($path[2]);
+    $talla = $_POST['talla'] ?? '';
+
+    $cartController->eliminar($productId, $talla);
+    exit();
+}
+
+
+
 // Manejo de rutas principales
 $route = $path[0] ?? '';
 
