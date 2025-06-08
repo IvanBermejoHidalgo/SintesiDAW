@@ -17,16 +17,16 @@
 
     <div class="container py-4">
         <h2 class="mb-4 text-center">Catálogo de Productos</h2>
-        <form method="GET" action="/tienda/{{ categoria_actual }}" class="mb-4">
+        <form id="formBuscar" class="mb-4">
             <div class="input-group">
-                <input type="text" name="buscar" class="form-control" placeholder="Buscar productos..." value="{{ buscar|default('') }}">
+                <input type="text" name="buscar" id="inputBuscar" class="form-control" placeholder="Buscar productos..." value="{{ buscar|default('') }}">
                 <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bi bi-search"></i>
+                <i class="bi bi-search"></i>
                 </button>
             </div>
         </form>
 
-        <div class="row">
+        <div class="row" id="contenedorProductos">
             {% if productos %}
                 {% for producto in productos %}
                 <div class="col-md-4 mb-4">
@@ -62,6 +62,7 @@
     <script>
         // Verificar preferencia de modo oscuro al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+            // --- Modo oscuro ---
             const isDarkMode = localStorage.getItem('darkMode') === 'true';
             const darkModeToggle = document.getElementById('darkModeToggle');
             
@@ -71,45 +72,122 @@
                     darkModeToggle.checked = true;
                 }
                 
-                // Cambiar icono a sol si está en modo oscuro
                 const darkModeIcon = document.querySelector('.dark-mode-icon i');
                 if (darkModeIcon) {
                     darkModeIcon.classList.remove('bi-moon-fill');
                     darkModeIcon.classList.add('bi-sun-fill');
                 }
             }
+            
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', function () {
+                    document.body.classList.toggle('dark-mode');
+                    const isDark = document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', isDark);
+
+                    const darkModeIcon = document.querySelector('.dark-mode-icon i');
+                    if (darkModeIcon) {
+                        if (isDark) {
+                            darkModeIcon.classList.remove('bi-moon-fill');
+                            darkModeIcon.classList.add('bi-sun-fill');
+                        } else {
+                            darkModeIcon.classList.remove('bi-sun-fill');
+                            darkModeIcon.classList.add('bi-moon-fill');
+                        }
+                    }
+                });
+            }
+            
+            // --- Botón volver arriba ---
+            const btn = document.getElementById('btnBackToTop');
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 100) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            btn.addEventListener('click', function () {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // --- Búsqueda con AJAX incluyendo navbar y footer ---
+            const formBuscar = document.getElementById('formBuscar');
+            const inputBuscar = document.getElementById('inputBuscar');
+            const categoria = "{{ categoria_actual }}"; // Variable plantilla categoría actual
+
+            formBuscar.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const query = inputBuscar.value.trim();
+                const url = `/tienda/${categoria}?buscar=${encodeURIComponent(query)}`;
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        // Crear un DOM temporal para parsear la respuesta
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        // Reemplazar el contenido de productos
+                        const nuevoContenedorProductos = doc.getElementById('contenedorProductos');
+                        if (nuevoContenedorProductos) {
+                            const contenedorProductos = document.getElementById('contenedorProductos');
+                            contenedorProductos.innerHTML = nuevoContenedorProductos.innerHTML;
+                        }
+
+                        // Reemplazar navbar
+                        const nuevoNavbar = doc.querySelector('nav');
+                        if (nuevoNavbar) {
+                            const navbarActual = document.querySelector('nav');
+                            navbarActual.replaceWith(nuevoNavbar);
+                        }
+
+                        // Reemplazar footer
+                        const nuevoFooter = doc.querySelector('footer');
+                        if (nuevoFooter) {
+                            const footerActual = document.querySelector('footer');
+                            footerActual.replaceWith(nuevoFooter);
+                        }
+                    })
+                    .catch(err => console.error('Error al buscar productos:', err));
+            });
         });
 
 
+
         // Función para activar/desactivar el modo oscuro
-function toggleDarkMode() {
-    const body = document.body;
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    
-    // Alternar clase dark-mode en el body
-    body.classList.toggle('dark-mode');
-    
-    // Guardar preferencia en localStorage
-    const isDarkMode = body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
-    
-    // Actualizar el estado del interruptor
-    if (darkModeToggle) {
-        darkModeToggle.checked = isDarkMode;
-    }
-    
-    // Cambiar icono
-    const darkModeIcon = document.querySelector('.dark-mode-icon i');
-    if (darkModeIcon) {
-        if (isDarkMode) {
-            darkModeIcon.classList.remove('bi-moon-fill');
-            darkModeIcon.classList.add('bi-sun-fill');
-        } else {
-            darkModeIcon.classList.remove('bi-sun-fill');
-            darkModeIcon.classList.add('bi-moon-fill');
+        function toggleDarkMode() {
+            const body = document.body;
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Alternar clase dark-mode en el body
+            body.classList.toggle('dark-mode');
+            
+            // Guardar preferencia en localStorage
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            // Actualizar el estado del interruptor
+            if (darkModeToggle) {
+                darkModeToggle.checked = isDarkMode;
+            }
+            
+            // Cambiar icono
+            const darkModeIcon = document.querySelector('.dark-mode-icon i');
+            if (darkModeIcon) {
+                if (isDarkMode) {
+                    darkModeIcon.classList.remove('bi-moon-fill');
+                    darkModeIcon.classList.add('bi-sun-fill');
+                } else {
+                    darkModeIcon.classList.remove('bi-sun-fill');
+                    darkModeIcon.classList.add('bi-moon-fill');
+                }
+            }
         }
-    }
-}
 
     // Configurar evento para el interruptor
     document.addEventListener('DOMContentLoaded', function() {

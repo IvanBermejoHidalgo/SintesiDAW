@@ -155,7 +155,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'  // <-- esta línea es clave
+                            'X-Requested-With': 'XMLHttpRequest' 
                         },
                         body: `nombre_lista=${encodeURIComponent(nombre)}`
                     })
@@ -167,7 +167,6 @@
                     .then(data => {
                         if (data.success) {
                             showAlert('Lista creada correctamente', 'success');
-                            // Opcional: limpiar input
                             document.getElementById('nombreLista').value = '';
                             // Recargar la página o actualizar la UI dinámicamente
                             location.reload();

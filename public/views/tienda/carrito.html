@@ -148,31 +148,44 @@
       });
 
       // Ajax remove
-      // Ajax remove
-document.querySelectorAll('.form-remove').forEach(form => {
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const formData = new FormData(form);
-    fetch(form.action, {  // <--- Aquí el cambio
-      method: 'POST',
-      body: formData
-    }).then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const itemCard = form.closest('.card');
-          itemCard.remove();
-          updateCartTotal(data.total);
+      document.querySelectorAll('.form-remove').forEach(form => {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const formData = new FormData(form);
+          fetch(form.action, {
+            method: 'POST',
+            body: formData
+          }).then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const itemCard = form.closest('.card');
+                itemCard.remove();
+                updateCartTotal(data.total);
 
-          if (data.total === 0) {
-            document.querySelector('.row.g-3').innerHTML = '';
-            document.querySelector('main .container').innerHTML += `
-              <div class="alert alert-info">Tu carrito está vacío.</div>`;
-          }
-        }
+                if (data.total === 0) {
+                  // Vaciar contenedor de productos
+                  const productosContainer = document.querySelector('.row.g-3');
+                  if (productosContainer) {
+                    productosContainer.innerHTML = '';
+                  }
+
+                  // Eliminar sección de total y botón
+                  const totalAndButton = document.querySelector('.mt-4.d-flex.justify-content-between');
+                  if (totalAndButton) {
+                    totalAndButton.remove();
+                  }
+
+                  // Añadir mensaje carrito vacío
+                  const mainContainer = document.querySelector('main .container');
+                  if (mainContainer) {
+                    mainContainer.innerHTML += `
+                      <div class="alert alert-info">Tu carrito está vacío.</div>`;
+                  }
+                }
+              }
+            });
+        });
       });
-  });
-});
-
 
       // Función para actualizar item
       function updateCartItem(item) {
