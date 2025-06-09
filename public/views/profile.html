@@ -7,7 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/estilos.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body class="bg-light">
     {% include 'navegacion/navbar.html' with {
@@ -194,16 +203,6 @@
                         {% endif %}
                     </div>
 
-
-
-
-
-
-
-
-
-
-                    
                     <div class="message-actions">
                         <div class="btn-group">
                             <form method="POST" action="/home" class="d-inline">
@@ -214,15 +213,15 @@
                                 </button>
                             </form>
                             <button class="btn btn-sm btn-outline-secondary" onclick="toggleComments(`{{ message.id }}`)">
-                                <i class="bi bi-chat"></i> {{ _('Comentarios') }}
+                                <i class="bi bi-chat"></i> Comentar
                                 {% if message.comment_count > 0 %}
-                                <span class="ms-1">({{ message.comment_count }})</span>
+                                <span class="ms-1 comment-count">({{ message.comment_count }})</span>
                                 {% endif %}
                             </button>
                         </div>
                         
                         {% if message.user_id == current_user_id %}
-                        <form method="POST" action="/home" onsubmit="return confirm(`{{ _('¿Eliminar este mensaje?') }}`);">
+                        <form method="POST" action="/home">
                             <input type="hidden" name="delete_message" value="{{ message.id }}">
                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                 <i class="bi bi-trash"></i> {{ _('Eliminar') }}
@@ -231,44 +230,43 @@
                         {% endif %}
                     </div>
 
-                    <!-- Sección de comentarios -->
-                    <div id="comments-{{ message.id }}" class="comments-section">
-                        {% for comment in message.comments %}
-                        <div class="comment-card">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ comment.profile_image ?: '/images/default-profile.png' }}" 
-                                         width="24" height="24" 
-                                         class="rounded-circle me-2">
-                                    <strong class="small">{{ comment.username }}</strong>
-                                </div>
-                                <div>
-                                    <small class="text-muted me-2">{{ comment.created_at|date("d/m/Y H:i") }}</small>
-                                    {% if comment.user_id == current_user_id %}
-                                    <form method="POST" action="/home" class="d-inline">
-                                        <input type="hidden" name="delete_comment" value="{{ comment.id }}">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger p-0 px-1">
+                    <!-- Sección de comentarios - Actualizada -->
+                    <div id="comments-{{ message.id }}" class="comments-section" style="display: none;">
+                        <div class="comments-container mt-2">
+                            {% for comment in message.comments %}
+                            <div class="comment-card fade-in">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ comment.profile_image ?: '/images/default-profile.png' }}" 
+                                             width="24" height="24" 
+                                             class="rounded-circle me-2">
+                                        <strong class="small">{{ comment.username }}</strong>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted me-2">{{ comment.created_at|date("d/m/Y H:i") }}</small>
+                                        {% if comment.user_id == current_user_id %}
+                                        <button class="btn btn-sm btn-outline-danger p-0 px-1 delete-comment-btn" data-comment-id="{{ comment.id }}">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                    </form>
-                                    {% endif %}
+                                        {% endif %}
+                                    </div>
                                 </div>
+                                <p class="mb-0 mt-2">{{ comment.content }}</p>
                             </div>
-                            <p class="mb-0 mt-2">{{ comment.content }}</p>
+                            {% else %}
+                            <p class="text-muted text-center py-2">{{ _('No hay comentarios aún') }}</p>
+                            {% endfor %}
                         </div>
-                        {% else %}
-                        <p class="text-muted text-center py-2">{{ _('No hay comentarios aún') }}</p>
-                        {% endfor %}
-                        
-                        <form method="POST" action="/home" class="comment-form">
+
+                        {% if current_user_id %}
+                        <form method="POST" action="/home" class="comment-form mt-3">
                             <input type="hidden" name="message_id" value="{{ message.id }}">
                             <div class="input-group">
                                 <input type="text" name="comment_content" class="form-control" placeholder="{{ _('Escribe un comentario...') }}" required>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-send"></i>
-                                </button>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
                             </div>
                         </form>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -308,11 +306,140 @@
         // Mostrar/ocultar comentarios
         function toggleComments(messageId) {
             const commentsSection = document.getElementById(`comments-${messageId}`);
-            if (commentsSection.style.display === 'none') {
-                commentsSection.style.display = 'block';
-            } else {
-                commentsSection.style.display = 'none';
+            commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Vista previa de imagen de perfil
+        function previewProfileImage(input) {
+            const preview = document.getElementById('profileImagePreview');
+            const file = input.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
             }
+        }
+
+        // Manejo de comentarios con AJAX
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.classList.contains('comment-form')) {
+                e.preventDefault();
+
+                const fd = new FormData(form);
+                const input = form.querySelector('input[name="comment_content"]');
+                const container = form.parentElement.querySelector('.comments-container');
+                const messageId = form.querySelector('input[name="message_id"]').value;
+
+                fetch('/home', { 
+                    method: 'POST', 
+                    body: fd 
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Error en la respuesta del servidor');
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success && data.comment) {
+                        const noCommentsMsg = container.querySelector('.text-muted.text-center');
+                        if (noCommentsMsg) noCommentsMsg.remove();
+
+                        const comment = data.comment;
+                        const div = document.createElement('div');
+                        div.className = 'comment-card fade-in';
+                        div.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="${comment.profile_image || '/images/default-profile.png'}" 
+                                         width="24" height="24" 
+                                         class="rounded-circle me-2">
+                                    <strong class="small">${comment.username}</strong>
+                                </div>
+                                <div>
+                                    <small class="text-muted me-2">${new Date(comment.created_at).toLocaleString('es-ES')}</small>
+                                    <button class="btn btn-sm btn-outline-danger p-0 px-1 delete-comment-btn" 
+                                            data-comment-id="${comment.id}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-2">${comment.content}</p>
+                        `;
+                        container.insertBefore(div, container.firstChild);
+                        input.value = '';
+                        updateCommentCount(messageId, 1);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al publicar el comentario');
+                });
+            }
+        });
+
+        // Manejo de eliminación de comentarios
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.delete-comment-btn');
+            if (!btn) return;
+            
+            const commentId = btn.dataset.commentId;
+            // if (!confirm('¿Eliminar este comentario?')) return;
+            
+            const fd = new FormData();
+            fd.append('delete_comment', commentId);
+            
+            fetch('/home', { 
+                method: 'POST', 
+                body: fd 
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const commentCard = btn.closest('.comment-card');
+                    const commentsContainer = commentCard.parentElement;
+                    
+                    commentCard.remove();
+                    updateCommentCount(data.message_id, -1);
+                    
+                    // Mostrar mensaje si no quedan comentarios
+                    if (commentsContainer.children.length === 0) {
+                        const noCommentsMsg = document.createElement('p');
+                        noCommentsMsg.className = 'text-muted text-center py-2';
+                        noCommentsMsg.textContent = 'No hay comentarios aún';
+                        commentsContainer.appendChild(noCommentsMsg);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Función para actualizar contador de comentarios
+        function updateCommentCount(messageId, increment) {
+            const commentBtns = document.querySelectorAll(`button[onclick="toggleComments('${messageId}')"]`);
+            
+            commentBtns.forEach(commentBtn => {
+                let commentCountElement = commentBtn.querySelector('.comment-count');
+                let currentCount = 0;
+                
+                if (commentCountElement) {
+                    currentCount = parseInt(commentCountElement.textContent.replace(/[()]/g, '')) || 0;
+                    commentCountElement.textContent = `(${currentCount + increment})`;
+                } else if (increment > 0) {
+                    commentCountElement = document.createElement('span');
+                    commentCountElement.className = 'ms-1 comment-count';
+                    commentCountElement.textContent = `(${increment})`;
+                    commentBtn.appendChild(commentCountElement);
+                }
+                
+                if (currentCount + increment <= 0 && commentCountElement) {
+                    commentCountElement.remove();
+                }
+            });
         }
 
         // Manejo de likes con AJAX
@@ -330,7 +457,10 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         // Alternar el estado del like
@@ -361,179 +491,27 @@
             }
         });
 
-        // Manejo de comentarios con AJAX
-        document.querySelectorAll('.comment-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
+        // Eliminar mensajes
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            const deleteMessageInput = form.querySelector('input[name="delete_message"]');
+            
+            if (deleteMessageInput) {
                 e.preventDefault();
-                const formData = new FormData(this);
-                const input = this.querySelector('input[name="comment_content"]');
-                const container = this.parentElement.querySelector('.comments-container');
-                const messageId = this.querySelector('input[name="message_id"]').value;
-
+                if (!confirm('¿Eliminar este mensaje?')) return;
+                
                 fetch('/home', {
                     method: 'POST',
-                    body: formData
+                    body: new FormData(form)
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.comment) {
-                        // Eliminar mensaje "No hay comentarios" si existe
-                        const noCommentsMsg = container.querySelector('.text-muted.text-center');
-                        if (noCommentsMsg) noCommentsMsg.remove();
-
-                        // Crear nuevo comentario
-                        const div = document.createElement('div');
-                        div.className = 'comment-card';
-                        div.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <img src="${data.comment.profile_image || '/images/default-profile.png'}" 
-                                        width="24" height="24" 
-                                        class="rounded-circle me-2">
-                                    <strong class="small">${data.comment.username}</strong>
-                                </div>
-                                <div>
-                                    <small class="text-muted me-2">${new Date(data.comment.created_at).toLocaleString('es-ES')}</small>
-                                    <button class="btn btn-sm btn-outline-danger p-0 px-1 delete-comment-btn" 
-                                            data-comment-id="${data.comment.id}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="mb-0 mt-2">${data.comment.content}</p>`;
-                        
-                        container.insertBefore(div, container.firstChild);
-                        input.value = '';
-                        
-                        // Actualizar contador de comentarios
-                        updateCommentCount(messageId, 1);
+                .then(() => {
+                    const messageCard = form.closest('.message-card');
+                    if (messageCard) {
+                        messageCard.remove();
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                });
-            });
-        });
-
-        // Función para actualizar contador de comentarios
-        function updateCommentCount(messageId, increment) {
-            const commentBtn = document.querySelector(`button[onclick="toggleComments('${messageId}')"]`);
-            if (!commentBtn) return;
-
-            let countSpan = commentBtn.querySelector('span');
-            let count = countSpan ? parseInt(countSpan.textContent.replace(/[()]/g, '')) || 0 : 0;
-            count += increment;
-            if (!countSpan) {
-                countSpan = document.createElement('span');
-                countSpan.className = 'ms-1';
-                commentBtn.appendChild(countSpan);
-            }
-            countSpan.textContent = `(${count < 0 ? 0 : count})`;
-            }
-
-        // Manejo de eliminación de comentarios
-        document.addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('.delete-comment-btn');
-            if (deleteBtn) {
-                e.preventDefault();
-                const commentId = deleteBtn.getAttribute('data-comment-id');
-                const commentCard = deleteBtn.closest('.comment-card');
-                const commentsContainer = commentCard.parentElement;
-                const messageId = commentsContainer.closest('.comments-section').id.split('-')[1];
-
-                if (confirm('¿Eliminar este comentario?')) {
-                    const formData = new FormData();
-                    formData.append('delete_comment', commentId);
-
-                    fetch('/home', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            commentCard.remove();
-                            updateCommentCount(messageId, -1);
-                            
-                            // Mostrar mensaje si no hay más comentarios
-                            if (commentsContainer.children.length === 1) { // Solo queda el formulario
-                                const noCommentsMsg = document.createElement('p');
-                                noCommentsMsg.className = 'text-muted text-center py-2';
-                                noCommentsMsg.textContent = 'No hay comentarios aún';
-                                commentsContainer.insertBefore(noCommentsMsg, commentsContainer.firstChild);
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                }
-            }
-        });
-
-        // Vista previa de imagen de perfil
-        function previewProfileImage(input) {
-            const preview = document.getElementById('profileImagePreview');
-            const file = input.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Modo oscuro
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.checked = true;
-                
-                const darkModeIcon = document.querySelector('.dark-mode-icon i');
-                darkModeIcon.classList.remove('bi-moon-fill');
-                darkModeIcon.classList.add('bi-sun-fill');
-            }
-            
-            darkModeToggle.addEventListener('change', toggleDarkMode);
-        });
-
-        function toggleDarkMode() {
-            const body = document.body;
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            
-            body.classList.toggle('dark-mode');
-            
-            const isDarkMode = body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDarkMode);
-            
-            const darkModeIcon = document.querySelector('.dark-mode-icon i');
-            if (isDarkMode) {
-                darkModeIcon.classList.remove('bi-moon-fill');
-                darkModeIcon.classList.add('bi-sun-fill');
-            } else {
-                darkModeIcon.classList.remove('bi-sun-fill');
-                darkModeIcon.classList.add('bi-moon-fill');
-            }
-        }
-
-        // Eliminar mensajes o comentarios
-        document.addEventListener('submit', function (e) {
-            const f = e.target;
-            const delMsg = f.querySelector('input[name="delete_message"]');
-            const delCmt = f.querySelector('input[name="delete_comment"]');
-
-            if (delMsg || delCmt) {
-            e.preventDefault();
-            if (delMsg && !confirm('¿Eliminar este mensaje?')) return;
-            fetch('/home', { method: 'POST', body: new FormData(f) })
-                .then(() => {
-                const card = f.closest(delMsg ? '.message-card' : '.comment-card');
-                if (card) card.remove();
                 });
             }
         });
