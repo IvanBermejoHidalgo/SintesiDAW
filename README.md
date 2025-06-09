@@ -71,6 +71,33 @@ ShopList/
 │ │ ├── ProfileController.php
 │ │ ├── SessionController.php
 │ │ ├── TiendaController.php
+│ ├── repositories/
+│ │ ├── AdminRepository.php
+│ │ ├── AuthRepository.php
+│ │ ├── CartRepository.php
+│ │ ├── CheckoutRepository.php
+│ │ ├── HomeRepository.php
+│ │ ├── ImageRepository.php
+│ │ ├── MisListasRepository.php
+│ │ ├── PasswordResetRepository.php
+│ │ ├── PedidoRepository.php
+│ │ ├── PedidosRepository.php
+│ │ ├── ProfileRepository.php
+│ │ ├── TiendaRepository.php
+│ │ ├── UserRepository.php
+│ ├── services/
+│ │ ├── AdminService.php
+│ │ ├── AuthService.php
+│ │ ├── CartService.php
+│ │ ├── CheckoutService.php
+│ │ ├── HomeService.php
+│ │ ├── ImageService.php
+│ │ ├── MisListasService.php
+│ │ ├── PedidoConfirmadoService.php
+│ │ ├── PedidosService.php
+│ │ ├── ProfileService.php
+│ │ ├── TiendaService.php
+│ │ ├── SessionService.php
 │ ├── db/
 │ │ ├── InsertProducts.php
 │ │ ├── productos.csv
