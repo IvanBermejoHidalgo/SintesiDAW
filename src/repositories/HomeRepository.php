@@ -8,7 +8,7 @@ class HomeRepository {
         $this->db = DatabaseController::connect();
     }
 
-    public function createMessageWithOptionalImageAndList(): void {
+    public function createMessageWithOptionalImageAndList(): int {
         $content = trim($_POST['content'] ?? '');
         $listaId = $_POST['lista_id'] ?? null;
         $isPublic = isset($_POST['lista_publica']) ? 1 : 0;
@@ -16,7 +16,7 @@ class HomeRepository {
 
         if (empty($content) && empty($_FILES['message_image']['name']) && empty($listaId)) {
             $_SESSION['error'] = "Debes escribir un mensaje, subir una imagen o compartir una lista";
-            return;
+            return 0;
         }
 
         try {
@@ -44,10 +44,12 @@ class HomeRepository {
             }
 
             $this->db->commit();
-            $_SESSION['success'] = "Publicación creada correctamente";
+             $_SESSION['success'] = "Publicación creada correctamente";
+            return (int)$messageId; // <<< ESTE RETURN
         } catch (Exception $e) {
             $this->db->rollBack();
             $_SESSION['error'] = "Error al publicar: " . $e->getMessage();
+            return 0; // Por si acaso
         }
     }
 
@@ -201,5 +203,26 @@ class HomeRepository {
         $stmt->execute([$userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
+
+    public function getMessageById($messageId, $currentUserId): ?array {
+        $stmt = $this->db->prepare("
+            SELECT m.id, m.user_id, m.content, m.image_path, m.created_at,
+                u.username, u.profile_image,
+                (SELECT COUNT(*) FROM likes WHERE message_id = m.id) as like_count,
+                EXISTS(SELECT 1 FROM likes WHERE message_id = m.id AND user_id = ?) as has_liked,
+                (SELECT COUNT(*) FROM comments WHERE message_id = m.id) as comment_count,
+                EXISTS(SELECT 1 FROM shared_lists WHERE message_id = m.id) as has_shared_list
+            FROM messages m
+            JOIN User u ON m.user_id = u.id
+            WHERE m.id = ?
+        ");
+        $stmt->execute([$currentUserId, $messageId]);
+        $message = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($message) {
+            $message['comments'] = HomeRepository::getComments($message['id']);
+        }
+
+        return $message;
+    }
 }

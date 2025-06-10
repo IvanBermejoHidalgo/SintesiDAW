@@ -19,13 +19,12 @@ class HomeService {
 
         if (isset($_POST['content'])) {
             ob_start();
-            $this->messageRepo->createMessageWithOptionalImageAndList();
-            $messages = $this->getAllMessagesWithUsers();
-            $lastMessage = $messages[0] ?? null;
+            $messageId = $this->messageRepo->createMessageWithOptionalImageAndList();
+            $lastMessage = $this->messageRepo->getMessageById($messageId, $_SESSION['user_id']);
 
             if ($lastMessage) {
                 global $twig;
-                echo $twig->render('components/message_card.html', [
+                echo $twig->render('message_card.html', [
                     'message' => $lastMessage,
                     'current_user_id' => $_SESSION['user_id'],
                     'userData' => SessionController::getUserData($_SESSION['user_id']),

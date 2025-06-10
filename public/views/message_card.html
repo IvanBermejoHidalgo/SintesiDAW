@@ -1,0 +1,90 @@
+<div class="card mb-3 message-card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="d-flex align-items-center">
+        <a href="{% if message.user_id == current_user_id %}/profile{% else %}/user/{{ message.user_id }}{% endif %}"
+           style="text-decoration: none; color: inherit;">
+          <img src="{{ message.profile_image ?: '/images/default-profile.png' }}"
+               width="32" height="32" class="rounded-circle me-2">
+          <strong>{{ message.username }}</strong>
+        </a>
+      </div>
+      <small class="text-muted">{{ message.created_at|date("d/m/Y H:i") }}</small>
+    </div>
+
+    <p class="mb-2">{{ message.content }}</p>
+
+    {% if message.image_path %}
+    <div class="mt-2">
+      <img src="{{ message.image_path }}" class="message-image img-fluid rounded"
+           alt="Imagen del mensaje" onclick="openModal('{{ message.image_path }}')">
+    </div>
+    {% endif %}
+
+    <!-- Acciones -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="btn-group">
+        <form method="POST" action="/home" class="d-inline">
+          <input type="hidden" name="{% if message.has_liked %}unlike_message{% else %}like_message{% endif %}" value="{{ message.id }}">
+          <button type="submit" class="btn btn-sm {% if message.has_liked %}btn-primary{% else %}btn-outline-primary{% endif %} like-button">
+            <i class="bi bi-heart{% if message.has_liked %}-fill{% endif %}"></i>
+            <span class="like-count">{{ message.like_count }}</span>
+          </button>
+        </form>
+        <button class="btn btn-sm btn-outline-secondary" onclick="toggleComments('{{ message.id }}')">
+          <i class="bi bi-chat"></i> Comentar
+          {% if message.comment_count > 0 %}
+          <span class="ms-1 comment-count">({{ message.comment_count }})</span>
+          {% endif %}
+        </button>
+      </div>
+
+      {% if message.user_id == current_user_id %}
+      <form method="POST" action="/home" class="d-inline">
+        <input type="hidden" name="delete_message" value="{{ message.id }}">
+        <button type="submit" class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-trash"></i> Eliminar
+        </button>
+      </form>
+      {% endif %}
+    </div>
+
+    <!-- Comentarios -->
+    <div id="comments-{{ message.id }}" class="comments-section mt-3" style="display: none;">
+      <!-- Formulario -->
+      <form method="POST" action="/home" class="comment-form mb-2">
+        <input type="hidden" name="message_id" value="{{ message.id }}">
+        <div class="input-group">
+          <input type="text" name="comment_content" class="form-control" placeholder="Escribe un comentario..." required>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
+        </div>
+      </form>
+
+      <!-- Lista de comentarios -->
+      <div class="comments-container">
+        {% for comment in message.comments %}
+        <div class="comment-card">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <img src="{{ comment.profile_image ?: '/images/default-profile.png' }}"
+                   width="24" height="24" class="rounded-circle me-2">
+              <strong class="small">{{ comment.username }}</strong>
+            </div>
+            <div>
+              <small class="text-muted me-2">{{ comment.created_at|date("d/m/Y H:i") }}</small>
+              {% if comment.user_id == userData.id %}
+              <button class="btn btn-sm btn-outline-danger p-0 px-1 delete-comment-btn" data-comment-id="{{ comment.id }}">
+                <i class="bi bi-trash"></i>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+          <p class="mb-0 mt-2">{{ comment.content }}</p>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-2">No hay comentarios aún</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
