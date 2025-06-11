@@ -121,7 +121,8 @@ if (isset($path[0]) && $path[0] === 'admin') {
 
             $files = $_FILES;
 
-            $success = DatabaseController::insertarProducto($data, $files);
+            $repo = new AdminRepository();
+            $success = $repo->insertarProducto($data, $files);
             if ($success) {
                 header("Location: /admin/editar-productos");
                 exit();
